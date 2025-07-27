@@ -1,0 +1,340 @@
+<div class="container-fluid">
+    <app-page-title title="Partenaires" [breadcrumbItems]="breadCrumbItems"></app-page-title>
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row mb-2">
+                        <div class="col-sm-4">
+                            <div class="search-box me-2 mb-2 d-inline-block">
+                                <div class="position-relative">
+                                    <input type="text" class="form-control" id="searchTableList" placeholder="Search..."
+                                        [(ngModel)]="term" (ngModelChange)="search()">
+                                    <i class="bx bx-search-alt search-icon"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-8">
+                            <div class="text-sm-end">
+                                <button type="button" data-bs-toggle="modal" (click)="openModal(content, null)"
+                                    class="btn btn-success btn-rounded waves-effect waves-light addContact-modal mb-2"><i
+                                        class="mdi mdi-plus me-1"></i> Nouveau Partenaire</button>
+                            </div>
+                        </div><!-- end col-->
+                    </div>
+                    <!-- end row -->
+                    <div class="table-responsive">
+                        <table class="table align-middle table-nowrap table-hover dt-responsive nowrap w-100"
+                            id="userList-table">
+                            <thead class="table-light">
+                                <tr>
+                                    <th scope="col" style="width: 40px;">#</th>
+                                    <th scope="col">Partenaire</th>
+                                    <th scope="col">Login APIM</th>
+                                    <th scope="col">Username</th>
+                                    <th scope="col">Password</th>
+                                    <th scope="col">User Id</th>
+                                    <th scope="col">Pincode</th>
+                                    <th scope="col">Serial No</th>
+                                    <th scope="col">VType</th>
+                                    <th scope="col">VCode</th>
+                                    <th scope="col">Device No</th>
+                                    <th scope="col">Group ID</th>
+                                    <th scope="col" style="width: 200px;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (data of partenairteList; track $index) {
+                                <tr>
+                                    <td>{{$index+1}}</td>
+                                    <td>{{data.partenaire}}</td>
+                                    <td>{{data.login}}</td>
+                                    <td>{{data.user}}</td>
+                                    <td>{{data.password}}</td>
+                                    <td>{{data.userid}}</td>
+                                    <td>{{data.pincode}}</td>
+                                    <td>{{data.serialno}}</td>
+                                    <td>{{data.vtype}}</td>
+                                    <td>{{data.vcode}}</td>
+                                    <td>{{data.deviceno}}</td>
+                                    <td>{{data.groupid}}</td>
+                                    <td>
+                                        <ul class="list-unstyled hstack gap-1 mb-0">
+                                            <li data-bs-toggle="tooltip" data-bs-placement="top" title="Consulter">
+                                                <a (click)="openModal(content, data, false, true)"
+                                                    class="btn btn-sm btn-soft-primary"><i
+                                                        class="mdi mdi-eye-outline"></i></a>
+                                            </li>
+                                            <li data-bs-toggle="tooltip" data-bs-placement="top" title="Modifier">
+                                                <a (click)="openModal(content, data, true)"
+                                                    class="btn btn-sm btn-soft-info"><i
+                                                        class="mdi mdi-pencil-outline"></i></a>
+                                            </li>
+                                            <li data-bs-toggle="tooltip" data-bs-placement="top" title="Supprimer">
+                                                <a (click)="openModal(contentDelete, data, false, false, true)"
+                                                    class="btn btn-sm btn-soft-danger"><i
+                                                        class="mdi mdi-delete-outline"></i></a>
+                                            </li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                                }
+                                @if(partenairteList.length==0){
+                                <tr>
+                                    <td colspan="11" class="text-center">Aucune donnée trouvée</td>
+                                </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <ul class="pagination pagination-rounded justify-content-center mt-4">
+
+                                <pagination class="pagination-wrap hstack gap-2" [totalItems]="partenairteList?.length"
+                                    [itemsPerPage]="10" (pageChanged)="pageChanged($event)"></pagination>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<ng-template #content let-modal>
+    <form class="needs-validation" [formGroup]="partenaireForm" (ngSubmit)="save()">
+        <div class="modal-header">
+            <h5 class="modal-title" id="myLargeModalLabel">{{txtModalHeader}}</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                (click)="modalRef?.hide()"></button>
+        </div>
+        <div class="modal-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="nomPartenaire">Nom du Partenaire <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="nomPartenaire" placeholder="Ex: Wave"
+                            formControlName="nomPartenaire" [readOnly]="isView"
+                            [ngClass]="{'is-invalid':partenaireForm.controls['nomPartenaire'].invalid && (partenaireForm.controls['nomPartenaire'].dirty || partenaireForm.controls['nomPartenaire'].touched), 'is-valid':partenaireForm.controls['nomPartenaire'].valid}"
+                            required />
+                        <div *ngIf="partenaireForm.controls['nomPartenaire'].invalid && (partenaireForm.controls['nomPartenaire'].dirty || partenaireForm.controls['nomPartenaire'].touched)"
+                            class="invalid-feedback">
+
+                            <div *ngIf="partenaireForm.controls['nomPartenaire'].errors?.['required']">
+                                Ce champ est obligatoire
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="login">Login <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="login" formControlName="login"
+                            placeholder="Ex: krsEzcsN0wPA9P24Qn1rtnfGQfUa" [readOnly]="isView"
+                            [ngClass]="{'is-invalid':partenaireForm.controls['login'].invalid && (partenaireForm.controls['login'].dirty || partenaireForm.controls['login'].touched), 'is-valid':partenaireForm.controls['login'].valid}"
+                            required />
+                        <div *ngIf="partenaireForm.controls['login'].invalid && (partenaireForm.controls['login'].dirty || partenaireForm.controls['login'].touched)"
+                            class="invalid-feedback">
+
+                            <div *ngIf="partenaireForm.controls['login'].errors?.['required']">
+                                Ce champ est obligatoire
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="user">User <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="user" placeholder="Ex: jamie" [readOnly]="isView"
+                            formControlName="user"
+                            [ngClass]="{'is-invalid':partenaireForm.controls['user'].invalid && (partenaireForm.controls['user'].dirty || partenaireForm.controls['user'].touched), 'is-valid':partenaireForm.controls['user'].valid}"
+                            required />
+                        <div *ngIf="partenaireForm.controls['user'].invalid && (partenaireForm.controls['user'].dirty || partenaireForm.controls['user'].touched)"
+                            class="invalid-feedback">
+
+                            <div *ngIf="partenaireForm.controls['user'].errors?.['required']">
+                                Ce champ est obligatoire
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="userId">User ID <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="userId" placeholder="Ex: vendor01"
+                            [readOnly]="isView" formControlName="userId"
+                            [ngClass]="{'is-invalid':partenaireForm.controls['userId'].invalid && (partenaireForm.controls['userId'].dirty || partenaireForm.controls['userId'].touched), 'is-valid':partenaireForm.controls['userId'].valid}"
+                            required />
+                        <div *ngIf="partenaireForm.controls['userId'].invalid && (partenaireForm.controls['userId'].dirty || partenaireForm.controls['userId'].touched)"
+                            class="invalid-feedback">
+
+                            <div *ngIf="partenaireForm.controls['userId'].errors?.['required']">
+                                Ce champ est obligatoire
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="pincode">Pincode <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="pincode" placeholder="Ex: 1234" [readOnly]="isView"
+                            formControlName="pincode"
+                            [ngClass]="{'is-invalid':partenaireForm.controls['pincode'].invalid && (partenaireForm.controls['pincode'].dirty || partenaireForm.controls['pincode'].touched), 'is-valid':partenaireForm.controls['pincode'].valid}"
+                            required />
+                        <div *ngIf="partenaireForm.controls['pincode'].invalid && (partenaireForm.controls['pincode'].dirty || partenaireForm.controls['pincode'].touched)"
+                            class="invalid-feedback">
+
+                            <div *ngIf="partenaireForm.controls['pincode'].errors?.['required']">
+                                Ce champ est obligatoire
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="serialNo">Serial No <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="serialNo" placeholder="Ex: 01419845121"
+                            [readOnly]="isView" formControlName="serialNo"
+                            [ngClass]="{'is-invalid':partenaireForm.controls['serialNo'].invalid && (partenaireForm.controls['serialNo'].dirty || partenaireForm.controls['serialNo'].touched), 'is-valid':partenaireForm.controls['serialNo'].valid}"
+                            required />
+                        <div *ngIf="partenaireForm.controls['serialNo'].invalid && (partenaireForm.controls['serialNo'].dirty || partenaireForm.controls['serialNo'].touched)"
+                            class="invalid-feedback">
+
+                            <div *ngIf="partenaireForm.controls['serialNo'].errors?.['required']">
+                                Ce champ est obligatoire
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="password">Password <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="password" placeholder="Ex: 123" [readOnly]="isView"
+                            formControlName="password"
+                            [ngClass]="{'is-invalid':partenaireForm.controls['userId'].invalid && (partenaireForm.controls['password'].dirty || partenaireForm.controls['password'].touched), 'is-valid':partenaireForm.controls['password'].valid}"
+                            required />
+                        <div *ngIf="partenaireForm.controls['password'].invalid && (partenaireForm.controls['password'].dirty || partenaireForm.controls['password'].touched)"
+                            class="invalid-feedback">
+
+                            <div *ngIf="partenaireForm.controls['password'].errors?.['required']">
+                                Ce champ est obligatoire
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="vtype">VType <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="vtype" placeholder="Ex: ELECT" [readOnly]="isView"
+                            formControlName="vtype"
+                            [ngClass]="{'is-invalid':partenaireForm.controls['vtype'].invalid && (partenaireForm.controls['vtype'].dirty || partenaireForm.controls['vtype'].touched), 'is-valid':partenaireForm.controls['vtype'].valid}"
+                            required />
+                        <div *ngIf="partenaireForm.controls['vtype'].invalid && (partenaireForm.controls['vtype'].dirty || partenaireForm.controls['vtype'].touched)"
+                            class="invalid-feedback">
+
+                            <div *ngIf="partenaireForm.controls['vtype'].errors?.['required']">
+                                Ce champ est obligatoire
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="vcode">VCode <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="vcode" placeholder="Ex: E001" [readOnly]="isView"
+                            formControlName="vcode"
+                            [ngClass]="{'is-invalid':partenaireForm.controls['vcode'].invalid && (partenaireForm.controls['vcode'].dirty || partenaireForm.controls['vcode'].touched), 'is-valid':partenaireForm.controls['vcode'].valid}"
+                            required />
+                        <div *ngIf="partenaireForm.controls['vcode'].invalid && (partenaireForm.controls['vcode'].dirty || partenaireForm.controls['vcode'].touched)"
+                            class="invalid-feedback">
+
+                            <div *ngIf="partenaireForm.controls['vcode'].errors?.['required']">
+                                Ce champ est obligatoire
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="deviceNo">Device No <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="deviceNo" placeholder="Ex: FtsafeZXF1000001024"
+                            [readOnly]="isView" formControlName="deviceNo"
+                            [ngClass]="{'is-invalid':partenaireForm.controls['deviceNo'].invalid && (partenaireForm.controls['deviceNo'].dirty || partenaireForm.controls['deviceNo'].touched), 'is-valid':partenaireForm.controls['deviceNo'].valid}"
+                            required />
+                        <div *ngIf="partenaireForm.controls['deviceNo'].invalid && (partenaireForm.controls['deviceNo'].dirty || partenaireForm.controls['deviceNo'].touched)"
+                            class="invalid-feedback">
+
+                            <div *ngIf="partenaireForm.controls['deviceNo'].errors?.['required']">
+                                Ce champ est obligatoire
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="groupid">Group ID <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="groupid" placeholder="Ex: FtsafeZXF1000001024"
+                            [readOnly]="isView" formControlName="groupid"
+                            [ngClass]="{'is-invalid':partenaireForm.controls['groupid'].invalid && (partenaireForm.controls['groupid'].dirty || partenaireForm.controls['groupid'].touched), 'is-valid':partenaireForm.controls['groupid'].valid}"
+                            required />
+                        <div *ngIf="partenaireForm.controls['groupid'].invalid && (partenaireForm.controls['groupid'].dirty || partenaireForm.controls['groupid'].touched)"
+                            class="invalid-feedback">
+
+                            <div *ngIf="partenaireForm.controls['groupid'].errors?.['required']">
+                                Ce champ est obligatoire
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="row" *ngIf="apiCallError!=undefined">
+                <div class="alert alert-danger d-flex align-items-center" role="alert">
+                    <i class="feather icon-alert-octagon flex-shrink-0 me-2"></i>
+                    <div>
+                        <!-- @if(typeof apiCallError == 'array'){ -->
+                        <!-- @for (message of apiCallError; track $index) {
+                            - {{message}}<br>
+                            } -->
+                        <!-- }@else {
+                            - {{apiCallError}}<br>
+                        } -->
+                        {{apiCallError}}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="modal-footer">
+            <div>
+                <button type="button" [hidden]="isView" class="btn btn-danger me-2" (click)="modalRef?.hide()">Annuler</button>
+                <button type="submit" [hidden]="isView" [disabled]="!partenaireForm.valid" class="btn btn-primary w-md"><i class="fa"
+                        [ngClass]="{'fa-spin fa-spinner': loadingBtn, 'fa-check': !loadingBtn}"></i>
+                    {{textButton}}
+                </button>
+            </div>
+        </div>
+    </form>
+</ng-template><!-- /.modal -->
+
+<!-- removeItemModal -->
+<ng-template #contentDelete let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title" id="modal-basic-title">{{txtModalHeader}}</h4>
+        <button type="button" class="btn-close" aria-label="Close" (click)="modalRef?.hide()"></button>
+    </div>
+    <div class="modal-body">
+        <p class="fs-5">Voulez-vous supprimer "{{partenaire.partenaire}}"?</p>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-danger me-2" (click)="modalRef?.hide()">
+            Annuler
+        </button>
+        <button class="btn btn-primary w-md" (click)="delete()">
+            <i class="fa" [ngClass]="{'fa-spin fa-spinner': loadingBtn, 'fa-check': !loadingBtn}"></i>
+            {{textButton}}
+        </button>
+    </div>
+</ng-template>

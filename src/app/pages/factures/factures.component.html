@@ -1,0 +1,279 @@
+<div class="container-fluid">
+    <app-page-title title="Factures" [breadcrumbItems]="breadCrumbItems"></app-page-title>
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row mb-2">
+                        <div class="col-sm-4">
+                            <div class="search-box me-2 mb-2 d-inline-block">
+                                <div class="position-relative">
+                                    <input type="text" class="form-control" id="searchTableList" placeholder="Search..."
+                                        [(ngModel)]="term" (ngModelChange)="search()">
+                                    <i class="bx bx-search-alt search-icon"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-8">
+                            <div class="text-sm-end">
+                                <button type="button" data-bs-toggle="modal" (click)="openModal(content, null)"
+                                    class="btn btn-success btn-rounded waves-effect waves-light addContact-modal mb-2"><i
+                                        class="mdi mdi-plus me-1"></i> Nouvelle Facture</button>
+                            </div>
+                        </div><!-- end col-->
+                    </div>
+                    <!-- end row -->
+                    <div class="table-responsive">
+                        <table class="table align-middle table-nowrap table-hover dt-responsive nowrap w-100"
+                            id="userList-table">
+                            <thead class="table-light">
+                                <tr>
+                                    <th scope="col" style="width: 40px;">#</th>
+                                    <th scope="col">N° Facture</th>
+                                    <th scope="col">Date</th>
+                                    <th scope="col">Client</th>
+                                    <th scope="col">Type</th>
+                                    <th scope="col" style="width: 200px;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (data of factureList; track $index) {
+                                <tr>
+                                    <td>{{$index+1}}</td>
+                                    <td>{{data.numFacture}}</td>
+                                    <td>{{data.dateFacture}}</td>
+                                    <td>{{data.nomClient}}</td>
+                                    <td>{{data.typeFacture}}</td>
+                                    <td>
+                                        <ul class="list-unstyled hstack gap-1 mb-0">
+                                            <li data-bs-toggle="tooltip" data-bs-placement="top" title="Consulter">
+                                                <a (click)="openModal(content, data, false, true)"
+                                                    class="btn btn-sm btn-soft-primary"><i
+                                                        class="mdi mdi-eye-outline"></i></a>
+                                            </li>
+                                            <li data-bs-toggle="tooltip" data-bs-placement="top" title="Modifier">
+                                                <a (click)="openModal(content, data, true)"
+                                                    class="btn btn-sm btn-soft-info"><i
+                                                        class="mdi mdi-pencil-outline"></i></a>
+                                            </li>
+                                            <li data-bs-toggle="tooltip" data-bs-placement="top" title="Supprimer">
+                                                <a (click)="openModal(contentDelete, data, false, false, true)"
+                                                    class="btn btn-sm btn-soft-danger"><i
+                                                        class="mdi mdi-delete-outline"></i></a>
+                                            </li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                                }
+                                @if(factureList.length==0){
+                                <tr>
+                                    <td colspan="11" class="text-center">Aucune donnée trouvée</td>
+                                </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <ul class="pagination pagination-rounded justify-content-center mt-4">
+
+                                <pagination class="pagination-wrap hstack gap-2" [totalItems]="factureList?.length"
+                                    [itemsPerPage]="10" (pageChanged)="pageChanged($event)"></pagination>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<ng-template #content let-modal>
+    <form class="needs-validation" enctype="multipart/form-data" [formGroup]="factureForm" (ngSubmit)="save()">
+        <div class="modal-header">
+            <h5 class="modal-title" id="myLargeModalLabel">{{txtModalHeader}}</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                (click)="modalRef?.hide()"></button>
+        </div>
+        <div class="modal-body">
+            <div class="row">
+                <div class="col-md-3 col-sm-12">
+                    <!-- {{listeTypeFacture|json}} -->
+                    <div class="mb-3">
+                        <input type="hidden" name="id" formControlName="id">
+                        <label for="typeFacture">Type de facture <span class="text-danger">*</span></label>
+                        <select name="typeFacture" class="form-select" id="typeFacture" formControlName="typeFacture"
+                            [ngClass]="{'is-invalid':factureForm.controls['typeFacture'].invalid && (factureForm.controls['typeFacture'].dirty || factureForm.controls['typeFacture'].touched), 'is-valid':factureForm.controls['typeFacture'].valid}"
+                            required>
+                            <option value="" disabled selected>Sélectionner...</option>
+                            @for (typeFacture of listeTypeFacture; track $index) {
+                            <option value="{{typeFacture.valeur}}">{{typeFacture.label}}</option>
+                            }
+                        </select>
+                        <div *ngIf="factureForm.controls['typeFacture'].invalid && (factureForm.controls['typeFacture'].dirty || factureForm.controls['typeFacture'].touched)"
+                            class="invalid-feedback">
+
+                            <div *ngIf="factureForm.controls['typeFacture'].errors?.['required']">
+                                Ce champ est obligatoire
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-sm-12">
+                    <div class="mb-3">
+                        <label for="login">Fichier <span class="text-danger">*</span></label>
+                        <input type="file"
+                            accept="application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                            (change)="onFileSelect($event)" class="form-control" id="fichier" name="fichier"
+                            [readOnly]="isView"
+                            [ngClass]="{'is-invalid':factureForm.controls['fichier'].invalid && (factureForm.controls['fichier'].dirty || factureForm.controls['fichier'].touched), 'is-valid':factureForm.controls['fichier'].valid}"
+                            required />
+                        <div *ngIf="factureForm.controls['fichier'].invalid && (factureForm.controls['fichier'].dirty || factureForm.controls['fichier'].touched)"
+                            class="invalid-feedback">
+
+                            <div *ngIf="factureForm.controls['fichier'].errors?.['required']">
+                                Ce champ est obligatoire
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-12">
+                    <div class="mb-3 mt-4">
+                        <button type="button" class="btn btn-primary" (click)="loadFromFile()"
+                            [disabled]="!factureForm.valid"
+                            [ngClass]="{'fa fa-spin fa-spinner': loadingBtn, 'fa fa-check': !loadingBtn}"> Charger</button>
+                    </div>
+                </div>
+
+            </div>
+            <!-- {{factureForm.value|json}} -->
+            <div class="row" *ngIf="apiCallError!=undefined">
+                <div class="alert alert-danger d-flex align-items-center" role="alert">
+                    <i class="feather icon-alert-octagon flex-shrink-0 me-2"></i>
+                    <div>
+                        <!-- @if(typeof apiCallError == 'array'){ -->
+                        <!-- @for (message of apiCallError; track $index) {
+                            - {{message}}<br>
+                            } -->
+                        <!-- }@else {
+                            - {{apiCallError}}<br>
+                        } -->
+                        {{apiCallError}}
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" [hidden]="!isLoadFacture">
+                <div class="col-12">
+                    <hr>
+                    <h4 class="text-center">Données Extraites </h4>
+                    <hr>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 col-sm-12">
+                        N° Facture: <b>{{extractedFactureData?.numeroFacture}}</b>
+                    </div>
+                    <div class="col-md-6 col-sm-12">
+                        Date: <b>{{extractedFactureData?.dateFacture}}</b>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Produit</th>
+                                    <th scope="col">Quantité</th>
+                                    <th scope="col">Prix unitaire HT</th>
+                                    <th scope="col">Montant HT</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (item of extractedFactureData?.lignes; track $index) {
+                                <tr>
+                                    <td>{{$index+1}}</td>
+                                    <td>{{item.produit}}</td>
+                                    <td>{{item.quantite}}</td>
+                                    <td>{{item.prixUnitaireHT}}</td>
+                                    <td>{{item.montantHT}}</td>
+                                </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col"></th>
+                                    <th scope="col">Base</th>
+                                    <th scope="col">Montant</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>HT</td>
+                                    <td></td>
+                                    <td>{{extractedFactureData?.totauxPayload?.ht}}</td>
+                                </tr>
+                                <tr>
+                                    <td>TDT</td>
+                                    <td>{{extractedFactureData?.totauxPayload?.tdt?.base}}</td>
+                                    <td>{{extractedFactureData?.totauxPayload?.tdt?.montant}}</td>
+                                </tr>
+                                <tr>
+                                    <td>TVA {{extractedFactureData?.totauxPayload?.tva?.taux}}%</td>
+                                    <td>{{extractedFactureData?.totauxPayload?.tva?.base}}</td>
+                                    <td>{{extractedFactureData?.totauxPayload?.tva?.montant}}</td>
+                                </tr>
+                                <tr>
+                                    <td>TTC</td>
+                                    <td></td>
+                                    <td>{{extractedFactureData?.totauxPayload?.ttc}}</td>
+                                </tr>
+                                <tr>
+                                    <td>Mode de paiement</td>
+                                    <td colspan="2">{{extractedFactureData?.totauxPayload?.modePaiement}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="modal-footer">
+            <div>
+                <button type="button" [hidden]="isView" class="btn btn-danger me-2"
+                    (click)="modalRef?.hide()">Annuler</button>
+                <button type="submit" [hidden]="isView" [disabled]="!factureForm.valid && !isLoadFacture" class="btn btn-primary w-md"><i
+                        class="fa" [ngClass]="{'fa-spin fa-spinner': loadingBtn && isLoadFacture, 'fa-check': !loadingBtn && isLoadFacture}"></i>
+                    {{textButton}}
+                </button>
+            </div>
+        </div>
+    </form>
+</ng-template><!-- /.modal -->
+
+<!-- removeItemModal -->
+<ng-template #contentDelete let-modal>
+    <div class="modal-header">
+        <h4 class="modal-title" id="modal-basic-title">{{txtModalHeader}}</h4>
+        <button type="button" class="btn-close" aria-label="Close" (click)="modalRef?.hide()"></button>
+    </div>
+    <div class="modal-body">
+        <p class="fs-5">Voulez-vous supprimer "{{facture.facture}}"?</p>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-danger me-2" (click)="modalRef?.hide()">
+            Annuler
+        </button>
+        <button class="btn btn-primary w-md" (click)="delete()">
+            <i class="fa" [ngClass]="{'fa-spin fa-spinner': loadingBtn, 'fa-check': !loadingBtn}"></i>
+            {{textButton}}
+        </button>
+    </div>
+</ng-template>

@@ -1,0 +1,31 @@
+<div class="container-fluid">
+    <app-page-title title="Partenaires" [breadcrumbItems]="breadCrumbItems"></app-page-title>
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row mb-2">
+                        <div class="col-sm-4">
+                            <div class="search-box me-2 mb-2 d-inline-block">
+                                <div class="position-relative">
+                                    <input type="text" class="form-control" id="searchTableList" placeholder="Search..."
+                                        [(ngModel)]="term" (ngModelChange)="search()">
+                                    <i class="bx bx-search-alt search-icon"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-8">
+                            <div class="text-sm-end">
+                                <button type="button" data-bs-toggle="modal" (click)="openForm()"
+                                    class="btn btn-success btn-rounded waves-effect waves-light addContact-modal mb-2"><i
+                                        class="mdi mdi-plus me-1"></i> Nouvelle Facture</button>
+                            </div>
+                        </div><!-- end col-->
+                    </div>
+                    <!-- end row -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
