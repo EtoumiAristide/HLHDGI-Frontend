@@ -12,6 +12,7 @@ import { Observable, map } from 'rxjs';
 import { changesLayout } from 'src/app/store/layouts/layout.actions';
 import { getLayoutMode } from 'src/app/store/layouts/layout.selector';
 import { RootReducerState } from 'src/app/store';
+import { UserApiService } from 'src/app/account/auth/login/service/user.service';
 // import { KeycloakService } from 'keycloak-angular';
 
 @Component({
@@ -44,6 +45,7 @@ export class TopbarComponent implements OnInit {
     public translate: TranslateService,
     public _cookiesService: CookieService, public store: Store<RootReducerState>,
     // private _keycloakService: KeycloakService
+    private userService:UserApiService,
   ) {
 
   }
@@ -112,6 +114,9 @@ export class TopbarComponent implements OnInit {
     }
     this.router.navigate(['/auth/login']);*/
     // this._keycloakService.logout()
+    this.userService.logout()
+    this.router.navigate(['/auth']);
+
   }
 
   /**

@@ -12,12 +12,12 @@ export const MENU: MenuItem[] = [
         icon: 'bx-home-circle',
         link: '/',
     },
-    {
-        id: 11,
-        label: 'Partenaire',
-        icon: 'bx-file',
-        link: '/partenaires',
-    },
+    // {
+    //     id: 11,
+    //     label: 'Partenaire',
+    //     icon: 'bx-file',
+    //     link: '/partenaires',
+    // },
     {
         id: 11,
         label: 'Factures',

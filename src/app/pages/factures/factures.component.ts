@@ -43,7 +43,9 @@ export class FacturesComponent {
 
   //COnfiguration du bouton lors de la validation
   loadingBtn: boolean = false;
+  loadingBtnFac: boolean = false;
   textButton: string = btnFormState.save;
+  textButtonFac: string = btnFormState.load;
   txtModalHeader = formModalHeader.save
 
   isModif: boolean;
@@ -196,7 +198,7 @@ export class FacturesComponent {
           console.error("There is an error !", error);
           this._toastServive.error("Une erreur est survenue", "Enregistrement échoué").onHidden.subscribe(() => {
             this.initFormElement();
-            this.apiCallError = error.error.data
+            //this.apiCallError = error.error.data
           });
         }
       });
@@ -277,19 +279,22 @@ export class FacturesComponent {
   }
 
   //Modification de l'apparence visuelle du bouton "Valider"
-  changeFormElement() {
-    this.loadingBtn = true;
-    this.textButton = btnFormState.processing
+  changeFormElement(isFacture: boolean = false) {
+    !isFacture ? this.loadingBtn = true : this.loadingBtnFac = true;
+    !isFacture ? this.textButton = btnFormState.processing : this.textButtonFac = btnFormState.processing
   }
 
   //Remise à l'état initial du bouton "Valider" et des données du formulaire
   initFormElement(isReinitData: boolean = false) {
     this.textButton = btnFormState.save
+    this.textButtonFac = btnFormState.load
     this.loadingBtn = false;
+    this.loadingBtnFac = false;
     this.apiCallError = undefined
 
     if (isReinitData) {
       this.clearForm()
+      this.isLoadFacture = false
       this.modalService.hide(this.modalRef?.id);
       this.txtModalHeader = formModalHeader.save + ' ' + this.pageTitle;
     }

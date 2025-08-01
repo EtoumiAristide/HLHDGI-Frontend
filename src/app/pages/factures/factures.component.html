@@ -141,7 +141,7 @@
                     <div class="mb-3 mt-4">
                         <button type="button" class="btn btn-primary" (click)="loadFromFile()"
                             [disabled]="!factureForm.valid"
-                            [ngClass]="{'fa fa-spin fa-spinner': loadingBtn, 'fa fa-check': !loadingBtn}"> Charger</button>
+                            [ngClass]="{'fa fa-spinner': loadingBtnFac, 'fa fa-check': !loadingBtnFac}"> {{textButtonFac}}</button>
                     </div>
                 </div>
 
@@ -170,10 +170,13 @@
                     <hr>
                 </div>
                 <div class="row">
-                    <div class="col-md-6 col-sm-12">
+                    <div class="col-md-4 col-sm-12">
                         N° Facture: <b>{{extractedFactureData?.numeroFacture}}</b>
                     </div>
-                    <div class="col-md-6 col-sm-12">
+                    <div class="col-md-4 col-sm-12">
+                        Client: <b>{{extractedFactureData?.clientPayload?.nom}}</b>
+                    </div>
+                    <div class="col-md-4 col-sm-12">
                         Date: <b>{{extractedFactureData?.dateFacture}}</b>
                     </div>
                 </div>
@@ -220,7 +223,7 @@
                                     <td>{{extractedFactureData?.totauxPayload?.ht}}</td>
                                 </tr>
                                 <tr>
-                                    <td>TDT</td>
+                                    <td>TDT {{extractedFactureData?.totauxPayload?.tdt?.taux}}%</td>
                                     <td>{{extractedFactureData?.totauxPayload?.tdt?.base}}</td>
                                     <td>{{extractedFactureData?.totauxPayload?.tdt?.montant}}</td>
                                 </tr>
