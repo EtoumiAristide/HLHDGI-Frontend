@@ -37,9 +37,11 @@ import { rootReducer } from './store';
 import { AuthenticationEffects } from './store/Authentication/authentication.effects';
 import { AngularFireModule } from '@angular/fire/compat';
 import { AngularFireAuthModule } from '@angular/fire/compat/auth';
-import { JWT_OPTIONS, JwtHelperService, JwtModule } from '@auth0/angular-jwt';
+// import { JWT_OPTIONS, JwtHelperService, JwtModule } from '@auth0/angular-jwt';
 import { AuthInterceptor } from './core-custom/auth/auth.interceptor';
 import { SessionWarningComponent } from './session-warning/session-warning.component';
+import { KeycloakAngularModule, KeycloakService } from 'keycloak-angular';
+import { initializeKeycloak } from './core-custom/init/keycloak.init';
 // import { KeycloakAngularModule, KeycloakService } from 'keycloak-angular';
 // import { initializeKeycloak } from './core-custom/init/keycloak.init';
 if (environment.defaultauth === 'firebase') {
@@ -94,31 +96,31 @@ export function tokenGetter() {
     EffectsModule.forRoot([
       AuthenticationEffects,
     ]),
-    // KeycloakAngularModule
-    JwtModule.forRoot({
+    KeycloakAngularModule,
+    /*JwtModule.forRoot({
       config: {
         tokenGetter: tokenGetter,
         allowedDomains: ['localhost:8082'], // à adapter
         disallowedRoutes: ['http://localhost:8082/api/auth/login'], // ne pas attacher le token ici
       }
-    })
+    })*/
   ],
   bootstrap: [AppComponent],
   providers: [
-    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
-    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
-    { provide: HTTP_INTERCEPTORS, useClass: FakeBackendInterceptor, multi: true },
+    // { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
+    // { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
+    // { provide: HTTP_INTERCEPTORS, useClass: FakeBackendInterceptor, multi: true },
     // { provide: JWT_OPTIONS, useValue: JWT_OPTIONS },
-    JwtHelperService,
-    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }
+    // JwtHelperService,
+    // { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
     //Initialize keyclaok service provider
-    // KeycloakService,
-    // {
-    //   provide: APP_INITIALIZER,
-    //   useFactory: initializeKeycloak,
-    //   multi: true,
-    //   deps: [KeycloakService],
-    // },
+    KeycloakService,
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initializeKeycloak,
+      multi: true,
+      deps: [KeycloakService],
+    },
   ],
 })
 export class AppModule { }

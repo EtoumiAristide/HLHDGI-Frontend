@@ -10,17 +10,17 @@ const routes: Routes = [
     title: 'Liste Factures'
   },
   {
-    path: '/create',
+    path: 'create',
     component: FactureFormComponent,
     title: 'Facture | Nouveau'
   },
   {
-    path: '/edit/:id',
+    path: 'edit/:id',
     component: FactureFormComponent,
     title: 'Facture | Modification'
   },
   {
-    path: '/view/:id',
+    path: 'view/:id',
     component: FactureFormComponent,
     title: 'Facture | Consultation'
   },

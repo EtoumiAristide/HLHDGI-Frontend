@@ -8,8 +8,7 @@ import { environment } from 'src/environments/environment';
 })
 export class ApiRequestService {
 
-  constructor(private http: HttpClient) {
-  }
+  constructor(private http: HttpClient) {}
 
   getAll(endpoint: string): Observable<any> {
     // console.log("endpoint: " + `${environment.BASE_URL_API}${endpoint}`)
@@ -59,7 +58,7 @@ export class ApiRequestService {
       'Content-Type': 'application/json',
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'POST, GET, OPTIONS, PUT, DELETE',
-      'Accept': '*',
+      'Accept': '*/*',
     });
   }
 

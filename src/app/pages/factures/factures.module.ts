@@ -8,6 +8,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { PaginationModule } from 'ngx-bootstrap/pagination';
 import { ModalModule } from 'ngx-bootstrap/modal';
 import { FactureFormComponent } from './facture-form/facture-form.component';
+import { AccordionModule } from 'ngx-bootstrap/accordion';
 
 
 @NgModule({
@@ -22,7 +23,8 @@ import { FactureFormComponent } from './facture-form/facture-form.component';
     FormsModule,
     ReactiveFormsModule,
     PaginationModule.forRoot(),
-    ModalModule
+    ModalModule,
+    AccordionModule.forRoot(),
   ]
 })
 export class FacturesModule { }

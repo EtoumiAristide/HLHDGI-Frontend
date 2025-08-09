@@ -6,14 +6,15 @@ import {
     HttpEvent
 } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { JwtHelperService } from '@auth0/angular-jwt';
+// import { JwtHelperService } from '@auth0/angular-jwt';
 import { Router } from '@angular/router';
 import { UserApiService } from 'src/app/account/auth/login/service/user.service';
 
 @Injectable()
-export class AuthInterceptor implements HttpInterceptor {
+export class AuthInterceptor //implements HttpInterceptor 
+{
 
-    constructor(
+    /*constructor(
         private authService: UserApiService,
         private jwtHelper: JwtHelperService,
         private router: Router
@@ -33,5 +34,5 @@ export class AuthInterceptor implements HttpInterceptor {
         }
 
         return next.handle(req);
-    }
+    }*/
 }

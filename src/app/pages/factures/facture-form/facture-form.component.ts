@@ -7,6 +7,8 @@ import { ToastService } from 'src/app/core-custom/services/toast.service';
 import { Facture } from '../model/facture.model';
 import { FacturespiServices } from '../service/facture-api.service';
 import { Router } from '@angular/router';
+import { Observable } from 'rxjs';
+import { objectToFormData } from 'src/app/core-custom/utils/utils.service';
 
 @Component({
   selector: 'app-facture-form',
@@ -28,7 +30,6 @@ export class FactureFormComponent {
   facture: Facture
 
   deleteId: any;
-  factureListeSearch: Facture[]
 
   modalRef?: BsModalRef;
   config: any = {
@@ -39,13 +40,35 @@ export class FactureFormComponent {
 
   //COnfiguration du bouton lors de la validation
   loadingBtn: boolean = false;
+  loadingBtnFac: boolean = false;
   textButton: string = btnFormState.save;
+  textButtonFac: string = btnFormState.load;
   txtModalHeader = formModalHeader.save
 
   isModif: boolean;
   isView: boolean;
 
   apiCallError: any
+
+  listeTypeFacture: any = [
+    {
+      'label': 'FACTURE DE VENTE',
+      'valeur': 'FACTURE_VENTE',
+    },
+    {
+      'label': "FACTURE D'AVOIR",
+      'valeur': 'FACTURE_AVOIR',
+    },
+    {
+      'label': "BORDERAU D'ACHAT",
+      'valeur': 'FACTURE_VENTE',
+    },
+  ]
+
+  formData: FormData
+
+  extractedFactureData?: any[]
+  isLoadFacture: boolean = false
 
   constructor(
     private _factureApi: FacturespiServices,
@@ -55,30 +78,155 @@ export class FactureFormComponent {
     private _router: Router,
   ) {
 
+
     this.facture = new Facture()
 
     this.factureForm = this.fb.group({
-      id: [0, Validators.required],
-      numFacture: ['', Validators.required],
-      dateFacture: ['', Validators.required],
-      nomClient: ['', Validators.required],
+      id: [0],
       typeFacture: ['', Validators.required],
+      fichier: [null, Validators.required]
     })
 
     this.isModif = false
+
+    this.formData = new FormData()
+
   }
 
   ngOnInit() {
-    this.breadCrumbItems = [{ label: 'Accueil' }, { label: 'Factures', active: true }];
+    this.breadCrumbItems = [{ label: 'Accueil', url: '/' }, { label: 'Factures', url: '/factures' }, { label: 'Form', active: true }];
   }
 
-  openForm() {
-    this._router.navigate(['factures'])
+  //Ajout d'un nouvel élément
+  save() {
+    if (this.factureForm.valid) {
+      console.log("Data form: " + JSON.stringify(this.factureForm.value));
+
+      this.changeFormElement();
+
+      let dataToSend: any = {}
+      dataToSend.type = this.factureForm.controls['typeFacture'].value
+      dataToSend.file = this.factureForm.controls['fichier'].value
+
+      this.formData = objectToFormData(dataToSend)
+
+      let apiSend: Observable<Object> = !this.isModif ? this._factureApi.save(this.formData) : this._factureApi.update(this.facture.id, this.formData);
+
+      apiSend.subscribe({
+        next: response => {
+
+          this._toastServive.success(this.pageTitle + " enregistré avec succès", "Enregistrement éffectué").onHidden.subscribe(() => {
+            this.initFormElement(true);
+            this.openViewList()
+
+          })
+        },
+        error: error => {
+          console.error("There is an error !", error);
+          this._toastServive.error("Une erreur est survenue", "Enregistrement échoué").onHidden.subscribe(() => {
+            this.initFormElement();
+            //this.apiCallError = error.error.data
+          });
+        }
+      });
+    }
   }
 
-  // filter job
-  search() {
-    
+  loadFromFile() {
+    if (this.factureForm.valid) {
+      console.log("Data form: " + JSON.stringify(this.factureForm.value));
+
+      this.changeFormElement();
+
+      let dataToSend: any = {}
+      dataToSend.type = this.factureForm.controls['typeFacture'].value
+      dataToSend.file = this.factureForm.controls['fichier'].value
+
+      this.formData = objectToFormData(dataToSend)
+
+      let apiSend: Observable<Object> = this._factureApi.loadFromFile(this.formData)
+
+      apiSend.subscribe({
+        next: (response: any) => {
+          console.log(response);
+          this.extractedFactureData = response.data
+          this.isLoadFacture = true
+
+          this._toastServive.success(" Données de facture extraites avec succès", "Extraction éffectué").onHidden.subscribe(() => {
+            this.initFormElement(false);
+
+          })
+        },
+        error: error => {
+          console.error("There is an error !", error);
+          this._toastServive.error("Une erreur est survenue", "Enregistrement échoué").onHidden.subscribe(() => {
+            this.initFormElement();
+            this.isLoadFacture = false
+            // console.log(JSON.stringify(error));
+
+            this.apiCallError = error.message
+          });
+        }
+      });
+    }
+  }
+
+  onFileSelect(event: any) {
+    if (event.target.files.length > 0) {
+      const file = event.target.files[0];
+      console.log(file);
+
+      this.factureForm.controls['fichier']?.setValue(file)
+    }
+  }
+
+  //Modification de l'apparence visuelle du bouton "Valider"
+  changeFormElement(isFacture: boolean = false) {
+    !isFacture ? this.loadingBtn = true : this.loadingBtnFac = true;
+    !isFacture ? this.textButton = btnFormState.processing : this.textButtonFac = btnFormState.processing
+  }
+
+  //Remise à l'état initial du bouton "Valider" et des données du formulaire
+  initFormElement(isReinitData: boolean = false) {
+    this.textButton = btnFormState.save
+    this.textButtonFac = btnFormState.load
+    this.loadingBtn = false;
+    this.loadingBtnFac = false;
+    this.apiCallError = undefined
+
+    if (isReinitData) {
+      this.clearForm()
+      this.isLoadFacture = false
+      this.modalService.hide(this.modalRef?.id);
+      this.txtModalHeader = formModalHeader.save + ' ' + this.pageTitle;
+    }
+  }
+
+  mapFormToObject() {
+    this.facture.numFacture = this.factureForm.controls['numFacture'].value
+    this.facture.nomClient = this.factureForm.controls['nomClient'].value
+    this.facture.dateFacture = this.factureForm.controls['dateFacture'].value
+    this.facture.typeFacture = this.factureForm.controls['typeFacture'].value
+  }
+
+  // Mise à jour des champs du formulaire
+  mapObjectToForm() {
+    this.factureForm.patchValue({
+      numFacture: this.facture.numFacture,
+      nomClient: this.facture.nomClient,
+      dateFacture: this.facture.dateFacture,
+      typeFacture: this.facture.typeFacture,
+    })
+  }
+
+  clearForm() {
+    this.facture = new Facture()
+    this.factureForm.reset()
+    this.extractedFactureData = [{}]
+  }
+
+  openViewList() {
+    this._router.navigate(['/factures'])
   }
 
 }

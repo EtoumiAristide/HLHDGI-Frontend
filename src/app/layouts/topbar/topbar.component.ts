@@ -13,6 +13,7 @@ import { changesLayout } from 'src/app/store/layouts/layout.actions';
 import { getLayoutMode } from 'src/app/store/layouts/layout.selector';
 import { RootReducerState } from 'src/app/store';
 import { UserApiService } from 'src/app/account/auth/login/service/user.service';
+import { KeycloakService } from 'keycloak-angular';
 // import { KeycloakService } from 'keycloak-angular';
 
 @Component({
@@ -36,16 +37,16 @@ export class TopbarComponent implements OnInit {
   dataLayout$: Observable<string>;
   // Define layoutMode as a property
 
-  // keycloakUrl = environment.keycloak.authority
-  // keyclaokRealm = environment.keycloak.realm
+  keycloakUrl = environment.keycloak.authority
+  keyclaokRealm = environment.keycloak.realm
 
   constructor(@Inject(DOCUMENT) private document: any, private router: Router, private authService: AuthenticationService,
     private authFackservice: AuthfakeauthenticationService,
     public languageService: LanguageService,
     public translate: TranslateService,
     public _cookiesService: CookieService, public store: Store<RootReducerState>,
-    // private _keycloakService: KeycloakService
-    private userService:UserApiService,
+    private _keycloakService: KeycloakService
+    // private userService:UserApiService,
   ) {
 
   }
@@ -113,9 +114,9 @@ export class TopbarComponent implements OnInit {
       this.authFackservice.logout();
     }
     this.router.navigate(['/auth/login']);*/
-    // this._keycloakService.logout()
-    this.userService.logout()
-    this.router.navigate(['/auth']);
+    this._keycloakService.logout()
+    // this.userService.logout()
+    // this.router.navigate(['/auth']);
 
   }
 

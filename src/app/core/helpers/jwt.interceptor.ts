@@ -32,7 +32,7 @@ export class JwtInterceptor implements HttpInterceptor {
                     },
                 });
             }
-        } else {
+        }/* else {
             // add authorization header with jwt token if available
             const currentUser = this.authfackservice.currentUserValue;
             if (currentUser && currentUser.token) {
@@ -42,7 +42,7 @@ export class JwtInterceptor implements HttpInterceptor {
                     },
                 });
             }
-        }
+        }*/
         return next.handle(request);
     }
 }

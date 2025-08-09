@@ -8,7 +8,7 @@ import { SessionService } from '../core-custom/services/session.service';
   styleUrls: ['./session-warning.component.css']
 })
 export class SessionWarningComponent {
-  show = false;
+  /*show = false;
   countdown = 60;
   private sub!: Subscription;
 
@@ -37,5 +37,5 @@ export class SessionWarningComponent {
     this.show = false;
     this.sub.unsubscribe();
     // Ici tu pourrais faire une requête pour rafraîchir le token s'il y a un refresh token
-  }
+  }*/
 }

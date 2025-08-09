@@ -7,9 +7,9 @@ import { SessionService } from './core-custom/services/session.service';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
-  constructor(private sessionService: SessionService) { }
+  // constructor(private sessionService: SessionService) { }
 
   ngOnInit() {
-    this.sessionService.startTokenWatcher();
+    // this.sessionService.startTokenWatcher();
   }
 }

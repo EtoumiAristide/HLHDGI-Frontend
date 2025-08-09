@@ -1,5 +1,5 @@
 import { Injectable, NgZone } from '@angular/core';
-import { JwtHelperService } from '@auth0/angular-jwt';
+// import { JwtHelperService } from '@auth0/angular-jwt';
 import { Router } from '@angular/router';
 import { Subject, timer } from 'rxjs';
 import { UserApiService } from 'src/app/account/auth/login/service/user.service';
@@ -8,7 +8,7 @@ import { UserApiService } from 'src/app/account/auth/login/service/user.service'
     providedIn: 'root'
 })
 export class SessionService {
-    private warningTimeInSeconds = 60; // 1 min avant expiration
+    /*private warningTimeInSeconds = 60; // 1 min avant expiration
     private checkIntervalInMs = 10000; // toutes les 10s
     private warningShown = false;
 
@@ -53,5 +53,5 @@ export class SessionService {
 
     resetWarning() {
         this.warningShown = false;
-    }
+    }*/
 }
