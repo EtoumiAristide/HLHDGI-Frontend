@@ -48,6 +48,7 @@
     "@popperjs/core": "^2.11.8",
     "angular-calendar": "^0.31.0",
     "angular-ng-stepper": "^2.0.0",
+    "angular-tree-grid": "^7.0.0",
     "angularx-flatpickr": "^7.3.0",
     "apexcharts": "^3.44.0",
     "bootstrap": "5.3.2",

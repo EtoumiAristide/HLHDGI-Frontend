@@ -1,0 +1,148 @@
+<div class="container-fluid">
+  <!-- <app-page-title title="Gestion des utilisateurs" [breadcrumbItems]="breadCrumbItems"></app-page-title> -->
+  <div class="row">
+    <div class="col-12">
+      <div class="page-title-box d-flex align-items-center justify-content-between">
+        <h4 class="mb-0 font-size-18">Gestion des utilisateurs</h4>
+        <div class="page-title-right">
+          <ol class="breadcrumb m-0">
+            <ng-container>
+              <li class="breadcrumb-item"><a href="#" routerLink="/">Accueil</a>
+              </li>
+              <li class="breadcrumb-item">Administration
+              </li>
+              <li class="breadcrumb-item active">Utilisateurs
+              </li>
+            </ng-container>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body border-bottom">
+          <div class="row mb-2">
+            <div class="col-sm-4">
+              <div class="search-box me-2 mb-2">
+                <div class="position-relative">
+                  <input type="text" class="form-control" id="select2" placeholder="Rechercher dans la liste"
+                    #searchInput (input)="filterData(searchInput)" />
+                  <i class="bx bx-filter-alt search-icon"></i>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-8">
+              <div class="text-sm-end">
+                <button type="button" class="btn btn-primary mb-2 me-2" (click)="openForm()">
+                  <i class="mdi mdi-plus me-1"></i> Ajouter un utilisateur
+                </button>
+              </div>
+            </div>
+            <!-- end col-->
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table align-middle table-nowrap table-hover dt-responsive nowrap w-100 table-check">
+              <thead class="table-light">
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Nom</th>
+                  <th scope="col">Prénoms</th>
+                  <th scope="col">Email</th>
+                  <th scope="col">login</th>
+                  <th scope="col">Entreprise</th>
+                  <th scope="col">Role</th>
+                  <th scope="col">Statut</th>
+                  <th scope="col">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for(user of userList ; track user.id; let index = $index) {
+                <tr>
+                  <td>{{index+1}}</td>
+                  <td>{{ user.firstName}}</td>
+                  <td>{{ user.lastName}}</td>
+                  <td>{{ user.email}}</td>
+                  <td>{{ user.username }}</td>
+                  <td>{{ user.organisation?.code}}</td>
+                  <td>{{ user.role}}</td>
+                  <td><span class="badge" [ngClass]="{'bg-success': user.enable, 'bg-danger': !user.enable}">
+                      {{user.enable ? 'Activé' : 'Désactivé'}} </span></td>
+                  <td>
+                    <ul class="list-unstyled hstack gap-1 mb-0">
+                      <li tooltip="Modifier">
+                        <a href="javascript:void(0);" (click)="openForm(true, user.id)"
+                          class="btn btn-sm btn-soft-info"><i class="mdi mdi-pencil-outline"></i></a>
+                      </li>
+                      <li tooltip="Modifer mot de passe">
+                        <a href="javascript:void(0);" (click)="openModal(templateDelete, user)" data-bs-toggle="modal"
+                          class="btn btn-sm btn-soft-warning"><i class="mdi mdi-key-outline"></i></a>
+                      </li>
+                    </ul>
+                    <!-- <div class="d-flex gap-1">
+                      <button class="btn btn-primary rounded-5" (click)="openForm(true, user.id)">
+                        <i class="fas fa-edit"></i>
+                      </button>
+                      <button class="btn btn-warning rounded-5" (click)="openModal(templateDelete, user)">
+                        <i class="fas fa-key"></i>
+                      </button> -->
+                    <!-- <button class="btn btn-warning rounded-5" tooltip="Lier des indicateurs"
+                          (click)="openOrganisationIndicateurPage(organisation.id)"><i class="fas fa-link"></i>
+                        </button>
+                        <button class="btn btn-warning rounded-5" tooltip="Lier des indicateurs calculé"
+                          (click)="openOrganisationTypeIndicateurPage(organisation.id)"><i class="fas fa-paperclip"></i>
+                        </button> -->
+                    <!-- </div> -->
+                  </td>
+                </tr>
+                } @empty {
+                <p class="text-center">Aucun(e) donnee en base </p>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- end row -->
+</div>
+
+<!--Modal Delete-->
+<ng-template #templateDelete>
+  <form #reinitPasswordForm="ngForm" (ngSubmit)="reinitPassword()">
+    <div class="modal-header">
+      <h5 class="modal-title pull-left">{{txtModalHeader}}</h5>
+      <button type="button" class="btn-close close pull-right" aria-label="Close" (click)="modalRef?.hide()">
+        <span aria-hidden="true" class="visually-hidden">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-sm-12 col-md-12">
+          <label for="password">Nouveau Mot de passe <span class="text-danger">*</span></label>
+          <input type="text" id="password" class="form-control" name="password" required [(ngModel)]="newPassword"
+            #password="ngModel" />
+
+          <div [hidden]="password.valid || password.pristine" class="text-danger">
+            Ce champ est obligatoire
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div class="hstack gap-2 justify-content-end">
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal" (click)=" modalRef?.hide()">Annuler</button>
+        <button type="submit" class="btn btn-danger rounded-2"
+          [disabled]="!reinitPasswordForm.form.valid && !loadingBtn">
+          <i class="fa" [ngClass]="{'fa-spin fa-spinner': loadingBtn, 'fa-check': !loadingBtn}"></i>
+          {{textButton}}
+        </button>
+      </div>
+    </div>
+  </form>
+</ng-template>

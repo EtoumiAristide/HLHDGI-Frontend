@@ -5,4 +5,5 @@ export const btnFormState = {
     connect: "Se Connecter",
     processing: "Traitement en cours...",
     delete: "Oui",
+    reinit: "Réinitialiser",
 }

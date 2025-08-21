@@ -1,0 +1,204 @@
+<div class="container-fluid">
+    <app-page-title title="Entreprises" [breadcrumbItems]="breadCrumbItems"></app-page-title>
+    <!-- end page title -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body border-bottom">
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <div class="search-box me-2 mb-2">
+                                <div class="position-relative">
+                                    <input type="text" class="form-control" id="select2"
+                                        placeholder="Rechercher dans la liste" #searchInput
+                                        (input)="filterData(searchInput)" />
+                                    <i class="bx bx-filter-alt search-icon"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-8">
+                            <div class="text-sm-end">
+                                <button type="button" data-bs-toggle="modal" data-bs-target="#formModal"
+                                    class="btn btn-primary waves-effect" (click)="openModal(templateForm)"><i
+                                        class="mdi mdi-plus"></i>
+                                    Nouvelle entreprise</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body border-bottom">
+                    <div class="table-responsive">
+                        <table
+                            class="table align-middle table-nowrap table-hover dt-responsive nowrap w-100 table-check">
+                            <thead class="table-light">
+                                <tr>
+                                    <th scope="col">NCC</th>
+                                    <th scope="col">Raison Sociale</th>
+                                    <th scope="col">Sigle</th>
+                                    <th scope="col">Logo</th>
+                                    <th scope="col">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for(organisation of organisations ; track organisation.id) {
+                                <tr>
+                                    <td>{{ organisation.numcc }}</td>
+                                    <td>
+                                        {{ organisation.raisonSocial}}
+                                    </td>
+                                    <td>
+                                        {{ organisation.sigle}}
+                                    </td>
+                                    <td>
+                                        <img [hidden]="organisation.logo == null" src="{{ organisation.logo}}"
+                                            width="30px" height="20px" alt="Logo" />
+                                    </td>
+                                    <td>
+                                        <ul class="list-unstyled hstack gap-1 mb-0">
+                                            <li tooltip="Modifier">
+                                                <a href="javascript:void(0);"
+                                                    (click)="openModal(templateForm, organisation)"
+                                                    class="btn btn-sm btn-soft-info"><i
+                                                        class="mdi mdi-pencil-outline"></i></a>
+                                            </li>
+                                            <li tooltip="Supprimer">
+                                                <a href="javascript:void(0);"
+                                                    (click)="openModal(templateDelete, organisation, true)"
+                                                    data-bs-toggle="modal" class="btn btn-sm btn-soft-danger"><i
+                                                        class="mdi mdi-delete-outline"></i></a>
+                                            </li>
+                                        </ul>
+                                        <!-- <div class="d-flex gap-1"> -->
+                                        <!-- <button data-bs-toggle="tooltip" data-bs-placement="top" title="Edit" class="btn btn-primary rounded-5" (click)="openModal(templateForm, organisation)"><i
+                        class="fas fa-edit"></i>
+                    </button>
+                    <button data-bs-toggle="tooltip" data-bs-placement="top" title="Edit" class="btn btn-danger rounded-5" (click)="openModal(templateDelete, organisation, true)"><i
+                        class="fas fa-trash"></i>
+                    </button> -->
+                                        <!-- <button class="btn btn-warning rounded-5" tooltip="Lier des indicateurs"
+                      (click)="openOrganisationIndicateurPage(organisation.id)"><i class="fas fa-link"></i>
+                    </button>
+                    <button class="btn btn-warning rounded-5" tooltip="Lier des indicateurs calculé"
+                      (click)="openOrganisationTypeIndicateurPage(organisation.id)"><i class="fas fa-paperclip"></i>
+                    </button> -->
+                                        <!-- </div> -->
+                                    </td>
+                                </tr>
+                                } @empty {
+                                <p class="text-center">Aucun(e) donnee en base </p>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Modal Form -->
+<ng-template #templateForm>
+    <div class="modal-header">
+        <h5 class="modal-title pull-left">{{txtModalHeader}}</h5>
+        <button type="button" class="btn-close close pull-right" aria-label="Close" (click)="modalRef?.hide()">
+            <span aria-hidden="true" class="visually-hidden">&times;</span>
+        </button>
+    </div>
+    <form [formGroup]="organisationForm" enctype="multipart/form-data" (ngSubmit)="save()">
+        <div class="modal-body">
+            <div class="form-group mb-3 ">
+                <label for="ncc" class="form-label">Numéro Compte Contribuable (NCC) <span
+                        class="text-danger">*</span></label>
+                <div class="input-group">
+                    <input type="hidden" formControlName="id">
+                    <input type="text" class="form-control" id="ncc" placeholder="Entrez le ncc"
+                        name="ncc" required formControlName="ncc"
+                        [ngClass]="{'is-invalid':organisationForm.controls['ncc'].invalid && (organisationForm.controls['ncc'].dirty || organisationForm.controls['ncc'].touched), 'is-valid':organisationForm.controls['ncc'].valid}">
+                </div>
+                <div *ngIf="organisationForm.controls['ncc'].invalid && (organisationForm.controls['ncc'].dirty || organisationForm.controls['ncc'].touched)"
+                    class="text-danger">
+
+                    <div *ngIf="organisationForm.controls['ncc'].errors?.['required']">
+                        Veuillez renseigner le ncc
+                    </div>
+                </div>
+            </div>
+            <div class="form-group mb-3 ">
+                <label for="raisonSociale" class="form-label">Raison Sociale <span class="text-danger">*</span></label>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="raisonSociale" placeholder="Entrez la raison sociale"
+                        name="raisonSociale" required formControlName="raisonSociale"
+                        [ngClass]="{'is-invalid':organisationForm.controls['raisonSociale'].invalid && (organisationForm.controls['raisonSociale'].dirty || organisationForm.controls['raisonSociale'].touched), 'is-valid':organisationForm.controls['raisonSociale'].valid}">
+                </div>
+                <div *ngIf="organisationForm.controls['raisonSociale'].invalid && (organisationForm.controls['raisonSociale'].dirty || organisationForm.controls['raisonSociale'].touched)"
+                    class="text-danger">
+
+                    <div *ngIf="organisationForm.controls['raisonSociale'].errors?.['required']">
+                        Veuillez renseigner la raison sociale
+                    </div>
+                </div>
+            </div>
+            <div class="form-group mb-3 ">
+                <label for="sigle" class="form-label">Sigle</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="sigle" placeholder="Entrez le sigle"
+                        name="sigle" formControlName="sigle">
+                </div>
+                
+            </div>
+            <div class="form-group mb-3 ">
+                <label for="image" class="form-label">Logo</label>
+                <div class="input-group">
+                    <input type="file" accept="image/*" (change)="showPreview($event)"
+                        class="form-control" id="image" placeholder="Ajouter le logo" name="logo">
+                </div>
+                <!-- Image Preview -->
+                <div class="imagePreview text-center  mt-3" [hidden]="imageURL==''">
+                    <img [src]="imageURL" class="img-fluid img-thumbnail" width="150px" height="80px" alt="Logo">
+                </div>
+            </div>
+        </div>
+        <!-- {{organisationForm.value | json}} -->
+        <div class="modal-footer">
+            <div class="hstack gap-2 justify-content-end">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal"
+                    (click)=" modalRef?.hide()">Annuler</button>
+                <button type="submit" [disabled]="!organisationForm.valid && !loadingBtn"
+                    class="btn btn-success">
+                    <i class="fa" [ngClass]="{'fa-spin fa-spinner': loadingBtn, 'fa-check': !loadingBtn}"></i>
+                    {{textButton}}
+                </button>
+            </div>
+        </div>
+    </form>
+</ng-template>
+<!--End Modal Form-->
+
+<!--Modal Delete-->
+<ng-template #templateDelete>
+    <div class="modal-header">
+        <h4 class="modal-title pull-left">{{txtModalHeader}}</h4>
+        <button type="button" class="btn-close close pull-right" aria-label="Close" (click)="modalRef?.hide()">
+            <span aria-hidden="true" class="visually-hidden">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <div class="modal-body">
+            <p class="fs-5">Voulez-vous supprimer l'organisation
+                {{organisation.code}}<br>({{organisation.raisonSocial}})?
+            </p>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <div class="hstack gap-2 justify-content-end">
+            <button type="button" class="btn btn-light" data-bs-dismiss="modal"
+                (click)=" modalRef?.hide()">Annuler</button>
+            <button class="btn btn-danger" (click)="delete()">
+
+                <i class="fa" [ngClass]="{'fa-spin fa-spinner': loadingBtn, 'fa-check': !loadingBtn}"></i>
+                {{textButton}}
+            </button>
+        </div>
+    </div>
+</ng-template>

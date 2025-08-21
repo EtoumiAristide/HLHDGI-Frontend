@@ -13,6 +13,7 @@ const routes: Routes = [
   { path: 'dashboards', loadChildren: () => import('./dashboards/dashboards.module').then(m => m.DashboardsModule) },
   { path: 'partenaires', loadChildren: () => import('./partenaires/partenaires.module').then(m => m.PartenairesModule) },
   { path: 'factures', loadChildren: () => import('./factures/factures.module').then(m => m.FacturesModule) },
+  { path: 'parametrage', loadChildren: () => import('./admin/admin.module').then(m => m.AdminModule) },
 ];
 
 @NgModule({

@@ -1,0 +1,158 @@
+<div class="container-fluid">
+  <app-page-title title="Gestion des Menus" [breadcrumbItems]="breadCrumbItems"></app-page-title>
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <div class="row mb-2">
+            <div class="row">
+              <div class="col-sm-4">
+                <div class="search-box me-2 mb-2">
+                  <div class="position-relative">
+                    <input type="text" class="form-control" id="select2" placeholder="Rechercher dans la liste" 
+                    #searchInput (input)="filterData(searchInput)" />
+                    <i class="bx bx-filter-alt search-icon"></i>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-8">
+                <div class="text-sm-end">
+                  <button type="button" data-bs-toggle="modal" data-bs-target="#formModal"
+                    class="btn btn-primary waves-effect" (click)="openModal(templateForm)"><i class="mdi mdi-plus"></i>
+                    Ajouter un rôle</button>
+                </div>
+              </div>
+            </div>
+            <!-- end col-->
+          </div>
+          <div class="table-responsive">
+            <table class="table align-middle table-nowrap table-hover dt-responsive nowrap w-100 table-check">
+              <thead class="table-light">
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Libéllé</th>
+                  <th scope="col">Parent</th>
+                  <th scope="col">url</th>
+                  <th scope="col">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for(menu of menus ; track menu.id; let index = $index) {
+                <tr>
+                  <td>{{index+1}}</td>
+                  <td>{{ menu.label }}</td>
+                  <td>{{ menu.parentLabel}}</td>
+                  <td>{{ menu.link}}</td>
+                  <td>
+                    <ul class="list-unstyled hstack gap-1 mb-0">
+                      <li tooltip="Modifier">
+                        <a href="javascript:void(0);" (click)="openModal(templateForm, menu)"
+                          class="btn btn-sm btn-soft-info"><i class="mdi mdi-pencil-outline"></i></a>
+                      </li>
+                      <li tooltip="Supprimer">
+                        <a href="javascript:void(0);" (click)="openModal(templateDelete, menu, true)"
+                          data-bs-toggle="modal" class="btn btn-sm btn-soft-danger"><i
+                            class="mdi mdi-delete-outline"></i></a>
+                      </li>
+                    </ul>
+                    <!-- <div class="d-flex gap-1">
+                        <button class="btn btn-primary rounded-5" (click)="openModal(templateForm, menu)">
+                          <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-danger rounded-5" (click)="openModal(templateDelete, menu, true)">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </div> -->
+                  </td>
+                </tr>
+                } @empty {
+                <p class="text-center">Aucune donnee en base </p>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- end row -->
+</div>
+
+<ng-template #templateForm>
+  <div class="modal-header">
+    <h5 class="modal-title pull-left">{{txtModalHeader}}</h5>
+    <button type="button" class="btn-close close pull-right" aria-label="Close" (click)="modalRef?.hide()">
+      <span aria-hidden="true" class="visually-hidden">&times;</span>
+    </button>
+  </div>
+  <form #addMetaMenuForm="ngForm" (ngSubmit)="save(addMetaMenuForm)">
+    <div class="modal-body">
+      <div class="form-group mb-3 ">
+        <label for="libelle" class="form-label">Libéllé <span class="text-danger">*</span></label>
+        <div class="input-group">
+          <input type="text" class="form-control" id="libelle" placeholder="Entrez le libéllé de la catégorie"
+            name="libelle" required [(ngModel)]="metaMenuForm.label" #libelle="ngModel">
+        </div>
+        <div [hidden]="libelle.valid || libelle.pristine" class="text-danger">
+          Ce champ est obligatoire
+        </div>
+      </div>
+      <div class="form-group mb-3 ">
+        <label for="link" class="form-label">Lien <span class="text-danger">*</span></label>
+        <div class="input-group">
+          <input type="text" class="form-control" id="link" placeholder="Entrez le lien du rôle" name="link" required
+            [(ngModel)]="metaMenuForm.link" #link="ngModel">
+        </div>
+        <div [hidden]="link.valid || link.pristine" class="text-danger">
+          Ce champ est obligatoire
+        </div>
+      </div>
+      <div class="form-group mb-3 ">
+        <label for="libelle" class="form-label">Rôle Parent</label>
+        <ng-select #roleParent="ngModel" placeholder="Selectionner un rôle" [items]="menus" bindLabel="label"
+          bindValue="id" [(ngModel)]="metaMenuForm.parentId">
+        </ng-select>
+        <div [hidden]="!controlSelection(roleParent) || roleParent.pristine" class="mt-2 text-danger">
+          Veuillez sélectionner la catégorie
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <div class="hstack gap-2 justify-content-end">
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal" (click)=" modalRef?.hide()">Annuler</button>
+        <button type="submit" [disabled]="!addMetaMenuForm.form.valid && !loadingBtn"
+          class="col-12 btn btn-success rounded-2">
+          <i class="fa" [ngClass]="{'fa-spin fa-spinner': loadingBtn, 'fa-check': !loadingBtn}"></i>
+          {{textButton}}
+        </button>
+      </div>
+    </div>
+  </form>
+</ng-template>
+<!--End Modal Form-->
+
+<!--Modal Delete-->
+<ng-template #templateDelete>
+  <div class="modal-header">
+    <h5 class="modal-title pull-left">{{txtModalHeader}}</h5>
+    <button type="button" class="btn-close close pull-right" aria-label="Close" (click)="modalRef?.hide()">
+      <span aria-hidden="true" class="visually-hidden">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="modal-body">
+      <p class="fs-5">Voulez-vous supprimer le rôle {{metaMenuForm.label}}?</p>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <div class="hstack gap-2 justify-content-end">
+      <button type="button" class="btn btn-light" data-bs-dismiss="modal" (click)=" modalRef?.hide()">Annuler</button>
+      <button class="btn btn-danger rounded-2" (click)="delete()">
+
+        <i class="fa" [ngClass]="{'fa-spin fa-spinner': loadingBtn, 'fa-check': !loadingBtn}"></i>
+        {{textButton}}
+      </button>
+    </div>
+  </div>
+</ng-template>

@@ -1,0 +1,202 @@
+<div class="container-fluid">
+    <app-page-title title="Point de vente" [breadcrumbItems]="breadCrumbItems"></app-page-title>
+    <!-- end page title -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body border-bottom">
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <div class="search-box me-2 mb-2">
+                                <div class="position-relative">
+                                    <input type="text" class="form-control" id="select2"
+                                        placeholder="Rechercher dans la liste" #searchInput
+                                        />
+                                        <!-- (input)="filterData(searchInput)"  -->
+                                    <i class="bx bx-filter-alt search-icon"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-8">
+                            <div class="text-sm-end">
+                                <button type="button" data-bs-toggle="modal" data-bs-target="#formModal"
+                                    class="btn btn-primary waves-effect" (click)="openModal(templateForm)"><i
+                                        class="mdi mdi-plus"></i>
+                                    Nouveau Point de vente</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body border-bottom">
+                    <div class="row g-3">
+                        <div class="flex-shrink-0 d-flex gap-1 flex-row-reverse">
+                            <!-- <input type="search" name="searchInput" class="form-control ng-valid ng-dirty ng-touched"
+                placeholder="Rechercher dans la liste" id="searchInput" #searchInput (input)="filterData(searchInput)"> -->
+                            <button class="btn btn-soft-danger" (click)="deleteSelectedItem()"><i
+                                    class="mdi mdi-trash-can-outline"></i>
+                                Supprimer indicateur</button>
+                            <button class="btn btn-soft-warning" (click)="editSelectedItem()"><i
+                                    class="mdi mdi-pencil"></i> Modifier
+                                indicateur</button>
+                            <button #expandBtn class="btn btn-soft-primary" (click)="expandTree()"><i class="mdi"
+                                    [ngClass]="{'mdi-eye-off': treeIsExpanded, 'mdi-eye': !treeIsExpanded}"></i>
+                                {{treeIsExpanded ?
+                                'Cacher': 'Afficher'}} les éléments</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body border-bottom">
+
+                    <db-angular-tree-grid #angularGrid [data]="pointVenteDataTreeGrid" [configs]="configs"
+                        (rowselect)="nodeChecked($event)"></db-angular-tree-grid>
+
+                    <!-- <div class="table-responsive">
+                        <table
+                            class="table align-middle table-nowrap table-hover dt-responsive nowrap w-100 table-check">
+                            <thead class="table-light">
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Entreprise</th>
+                                    <th scope="col">Nom du PDV</th>
+                                    <th scope="col">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for(pointVente of pointVentes ; track $index) {
+                                <tr>
+                                    <td>{{ $index+1 }}</td>
+                                    <td>
+                                        {{ pointVente.organisation.raisonSocial}}
+                                    </td>
+                                    <td>
+                                        {{ pointVente.nom}}
+                                    </td>
+                                    <td>
+                                        <ul class="list-unstyled hstack gap-1 mb-0">
+                                            <li tooltip="Modifier">
+                                                <a href="javascript:void(0);"
+                                                    (click)="openModal(templateForm, pointVente)"
+                                                    class="btn btn-sm btn-soft-info"><i
+                                                        class="mdi mdi-pencil-outline"></i></a>
+                                            </li>
+                                            <li tooltip="Supprimer">
+                                                <a href="javascript:void(0);"
+                                                    (click)="openModal(templateDelete, pointVente, true)"
+                                                    data-bs-toggle="modal" class="btn btn-sm btn-soft-danger"><i
+                                                        class="mdi mdi-delete-outline"></i></a>
+                                            </li>
+                                        </ul> -->
+                    <!-- <div class="d-flex gap-1"> -->
+                    <!-- <button data-bs-toggle="tooltip" data-bs-placement="top" title="Edit" class="btn btn-primary rounded-5" (click)="openModal(templateForm, pointVente)"><i
+                        class="fas fa-edit"></i>
+                    </button>
+                    <button data-bs-toggle="tooltip" data-bs-placement="top" title="Edit" class="btn btn-danger rounded-5" (click)="openModal(templateDelete, pointVente, true)"><i
+                        class="fas fa-trash"></i>
+                    </button> -->
+                    <!-- <button class="btn btn-warning rounded-5" tooltip="Lier des indicateurs"
+                      (click)="openOrganisationIndicateurPage(pointVente.id)"><i class="fas fa-link"></i>
+                    </button>
+                    <button class="btn btn-warning rounded-5" tooltip="Lier des indicateurs calculé"
+                      (click)="openOrganisationTypeIndicateurPage(pointVente.id)"><i class="fas fa-paperclip"></i>
+                    </button> -->
+                    <!-- </div> -->
+                    <!-- </td>
+                                </tr>
+                                } @empty {
+                                <p class="text-center">Aucun(e) donnee en base </p>
+                                }
+                            </tbody>
+                        </table> 
+                </div> -->
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
+
+<!-- Modal Form -->
+<ng-template #templateForm>
+    <div class="modal-header">
+        <h5 class="modal-title pull-left">{{txtModalHeader}}</h5>
+        <button type="button" class="btn-close close pull-right" aria-label="Close" (click)="modalRef?.hide()">
+            <span aria-hidden="true" class="visually-hidden">&times;</span>
+        </button>
+    </div>
+    <form [formGroup]="pointVenteForm" (ngSubmit)="save()">
+        <div class="modal-body">
+            <div class="form-group mb-3 ">
+                <label for="organisation" class="form-label">Entreprise <span class="text-danger">*</span></label>
+                <ng-select placeholder="Selectionner une entreprise" [items]="organisations" bindLabel="raisonSocial"
+                    bindValue="id" formControlName="organisation"
+                    [ngClass]="{'is-invalid':pointVenteForm.controls['organisation'].invalid && (pointVenteForm.controls['organisation'].dirty || pointVenteForm.controls['organisation'].touched), 'is-valid':pointVenteForm.controls['organisation'].valid}">
+                </ng-select>
+                <div *ngIf="pointVenteForm.controls['organisation'].invalid && (pointVenteForm.controls['organisation'].dirty || pointVenteForm.controls['organisation'].touched)"
+                    class="text-danger">
+
+                    <div *ngIf="pointVenteForm.controls['organisation'].errors?.['required']">
+                        Veuillez sélectionner l'entreprise
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group mb-3 ">
+                <label for="nom" class="form-label">Nom <span class="text-danger">*</span></label>
+                <div class="input-group">
+                    <input type="hidden" formControlName="id">
+                    <input type="text" class="form-control" id="nom" placeholder="Entrez le nom" name="nom" required
+                        formControlName="nom"
+                        [ngClass]="{'is-invalid':pointVenteForm.controls['nom'].invalid && (pointVenteForm.controls['nom'].dirty || pointVenteForm.controls['nom'].touched), 'is-valid':pointVenteForm.controls['nom'].valid}">
+                </div>
+                <div *ngIf="pointVenteForm.controls['nom'].invalid && (pointVenteForm.controls['nom'].dirty || pointVenteForm.controls['nom'].touched)"
+                    class="text-danger">
+
+                    <div *ngIf="pointVenteForm.controls['nom'].errors?.['required']">
+                        Veuillez renseigner le nom du PDV
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <!-- {{pointVenteForm.value | json}} -->
+        <div class="modal-footer">
+            <div class="hstack gap-2 justify-content-end">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal"
+                    (click)=" modalRef?.hide()">Annuler</button>
+                <button type="submit" [disabled]="!pointVenteForm.valid && !loadingBtn" class="btn btn-success">
+                    <i class="fa" [ngClass]="{'fa-spin fa-spinner': loadingBtn, 'fa-check': !loadingBtn}"></i>
+                    {{textButton}}
+                </button>
+            </div>
+        </div>
+    </form>
+</ng-template>
+<!--End Modal Form-->
+
+<!--Modal Delete-->
+<ng-template #templateDelete>
+    <div class="modal-header">
+        <h4 class="modal-title pull-left">{{txtModalHeader}}</h4>
+        <button type="button" class="btn-close close pull-right" aria-label="Close" (click)="modalRef?.hide()">
+            <span aria-hidden="true" class="visually-hidden">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <div class="modal-body">
+            <p class="fs-5">Voulez-vous supprimer le point de Vente
+                {{pointVente.nom}}?
+            </p>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <div class="hstack gap-2 justify-content-end">
+            <button type="button" class="btn btn-light" data-bs-dismiss="modal"
+                (click)=" modalRef?.hide()">Annuler</button>
+            <button class="btn btn-danger" (click)="delete()">
+
+                <i class="fa" [ngClass]="{'fa-spin fa-spinner': loadingBtn, 'fa-check': !loadingBtn}"></i>
+                {{textButton}}
+            </button>
+        </div>
+    </div>
+</ng-template>

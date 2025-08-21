@@ -1,0 +1,143 @@
+<div class="container-fluid">
+  <!-- <app-page-title title="Formulaire de Gestion des utilisateurs" [breadcrumbItems]="breadCrumbItems"></app-page-title> -->
+  <div class="row">
+    <div class="col-12">
+      <div class="page-title-box d-flex align-items-center justify-content-between">
+        <h4 class="mb-0 font-size-18">Formulaire de Gestion des utilisateurs</h4>
+        <div class="page-title-right">
+          <ol class="breadcrumb m-0">
+            <ng-container>
+              <li class="breadcrumb-item"><a href="#" routerLink="/">Accueil</a>
+              </li>
+              <li class="breadcrumb-item">Administration
+              </li>
+              <li class="breadcrumb-item"><a href="#" routerLink="/utilisateurs">Utilisateurs</a>
+              </li>
+              <li class="breadcrumb-item active">Form
+              </li>
+            </ng-container>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body border-bottom">
+          <h5>Les champs marqués <span class="text-danger">(*) </span>sont obligatoires</h5>
+        </div>
+        <div class="card-body">
+          <alert [hidden]="!showErrorPanel" type="danger" [dismissible]="true" role="alert">
+            {{errorMsg}}
+          </alert>
+          <form #addAccidentForm="ngForm" (ngSubmit)="save(addAccidentForm)">
+            <div class="row mt-3">
+              <div class="col-sm-6 col-md-4 mt-3">
+                <label for="firstName">Nom <span class="text-danger">*</span></label>
+                <input type="text" id="firstName" class="form-control" name="firstName" required placeholder="Ex: Doe"
+                  [(ngModel)]="userDtoForm.firstName" #firstName="ngModel" />
+
+                <div [hidden]="firstName.valid || firstName.pristine" class="text-danger">
+                  Ce champ est obligatoire
+                </div>
+              </div>
+              <div class="col-sm-6 col-md-4 mt-3">
+                <label for="lastName">Prénoms <span class="text-danger">*</span></label>
+                <input type="text" id="lastName" class="form-control" name="lastName" required placeholder="John"
+                  [(ngModel)]="userDtoForm.lastName" #lastName="ngModel" />
+
+                <div [hidden]="lastName.valid || lastName.pristine" class="text-danger">
+                  Ce champ est obligatoire
+                </div>
+              </div>
+              <div class="col-sm-6 col-md-4 mt-3">
+                <label for="email">Email <span class="text-danger">*</span></label>
+                <input type="email" id="email" class="form-control" name="email" required
+                  placeholder="Ex: example@email.com" [(ngModel)]="userDtoForm.email" #email="ngModel" />
+
+                <div [hidden]="email.valid || email.pristine" class="text-danger">
+                  Ce champ est obligatoire
+                </div>
+              </div>
+              <div class="col-sm-6 col-md-4 mt-3">
+                <label for="phone">N° Téléphone</label>
+                <input type="text" id="phone" class="form-control" name="phone" placeholder="00 00 00 00 00"
+                  [(ngModel)]="userDtoForm.phone" #phone="ngModel" />
+              </div>
+              <div class="col-sm-6 col-md-4 mt-3">
+                <label for="username">Nom d'utilisateur <span class="text-danger">*</span></label>
+                <input type="text" id="username" class="form-control" name="username" required placeholder="Ex: login"
+                  [(ngModel)]="userDtoForm.username" #username="ngModel" />
+
+                <div [hidden]="username.valid || username.pristine" class="text-danger">
+                  Ce champ est obligatoire
+                </div>
+              </div>
+              <div class="col-sm-6 col-md-4 mt-3" [hidden]="isModif">
+                <label for="password">Mot de passe <span class="text-danger">*</span></label>
+                <input type="text" id="password" class="form-control" name="password" required
+                  placeholder="Ex: Mot de passe" [(ngModel)]="userDtoForm.password" #password="ngModel" />
+
+                <div [hidden]="password.valid || password.pristine" class="text-danger">
+                  Ce champ est obligatoire
+                </div>
+              </div>
+            </div>
+            <div class="row mt-3">
+              <div class="col-sm-6 col-md-4 mt-3">
+                <label for="organisation">Filiale <span class="text-danger">*</span></label>
+                <select id="organisation" #organisation [(ngModel)]="userDtoForm.organisation.id"
+                  class="form-control form-select">
+                  <option value="0"></option>
+                  @for(organisationItem of organisations; track $index) {
+                  <option [value]="organisationItem.id">{{ organisationItem.code }}</option>
+                  }
+                </select>
+                <div [hidden]="!controlSelection(organisation) || organisation.pristine" class="mt-2 text-danger">
+                  Veuillez sélectionner l'organisation
+                </div>
+              </div>
+              <div class="col-sm-6 col-md-4 mt-3">
+                <label for="role">Rôle <span class="text-danger">*</span></label>
+                <select id="role" #role [(ngModel)]="userDtoForm.role" class="form-control form-select">
+                  <option value=""></option>
+                  @for(role of roles; track $index) {
+                  <option [value]="role.name">{{ role.name }}</option>
+                  }
+                </select>
+                <div [hidden]="!controlSelection(role) || role.pristine" class="mt-2 text-danger">
+                  Veuillez sélectionner le rôle
+                </div>
+              </div>
+            </div>
+            <div class="row mt-3">
+              <div class="col-sm-6 col-md-4 mt-3">
+                <label for="">Statut de l'agent</label>
+                <div class="form-check form-switch form-switch-lg mb-3">
+                  <input type="checkbox" id="flexSwitchCheckChecked" checked="" [(ngModel)]="userDtoForm.enable"
+                    class="form-control form-check-input">
+                  <label for="flexSwitchCheckChecked" class="form-check-label">
+                    {{userDtoForm.enable ? 'Activé' : 'Désactivé'}}
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div class="row mt-3">
+              <div class="col-lg-12 text-center">
+                <button class="btn btn-outline-secondary me-2" type="button" [hidden]="isModif"
+                  (click)="cleanFormData()">Annuler</button>
+                <button type="submit" [disabled]="!addAccidentForm.form.valid && !loadingBtn"
+                  class="btn btn-success rounded-2">
+                  <i class="fa" [ngClass]="{'fa-spin fa-spinner': loadingBtn, 'fa-check': !loadingBtn}"></i>
+                  {{textButton}}
+                </button>
+
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
