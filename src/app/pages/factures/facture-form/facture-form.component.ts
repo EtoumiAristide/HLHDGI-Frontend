@@ -8,7 +8,9 @@ import { Facture } from '../model/facture.model';
 import { FacturespiServices } from '../service/facture-api.service';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
-import { objectToFormData } from 'src/app/core-custom/utils/utils.service';
+import { methodePaiement, objectToFormData, typeClient, typeFacture } from 'src/app/core-custom/utils/utils.service';
+import { PointVente } from '../../admin/pointvente/models/pointvente.model';
+import { PointVenteService } from '../../admin/pointvente/services/pointvente.service';
 
 @Component({
   selector: 'app-facture-form',
@@ -50,20 +52,11 @@ export class FactureFormComponent {
 
   apiCallError: any
 
-  listeTypeFacture: any = [
-    {
-      'label': 'FACTURE DE VENTE',
-      'valeur': 'FACTURE_VENTE',
-    },
-    {
-      'label': "FACTURE D'AVOIR",
-      'valeur': 'FACTURE_AVOIR',
-    },
-    {
-      'label': "BORDERAU D'ACHAT",
-      'valeur': 'FACTURE_VENTE',
-    },
-  ]
+  listeTypeFacture: any = typeFacture
+  typeClient: any = typeClient
+  methodePaiement: any = methodePaiement
+
+  listePointVente: PointVente[] = []
 
   formData: FormData
 
@@ -72,6 +65,7 @@ export class FactureFormComponent {
 
   constructor(
     private _factureApi: FacturespiServices,
+    private _pointVenteApi: PointVenteService,
     private modalService: BsModalService,
     private fb: FormBuilder,
     private _toastServive: ToastService,
@@ -84,6 +78,9 @@ export class FactureFormComponent {
     this.factureForm = this.fb.group({
       id: [0],
       typeFacture: ['', Validators.required],
+      typeClient: ['', Validators.required],
+      modePaiement: ['', Validators.required],
+      pointVente: ['', Validators.required],
       fichier: [null, Validators.required]
     })
 
@@ -95,6 +92,22 @@ export class FactureFormComponent {
 
   ngOnInit() {
     this.breadCrumbItems = [{ label: 'Accueil', url: '/' }, { label: 'Factures', url: '/factures' }, { label: 'Form', active: true }];
+
+    this.chargerPointVente()
+  }
+
+  chargerPointVente() {
+    this._pointVenteApi.getAll().subscribe({
+      next: (response) => {
+        console.log(response);
+
+        this.listePointVente = response.data
+      },
+      error(err) {
+        console.log(err);
+
+      },
+    })
   }
 
   //Ajout d'un nouvel élément
@@ -107,6 +120,9 @@ export class FactureFormComponent {
       let dataToSend: any = {}
       dataToSend.type = this.factureForm.controls['typeFacture'].value
       dataToSend.file = this.factureForm.controls['fichier'].value
+      dataToSend.client = this.factureForm.controls['typeClient'].value
+      dataToSend.paiement = this.factureForm.controls['modePaiement'].value
+      dataToSend.pointvente = this.listePointVente.find(pointVente => pointVente.id == this.factureForm.controls['pointVente'].value).nom
 
       this.formData = objectToFormData(dataToSend)
 
@@ -141,6 +157,9 @@ export class FactureFormComponent {
       let dataToSend: any = {}
       dataToSend.type = this.factureForm.controls['typeFacture'].value
       dataToSend.file = this.factureForm.controls['fichier'].value
+      dataToSend.client = this.factureForm.controls['typeClient'].value
+      dataToSend.paiement = this.factureForm.controls['modePaiement'].value
+      dataToSend.pointvente = this.factureForm.controls['pointVente'].value
 
       this.formData = objectToFormData(dataToSend)
 
@@ -164,7 +183,7 @@ export class FactureFormComponent {
             this.isLoadFacture = false
             // console.log(JSON.stringify(error));
 
-            this.apiCallError = error.message
+            this.apiCallError = error.error
           });
         }
       });

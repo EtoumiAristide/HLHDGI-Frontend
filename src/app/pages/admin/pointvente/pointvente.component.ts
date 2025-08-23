@@ -116,7 +116,7 @@ export class PointventeComponent {
         console.log(JSON.stringify(response))
         //this.apiResponse = response as ApiPaginatedResponse<PointVente>;
         //this.pointVentes = this.apiResponse.content
-        this.organisations = response as Organisation[]
+        this.organisations = response.data as Organisation[]
         // this.imageURL = this.pointVenteForm.logo
       },
       error: error => {
@@ -130,7 +130,7 @@ export class PointventeComponent {
         console.log(JSON.stringify(response))
         //this.apiResponse = response as ApiPaginatedResponse<PointVente>;
         //this.pointVentes = this.apiResponse.content
-        this.pointVentes = response as PointVenteEntreprise[]
+        this.pointVentes = response.data as PointVenteEntreprise[]
         //this.pointVentesFilter = this.pointVentes
         // this.imageURL = this.pointVenteForm.logo
 

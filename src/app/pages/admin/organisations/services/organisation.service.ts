@@ -17,6 +17,10 @@ export class OrganisationService {
     return this._crudService.getAll(url_path.ORGANISATION_EP)
   }
 
+  getAllByPage(paginationData: any): Observable<ApiPaginatedResponse<Organisation>> {
+    return this._crudService.getByPage({ endpoint: url_path.ORGANISATION_EP + '/pages', paginationData: paginationData });
+  }
+
   getById(id: number): Observable<ApiPaginatedResponse<Organisation>> {
     return this._crudService.getById(url_path.ORGANISATION_EP + '/' + id)
   }

@@ -11,6 +11,7 @@ import { btnFormState } from 'src/app/core-custom/constants/form-btn-state.const
 import { formModalHeader } from 'src/app/core-custom/constants/form-modal-header.constant';
 import { ToastService } from 'src/app/core-custom/services/toast.service';
 import { objectToFormData } from 'src/app/core-custom/utils/utils.service';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-organisations',
@@ -28,7 +29,10 @@ export class OrganisationsComponent {
   organisation: Organisation;
   formData: FormData;
 
-  apiResponse: ApiPaginatedResponse<Organisation>;
+  apiResponse: ApiPaginatedResponse<Organisation> = new ApiPaginatedResponse();
+  // pagination variables
+  pageSize = environment.pageSize;
+  pageNum = 0;
 
   loadingBtn: boolean = false;
   textButton: string = btnFormState.save;
@@ -73,12 +77,12 @@ export class OrganisationsComponent {
   }
 
   getAllOrganisation() {
-    this._organisationApi.getAll().subscribe({
+    this._organisationApi.getAllByPage({ pageNum: this.pageNum, size: this.pageSize }).subscribe({
       next: (response: any) => {
         console.log(JSON.stringify(response))
-        //this.apiResponse = response as ApiPaginatedResponse<Organisation>;
+        this.apiResponse = response as ApiPaginatedResponse<Organisation>;
         //this.organisations = this.apiResponse.content
-        this.organisations = response as Organisation[]
+        this.organisations = response.data
         this.organisationsFilter = this.organisations
         // this.imageURL = this.organisationForm.logo
       },
@@ -86,6 +90,19 @@ export class OrganisationsComponent {
         console.log(error);
       }
     });
+  }
+
+  //Gestion de la pagination
+  changePage(newPage: number | string): void {
+    if (newPage === 'prev') {
+      this.pageNum--;
+      if (this.pageNum < 0) this.pageNum = 0
+    } else if (newPage === 'next') {
+      this.pageNum++;
+      if (this.pageNum == this.apiResponse.total_pages) this.pageNum = this.apiResponse.current_page
+    }
+
+    this.getAllOrganisation();
   }
 
   save() {

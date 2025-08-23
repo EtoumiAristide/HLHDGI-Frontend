@@ -25,6 +25,7 @@ export const environment = {
     realm: 'dgifne', //Realm name
     clientId: 'frontend',
   },
+  pageSize: 10
 };
 
 /*

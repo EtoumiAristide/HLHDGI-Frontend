@@ -12,6 +12,23 @@
                         (ngSubmit)="save()">
                         <div class="row">
                             <div class="col-md-3 col-sm-12">
+                                <div class="mb-3 ">
+                                    <label for="pointVente" class="form-label">Point de vente <span
+                                            class="text-danger">*</span></label>
+                                    <ng-select placeholder="Selectionner un point de vente" [items]="listePointVente"
+                                        bindLabel="nom" bindValue="id" formControlName="pointVente"
+                                        [ngClass]="{'is-invalid':factureForm.controls['pointVente'].invalid && (factureForm.controls['pointVente'].dirty || factureForm.controls['pointVente'].touched), 'is-valid':factureForm.controls['pointVente'].valid}">
+                                    </ng-select>
+                                    <div *ngIf="factureForm.controls['pointVente'].invalid && (factureForm.controls['pointVente'].dirty || factureForm.controls['pointVente'].touched)"
+                                        class="text-danger">
+
+                                        <div *ngIf="factureForm.controls['pointVente'].errors?.['required']">
+                                            Veuillez sélectionner l'entreprise
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-sm-12">
                                 <!-- {{listeTypeFacture|json}} -->
                                 <div class="mb-3">
                                     <input type="hidden" name="id" formControlName="id">
@@ -34,7 +51,54 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-6 col-sm-12">
+                            <div class="col-md-3 col-sm-12">
+                                <!-- {{listeTypeFacture|json}} -->
+                                <div class="mb-3">
+                                    <input type="hidden" name="id" formControlName="id">
+                                    <label for="typeClient">Type de client <span class="text-danger">*</span></label>
+                                    <select name="typeClient" class="form-select" id="typeClient"
+                                        formControlName="typeClient"
+                                        [ngClass]="{'is-invalid':factureForm.controls['typeClient'].invalid && (factureForm.controls['typeClient'].dirty || factureForm.controls['typeClient'].touched), 'is-valid':factureForm.controls['typeClient'].valid}"
+                                        required>
+                                        <option value="" disabled selected>Sélectionner...</option>
+                                        @for (typeFacture of typeClient; track $index) {
+                                        <option value="{{typeFacture.valeur}}">{{typeFacture.label}}</option>
+                                        }
+                                    </select>
+                                    <div *ngIf="factureForm.controls['typeClient'].invalid && (factureForm.controls['typeClient'].dirty || factureForm.controls['typeClient'].touched)"
+                                        class="invalid-feedback">
+
+                                        <div *ngIf="factureForm.controls['typeClient'].errors?.['required']">
+                                            Ce champ est obligatoire
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-sm-12">
+                                <!-- {{listeTypeFacture|json}} -->
+                                <div class="mb-3">
+                                    <input type="hidden" name="id" formControlName="id">
+                                    <label for="modePaiement">Mode de Paiement <span
+                                            class="text-danger">*</span></label>
+                                    <select name="modePaiement" class="form-select" id="modePaiement"
+                                        formControlName="modePaiement"
+                                        [ngClass]="{'is-invalid':factureForm.controls['modePaiement'].invalid && (factureForm.controls['modePaiement'].dirty || factureForm.controls['modePaiement'].touched), 'is-valid':factureForm.controls['modePaiement'].valid}"
+                                        required>
+                                        <option value="" disabled selected>Sélectionner...</option>
+                                        @for (typeFacture of methodePaiement; track $index) {
+                                        <option value="{{typeFacture.valeur}}">{{typeFacture.label}}</option>
+                                        }
+                                    </select>
+                                    <div *ngIf="factureForm.controls['modePaiement'].invalid && (factureForm.controls['modePaiement'].dirty || factureForm.controls['modePaiement'].touched)"
+                                        class="invalid-feedback">
+
+                                        <div *ngIf="factureForm.controls['modePaiement'].errors?.['required']">
+                                            Ce champ est obligatoire
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-sm-12">
                                 <div class="mb-3">
                                     <label for="login">Fichier <span class="text-danger">*</span></label>
                                     <input type="file"
@@ -62,12 +126,12 @@
                             </div>
 
                         </div>
-                        <!-- {{factureForm.value|json}} -->
-                        <div class="row" *ngIf="apiCallError!=undefined">
+                        {{factureForm.value|json}}
+                        <div class="row" *ngIf="apiCallError">
                             <div class="alert alert-danger d-flex align-items-center" role="alert">
                                 <i class="feather icon-alert-octagon flex-shrink-0 me-2"></i>
                                 <div>
-                                    {{apiCallError}}
+                                    {{apiCallError.message}}
                                 </div>
                             </div>
                         </div>
@@ -82,8 +146,8 @@
                                 @for(data of extractedFactureData; track $index){
                                 <accordion [closeOthers]="true" class="accordion" [isAnimated]="true">
                                     <!-- <accordion-group [isOpen]="$index==0" heading="{{data?.clientPayload?.nom}}" -->
-                                    <accordion-group heading="{{data?.clientPayload?.nom}}"
-                                        class="accordion-item" #group>
+                                    <accordion-group heading="{{data?.clientPayload?.nom}}" class="accordion-item"
+                                        #group>
                                         <span accordion-heading class="float-end fs-5">
                                             <i class="mdi"
                                                 [ngClass]="!group?.isOpen ? 'mdi mdi-chevron-down accor-plus-icon': 'mdi mdi-chevron-up accor-plus-icon'"></i>

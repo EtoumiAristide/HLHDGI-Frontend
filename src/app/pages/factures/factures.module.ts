@@ -9,6 +9,7 @@ import { PaginationModule } from 'ngx-bootstrap/pagination';
 import { ModalModule } from 'ngx-bootstrap/modal';
 import { FactureFormComponent } from './facture-form/facture-form.component';
 import { AccordionModule } from 'ngx-bootstrap/accordion';
+import { NgSelectModule } from '@ng-select/ng-select';
 
 
 @NgModule({
@@ -25,6 +26,7 @@ import { AccordionModule } from 'ngx-bootstrap/accordion';
     PaginationModule.forRoot(),
     ModalModule,
     AccordionModule.forRoot(),
+    NgSelectModule,
   ]
 })
 export class FacturesModule { }

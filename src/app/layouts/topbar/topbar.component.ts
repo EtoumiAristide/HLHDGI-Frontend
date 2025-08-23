@@ -39,6 +39,7 @@ export class TopbarComponent implements OnInit {
 
   keycloakUrl = environment.keycloak.authority
   keyclaokRealm = environment.keycloak.realm
+  userDetails: any
 
   constructor(@Inject(DOCUMENT) private document: any, private router: Router, private authService: AuthenticationService,
     private authFackservice: AuthfakeauthenticationService,
@@ -80,6 +81,10 @@ export class TopbarComponent implements OnInit {
     } else {
       this.flagvalue = val.map(element => element.flag);
     }
+
+    this._keycloakService.loadUserProfile().then(profile => {
+      this.userDetails = profile.firstName + ' ' + profile.lastName
+    })
   }
 
   setLanguage(text: string, lang: string, flag: string) {
