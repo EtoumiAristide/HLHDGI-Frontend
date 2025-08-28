@@ -17,7 +17,7 @@ export class PointVenteService {
   }
   
   getAllByEntreprise() {
-    return this._crudService.getAll(url_path.POINT_VENTE_EP + '/sortbyEntreprise')
+    return this._crudService.getAll(url_path.POINT_VENTE_EP + '/byEntreprise')
   }
 
   getById(id: number): Observable<ApiPaginatedResponse<PointVente>> {

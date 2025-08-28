@@ -97,7 +97,8 @@ export class FactureFormComponent {
   }
 
   chargerPointVente() {
-    this._pointVenteApi.getAll().subscribe({
+    // this._pointVenteApi.getAll().subscribe({
+    this._pointVenteApi.getAllByEntreprise().subscribe({
       next: (response) => {
         console.log(response);
 
