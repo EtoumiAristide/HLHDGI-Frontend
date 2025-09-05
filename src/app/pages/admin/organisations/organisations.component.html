@@ -203,6 +203,53 @@
 
             </div>
             <div class="form-group mb-3 ">
+                <label for="indexLectureFichier" class="form-label">Index Lecture fichier</label>
+                <button type="button" class="btn btn-soft-info btn-sm rounded-5 ms-3" [popover]="popTemplate"
+                  popoverTitle="Aide pour cette rubrique" 
+                  data-bs-toggle="tooltip" tooltip="Cliquer pour voir/masquer la description"><i
+                    class="fa fa-info-circle"></i></button>
+                    <!-- triggers="mouseenter:mouseleave" -->
+                <ng-template #popTemplate>
+                  <div [innerHTML]="'En cas de facturation par fichier excel, prière préciser l\'index de la feuile à partir de laquelle les données doivent être lues. Le 1er index étant 0'"></div>
+                </ng-template>
+                <div class="input-group">
+                    <input type="number" min="0" class="form-control" id="indexLectureFichier" placeholder="Entrez l'index" name="indexLectureFichier"
+                        formControlName="indexLectureFichier">
+                </div>
+
+            </div>
+            <div class="form-group mb-3 ">
+                <label for="isOrderedByPaiementMethod" class="form-label">Affichage par mode de paiement ?</label>
+                <button type="button" class="btn btn-soft-info btn-sm rounded-5 ms-3" [popover]="popTemplate2"
+                  popoverTitle="Aide pour cette rubrique" 
+                  data-bs-toggle="tooltip" tooltip="Cliquer pour voir/masquer la description"><i
+                    class="fa fa-info-circle"></i></button>
+                    <!-- triggers="mouseenter:mouseleave" -->
+                <ng-template #popTemplate2>
+                  <div [innerHTML]="'En cas de facturation par fichier excel, prière préciser si les feuilles sont classées par mode de paiement ou par client. L\'affichage par défaut étant par client'"></div>
+                </ng-template>
+                <div class="input-group">
+                    <ui-switch formControlName="isOrderedByPaiementMethod"  color="#556ee6"  [checked]="false" uncheckedLabel="NON" checkedLabel="OUI" size="small" class="me-1"></ui-switch>
+                </div>
+
+            </div>
+
+            <div class="form-group mb-3 ">
+                <label for="isPrixUnitaireDefined" class="form-label">Prix unitaire inexistant ?</label>
+                <button type="button" class="btn btn-soft-info btn-sm rounded-5 ms-3" [popover]="popTemplate3"
+                  popoverTitle="Aide pour cette rubrique" 
+                  data-bs-toggle="tooltip" tooltip="Cliquer pour voir/masquer la description"><i
+                    class="fa fa-info-circle"></i></button>
+                    <!-- triggers="mouseenter:mouseleave" -->
+                <ng-template #popTemplate3>
+                  <div [innerHTML]="'En cas de facturation par fichier excel, prière préciser si le prix unitaire des article est défini pour chaque feuille. L\'affichage par défaut étant que le prix unitaire est défini'"></div>
+                </ng-template>
+                <div class="input-group">
+                    <ui-switch formControlName="isPrixUnitaireDefined"  color="#556ee6"  [checked]="false" uncheckedLabel="NON" checkedLabel="OUI" size="small" class="me-1"></ui-switch>
+                </div>
+
+            </div>
+            <div class="form-group mb-3 ">
                 <label for="image" class="form-label">Logo</label>
                 <div class="input-group">
                     <input type="file" accept="image/*" (change)="showPreview($event)" class="form-control" id="image"

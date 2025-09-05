@@ -16,6 +16,10 @@ export class PointVenteService {
     return this._crudService.getAll(url_path.POINT_VENTE_EP)
   }
   
+  sortByEntreprise() {
+    return this._crudService.getAll(url_path.POINT_VENTE_EP + '/sortbyEntreprise')
+  }
+
   getAllByEntreprise() {
     return this._crudService.getAll(url_path.POINT_VENTE_EP + '/byEntreprise')
   }

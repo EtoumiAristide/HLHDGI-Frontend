@@ -74,7 +74,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-3 col-sm-12">
+                            <div class="col-md-3 col-sm-12" [hidden]="isOrderedByPaiementMethod">
                                 <!-- {{listeTypeFacture|json}} -->
                                 <div class="mb-3">
                                     <input type="hidden" name="id" formControlName="id">
@@ -82,8 +82,7 @@
                                             class="text-danger">*</span></label>
                                     <select name="modePaiement" class="form-select" id="modePaiement"
                                         formControlName="modePaiement"
-                                        [ngClass]="{'is-invalid':factureForm.controls['modePaiement'].invalid && (factureForm.controls['modePaiement'].dirty || factureForm.controls['modePaiement'].touched), 'is-valid':factureForm.controls['modePaiement'].valid}"
-                                        required>
+                                        [ngClass]="{'is-invalid':factureForm.controls['modePaiement'].invalid && (factureForm.controls['modePaiement'].dirty || factureForm.controls['modePaiement'].touched), 'is-valid':factureForm.controls['modePaiement'].valid}">
                                         <option value="" disabled selected>Sélectionner...</option>
                                         @for (typeFacture of methodePaiement; track $index) {
                                         <option value="{{typeFacture.valeur}}">{{typeFacture.label}}</option>
@@ -126,7 +125,7 @@
                             </div>
 
                         </div>
-                        {{factureForm.value|json}}
+                        <!-- {{factureForm.value|json}} -->
                         <div class="row" *ngIf="apiCallError">
                             <div class="alert alert-danger d-flex align-items-center" role="alert">
                                 <i class="feather icon-alert-octagon flex-shrink-0 me-2"></i>
@@ -146,8 +145,9 @@
                                 @for(data of extractedFactureData; track $index){
                                 <accordion [closeOthers]="true" class="accordion" [isAnimated]="true">
                                     <!-- <accordion-group [isOpen]="$index==0" heading="{{data?.clientPayload?.nom}}" -->
-                                    <accordion-group heading="{{data?.clientPayload?.nom}}" class="accordion-item"
-                                        #group>
+                                    <accordion-group
+                                        heading="{{isOrderedByPaiementMethod ? data.sheetName : data?.clientPayload?.nom}}"
+                                        class="accordion-item" #group>
                                         <span accordion-heading class="float-end fs-5">
                                             <i class="mdi"
                                                 [ngClass]="!group?.isOpen ? 'mdi mdi-chevron-down accor-plus-icon': 'mdi mdi-chevron-up accor-plus-icon'"></i>

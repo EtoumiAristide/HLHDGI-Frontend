@@ -1,5 +1,5 @@
 <div class="container-fluid">
-    <app-page-title title="Point de vente" [breadcrumbItems]="breadCrumbItems"></app-page-title>
+    <app-page-title title="Etablissement" [breadcrumbItems]="breadCrumbItems"></app-page-title>
     <!-- end page title -->
     <div class="row">
         <div class="col-md-12">
@@ -22,7 +22,7 @@
                                 <button type="button" data-bs-toggle="modal" data-bs-target="#formModal"
                                     class="btn btn-primary waves-effect" (click)="openModal(templateForm)"><i
                                         class="mdi mdi-plus"></i>
-                                    Nouveau Point de vente</button>
+                                    Nouvel Etablissement</button>
                             </div>
                         </div>
                     </div>
@@ -46,7 +46,7 @@
                 </div>
                 <div class="card-body border-bottom">
 
-                    <db-angular-tree-grid #angularGrid [data]="pointVenteDataTreeGrid" [configs]="configs"
+                    <db-angular-tree-grid #angularGrid [data]="etablissementDataTreeGrid" [configs]="configs"
                         (rowselect)="nodeChecked($event)"></db-angular-tree-grid>
 
                     <!-- <div class="table-responsive">
@@ -61,42 +61,42 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @for(pointVente of pointVentes ; track $index) {
+                                @for(etablissement of etablissements ; track $index) {
                                 <tr>
                                     <td>{{ $index+1 }}</td>
                                     <td>
-                                        {{ pointVente.organisation.raisonSocial}}
+                                        {{ etablissement.organisation.raisonSocial}}
                                     </td>
                                     <td>
-                                        {{ pointVente.nom}}
+                                        {{ etablissement.nom}}
                                     </td>
                                     <td>
                                         <ul class="list-unstyled hstack gap-1 mb-0">
                                             <li tooltip="Modifier">
                                                 <a href="javascript:void(0);"
-                                                    (click)="openModal(templateForm, pointVente)"
+                                                    (click)="openModal(templateForm, etablissement)"
                                                     class="btn btn-sm btn-soft-info"><i
                                                         class="mdi mdi-pencil-outline"></i></a>
                                             </li>
                                             <li tooltip="Supprimer">
                                                 <a href="javascript:void(0);"
-                                                    (click)="openModal(templateDelete, pointVente, true)"
+                                                    (click)="openModal(templateDelete, etablissement, true)"
                                                     data-bs-toggle="modal" class="btn btn-sm btn-soft-danger"><i
                                                         class="mdi mdi-delete-outline"></i></a>
                                             </li>
                                         </ul> -->
                     <!-- <div class="d-flex gap-1"> -->
-                    <!-- <button data-bs-toggle="tooltip" data-bs-placement="top" title="Edit" class="btn btn-primary rounded-5" (click)="openModal(templateForm, pointVente)"><i
+                    <!-- <button data-bs-toggle="tooltip" data-bs-placement="top" title="Edit" class="btn btn-primary rounded-5" (click)="openModal(templateForm, etablissement)"><i
                         class="fas fa-edit"></i>
                     </button>
-                    <button data-bs-toggle="tooltip" data-bs-placement="top" title="Edit" class="btn btn-danger rounded-5" (click)="openModal(templateDelete, pointVente, true)"><i
+                    <button data-bs-toggle="tooltip" data-bs-placement="top" title="Edit" class="btn btn-danger rounded-5" (click)="openModal(templateDelete, etablissement, true)"><i
                         class="fas fa-trash"></i>
                     </button> -->
                     <!-- <button class="btn btn-warning rounded-5" tooltip="Lier des indicateurs"
-                      (click)="openOrganisationIndicateurPage(pointVente.id)"><i class="fas fa-link"></i>
+                      (click)="openOrganisationIndicateurPage(etablissement.id)"><i class="fas fa-link"></i>
                     </button>
                     <button class="btn btn-warning rounded-5" tooltip="Lier des indicateurs calculé"
-                      (click)="openOrganisationTypeIndicateurPage(pointVente.id)"><i class="fas fa-paperclip"></i>
+                      (click)="openOrganisationTypeIndicateurPage(etablissement.id)"><i class="fas fa-paperclip"></i>
                     </button> -->
                     <!-- </div> -->
                     <!-- </td>
@@ -122,36 +122,19 @@
             <span aria-hidden="true" class="visually-hidden">&times;</span>
         </button>
     </div>
-    <form [formGroup]="pointVenteForm" (ngSubmit)="save()">
+    <form [formGroup]="etablissementForm" (ngSubmit)="save()">
         <div class="modal-body">
             <div class="form-group mb-3 ">
                 <label for="organisation" class="form-label">Entreprise <span class="text-danger">*</span></label>
                 <ng-select placeholder="Selectionner une entreprise" [items]="organisations" bindLabel="raisonSocial"
                     bindValue="id" formControlName="organisation"
-                    [ngClass]="{'is-invalid':pointVenteForm.controls['organisation'].invalid && (pointVenteForm.controls['organisation'].dirty || pointVenteForm.controls['organisation'].touched), 'is-valid':pointVenteForm.controls['organisation'].valid}"
-                    (change)="getAllEtablissement($event)"
-                    >
+                    [ngClass]="{'is-invalid':etablissementForm.controls['organisation'].invalid && (etablissementForm.controls['organisation'].dirty || etablissementForm.controls['organisation'].touched), 'is-valid':etablissementForm.controls['organisation'].valid}">
                 </ng-select>
-                <div *ngIf="pointVenteForm.controls['organisation'].invalid && (pointVenteForm.controls['organisation'].dirty || pointVenteForm.controls['organisation'].touched)"
+                <div *ngIf="etablissementForm.controls['organisation'].invalid && (etablissementForm.controls['organisation'].dirty || etablissementForm.controls['organisation'].touched)"
                     class="text-danger">
 
-                    <div *ngIf="pointVenteForm.controls['organisation'].errors?.['required']">
+                    <div *ngIf="etablissementForm.controls['organisation'].errors?.['required']">
                         Veuillez sélectionner l'entreprise
-                    </div>
-                </div>
-            </div>
-            <div class="form-group mb-3 ">
-                <label for="etablissement" class="form-label">Etablissement <span class="text-danger">*</span></label>
-                <ng-select placeholder="Selectionner un etablissement" [items]="etablissements" bindLabel="nom"
-                    bindValue="id" formControlName="etablissement"
-                    [ngClass]="{'is-invalid':pointVenteForm.controls['etablissement'].invalid && (pointVenteForm.controls['etablissement'].dirty || pointVenteForm.controls['etablissement'].touched), 'is-valid':pointVenteForm.controls['etablissement'].valid}"
-                    >
-                </ng-select>
-                <div *ngIf="pointVenteForm.controls['etablissement'].invalid && (pointVenteForm.controls['etablissement'].dirty || pointVenteForm.controls['etablissement'].touched)"
-                    class="text-danger">
-
-                    <div *ngIf="pointVenteForm.controls['etablissement'].errors?.['required']">
-                        Veuillez sélectionner l'etablissement
                     </div>
                 </div>
             </div>
@@ -162,24 +145,24 @@
                     <input type="hidden" formControlName="id">
                     <input type="text" class="form-control" id="nom" placeholder="Entrez le nom" name="nom" required
                         formControlName="nom"
-                        [ngClass]="{'is-invalid':pointVenteForm.controls['nom'].invalid && (pointVenteForm.controls['nom'].dirty || pointVenteForm.controls['nom'].touched), 'is-valid':pointVenteForm.controls['nom'].valid}">
+                        [ngClass]="{'is-invalid':etablissementForm.controls['nom'].invalid && (etablissementForm.controls['nom'].dirty || etablissementForm.controls['nom'].touched), 'is-valid':etablissementForm.controls['nom'].valid}">
                 </div>
-                <div *ngIf="pointVenteForm.controls['nom'].invalid && (pointVenteForm.controls['nom'].dirty || pointVenteForm.controls['nom'].touched)"
+                <div *ngIf="etablissementForm.controls['nom'].invalid && (etablissementForm.controls['nom'].dirty || etablissementForm.controls['nom'].touched)"
                     class="text-danger">
 
-                    <div *ngIf="pointVenteForm.controls['nom'].errors?.['required']">
-                        Veuillez renseigner le nom du PDV
+                    <div *ngIf="etablissementForm.controls['nom'].errors?.['required']">
+                        Veuillez renseigner le nom
                     </div>
                 </div>
             </div>
 
         </div>
-        <!-- {{pointVenteForm.value | json}} -->
+        <!-- {{etablissementForm.value | json}} -->
         <div class="modal-footer">
             <div class="hstack gap-2 justify-content-end">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal"
                     (click)=" modalRef?.hide()">Annuler</button>
-                <button type="submit" [disabled]="!pointVenteForm.valid && !loadingBtn" class="btn btn-success">
+                <button type="submit" [disabled]="!etablissementForm.valid && !loadingBtn" class="btn btn-success">
                     <i class="fa" [ngClass]="{'fa-spin fa-spinner': loadingBtn, 'fa-check': !loadingBtn}"></i>
                     {{textButton}}
                 </button>
@@ -200,7 +183,7 @@
     <div class="modal-body">
         <div class="modal-body">
             <p class="fs-5">Voulez-vous supprimer le point de Vente
-                {{pointVente.nom}}?
+                {{etablissement.nom}}?
             </p>
         </div>
     </div>

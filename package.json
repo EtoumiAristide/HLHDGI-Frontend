@@ -58,6 +58,7 @@
     "firebase": "^10.7.0",
     "flatpickr": "^4.6.13",
     "jquery": "^3.7.1",
+    "jwt-decode": "^4.0.0",
     "keycloak-angular": "^15.1.0",
     "keycloak-js": "^23.0.7",
     "leaflet": "^1.9.4",
