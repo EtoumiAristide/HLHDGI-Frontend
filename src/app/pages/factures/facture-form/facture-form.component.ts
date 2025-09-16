@@ -1,19 +1,17 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import { KeycloakService } from 'keycloak-angular';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
+import { Observable } from 'rxjs';
 import { btnFormState } from 'src/app/core-custom/constants/form-btn-state.constant';
 import { formModalHeader } from 'src/app/core-custom/constants/form-modal-header.constant';
 import { ToastService } from 'src/app/core-custom/services/toast.service';
-import { Facture } from '../model/facture.model';
-import { FacturespiServices } from '../service/facture-api.service';
-import { Router } from '@angular/router';
-import { Observable } from 'rxjs';
 import { methodePaiement, objectToFormData, typeClient, typeFacture } from 'src/app/core-custom/utils/utils.service';
 import { PointVente } from '../../admin/pointvente/models/pointvente.model';
 import { PointVenteService } from '../../admin/pointvente/services/pointvente.service';
-import { KeycloakService } from 'keycloak-angular';
-import { jwtDecode } from "jwt-decode";
-import { environment } from 'src/environments/environment';
+import { Facture } from '../model/facture.model';
+import { FacturespiServices } from '../service/facture-api.service';
 
 
 @Component({

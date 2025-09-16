@@ -327,4 +327,13 @@ export class FacturesComponent {
     this.factureForm.reset()
     this.extractedFactureData = {}
   }
+
+  showFactureGenere(data: Facture) {
+    if (data && data.reponseFNE) {
+      const url = data.reponseFNE.token;
+      console.log(data.reponseFNE);
+      
+      window.open(url, '_blank'); 
+    }
+  }
 }
