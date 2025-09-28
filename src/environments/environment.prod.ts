@@ -14,12 +14,12 @@ export const environment = {
   BASE_URL_API: "http://62.171.143.224:8082/api/v1",
   keycloak: {
     enable: true, //Enable or disable Keycloak for Frontend app
-    authority: 'http://62.171.143.224:8090', //Keycloak URL
-    redirectUri: 'http://62.171.143.224:4200', //Frontend app URL
-    postLogoutRedirectUri: 'http://62.171.143.224:4200/logout', //Optional value
+    authority: 'https://auth.camandsonsentreprises.com', //Keycloak URL
+    redirectUri: 'https://app.camandsonsentreprises.com', //Frontend app URL
+    postLogoutRedirectUri: 'https://app.camandsonsentreprises.com/logout', //Optional value
     realm: 'dgifne', //Realm name
     clientId: 'frontend',
   },
   pageSize: 10,
-  entpriseBK: "BURGER KING"
+  // entpriseBK: "BURGER KING"
 };
