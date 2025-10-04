@@ -1,21 +1,21 @@
-import { Component, ElementRef, OnInit, TemplateRef, ViewChild } from '@angular/core';
-import { Router, RouterLink } from "@angular/router";
-import { FormBuilder, FormGroup, FormsModule, NgForm, NgModel, Validators } from '@angular/forms';
-import { ApiPaginatedResponse } from 'src/app/shared/model/api-response.model';
+import { Component, ElementRef, TemplateRef, ViewChild } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router } from "@angular/router";
+import { AngularTreeGridComponent } from 'angular-tree-grid';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { Observable } from 'rxjs';
-import { TooltipModule } from 'ngx-bootstrap/tooltip';
 import { btnFormState } from 'src/app/core-custom/constants/form-btn-state.constant';
 import { formModalHeader } from 'src/app/core-custom/constants/form-modal-header.constant';
 import { ToastService } from 'src/app/core-custom/services/toast.service';
-import { objectToFormData } from 'src/app/core-custom/utils/utils.service';
-import { PointVente } from './models/pointvente.model';
+import { ApiPaginatedResponse } from 'src/app/shared/model/api-response.model';
+import Swal from 'sweetalert2';
 import { Organisation } from '../organisations/models/organisation.model';
 import { OrganisationService } from '../organisations/services/organisation.service';
-import { PointVenteService } from './services/pointvente.service';
-import Swal from 'sweetalert2';
-import { AngularTreeGridComponent } from 'angular-tree-grid';
 import { PointVenteEntreprise } from './models/point-vente-organisation.model';
+import { PointVente } from './models/pointvente.model';
+import { PointVenteService } from './services/pointvente.service';
+import { EtablissementService } from '../etablissement/services/etablissement.service';
+import { Etablissement } from '../etablissement/models/etablissement.model';
 
 @Component({
   selector: 'app-pointvente',
@@ -27,6 +27,7 @@ export class PointventeComponent {
   breadCrumbItems: Array<{}>;
 
   organisations: Organisation[] = [];
+  etablissements: Etablissement[] = [];
 
   pointVentes: PointVenteEntreprise[] = [];
   pointVentesFilter: PointVente[] = [];
@@ -89,6 +90,7 @@ export class PointventeComponent {
   constructor(
     private _pointVenteApi: PointVenteService,
     private _organisationApi: OrganisationService,
+    private _etablissementApi: EtablissementService,
     private _toastServive: ToastService,
     private _modalService: BsModalService,
     private _router: Router,
@@ -98,6 +100,7 @@ export class PointventeComponent {
       id: [0],
       nom: ['', Validators.required],
       organisation: ['', Validators.required],
+      etablissement: ['', Validators.required],
     })
 
     this.pointVente = new PointVente()
@@ -113,7 +116,7 @@ export class PointventeComponent {
   getAllEntreprise() {
     this._organisationApi.getAll().subscribe({
       next: (response: any) => {
-        console.log(JSON.stringify(response))
+        // console.log(JSON.stringify(response))
         //this.apiResponse = response as ApiPaginatedResponse<PointVente>;
         //this.pointVentes = this.apiResponse.content
         this.organisations = response.data as Organisation[]
@@ -124,10 +127,30 @@ export class PointventeComponent {
       }
     });
   }
-  getAllPointVente() {
-    this._pointVenteApi.getAllByEntreprise().subscribe({
+  getAllEtablissement(etablissement: any, isEdit: boolean = false) {
+    //console.log(etablissementId);
+
+    this.etablissements = []
+    this._etablissementApi.getAllByEntrepriseId(!isEdit ? etablissement.id : etablissement).subscribe({
       next: (response: any) => {
-        console.log(JSON.stringify(response))
+        // console.log(JSON.stringify(response))
+        //this.apiResponse = response as ApiPaginatedResponse<PointVente>;
+        //this.pointVentes = this.apiResponse.content
+        this.etablissements = response.data as Etablissement[]
+        // this.imageURL = this.pointVenteForm.logo
+
+        if (isEdit) this.pointVenteForm.get('etablissement')?.setValue(this.pointVente.etablissement.id)
+      },
+      error: error => {
+        console.log(error);
+      }
+    });
+  }
+
+  getAllPointVente() {
+    this._pointVenteApi.sortByEntreprise().subscribe({
+      next: (response: any) => {
+        // console.log(JSON.stringify(response))
         //this.apiResponse = response as ApiPaginatedResponse<PointVente>;
         //this.pointVentes = this.apiResponse.content
         this.pointVentes = response.data as PointVenteEntreprise[]
@@ -153,7 +176,8 @@ export class PointventeComponent {
       this.pointVente = new PointVente()
       this.pointVente.id = this.pointVenteForm.controls['id'].value || 0
       this.pointVente.nom = this.pointVenteForm.controls['nom'].value
-      this.pointVente.organisation.id = this.pointVenteForm.controls['organisation'].value
+      // this.pointVente.organisation.id = this.pointVenteForm.controls['organisation'].value
+      this.pointVente.etablissement.id = this.pointVenteForm.controls['etablissement'].value
 
       //console.log("Data send: " + JSON.stringify(this.formData));
 
@@ -224,7 +248,7 @@ export class PointventeComponent {
 
   //Ouvre le formulaire en modal pour la création, la mise à jour ou la suppression
   openModal(template: TemplateRef<void>, pointVenteToUpdate?: PointVente, isDelete: boolean = false) {
-    //console.log(pointVenteToUpdate);
+    console.log(pointVenteToUpdate);
     this.textButton = btnFormState.save;
     if (pointVenteToUpdate != undefined && !isDelete) {
       this.pointVente = pointVenteToUpdate;
@@ -287,13 +311,18 @@ export class PointventeComponent {
         id: 0,
         nom: '',
         organisation: '',
+        etablissement: '',
       })
     } else {
       this.pointVenteForm.patchValue({
         id: this.pointVente.id,
         nom: this.pointVente.nom,
-        organisation: this.pointVente.organisation.id,
+        // organisation: this.pointVente.organisation.id,
+        organisation: this.pointVente.etablissement.organisation.id,
+        etablissement: this.pointVente.etablissement.id,
       })
+
+      this.getAllEtablissement(this.pointVente.etablissement.organisation.id, true)
     }
   }
 
@@ -302,7 +331,7 @@ export class PointventeComponent {
     let idNiveau1 = 50000
 
     this.pointVentes.forEach(dataEntreprise => {
-      //Niveau 1
+      //Niveau 1: Entreprise
       let itemNiveau1 = {
         id: dataEntreprise.organisation.id * idNiveau1,
         parent: 0,
@@ -310,16 +339,29 @@ export class PointventeComponent {
       }
       this.pointVenteDataTreeGrid.push(itemNiveau1)
 
-      //Niveau 3
-      dataEntreprise.pointVentes.forEach(dataPointVente => {
-        let itemNiveau3 = {
-          id: dataPointVente.id,
+      //Niveau 2: Etablissement
+      dataEntreprise.etablissements.forEach(dataEtablissement => {
+        let itemNiveau2 = {
+          id: dataEtablissement.etablissement.id * itemNiveau1.id + "" + itemNiveau1.id,
           // parent: randomNiveau2_1,
           parent: itemNiveau1.id,
-          name: dataPointVente.nom,
+          name: dataEtablissement.etablissement.nom,
         }
-        this.pointVenteDataTreeGrid.push(itemNiveau3)
+        this.pointVenteDataTreeGrid.push(itemNiveau2)
+
+        // Niveau 3: Point de vente
+        dataEtablissement.pointVentes.forEach(dataPointVente => {
+          let itemNiveau3 = {
+            id: dataPointVente.id,
+            // parent: randomNiveau2_1,
+            parent: itemNiveau2.id,
+            name: dataPointVente.nom,
+          }
+          this.pointVenteDataTreeGrid.push(itemNiveau3)
+        })
       })
+
+
 
     })
     //console.log(this.indicateurDatasTreeGrid);
@@ -339,16 +381,21 @@ export class PointventeComponent {
         const organisationItem = this.pointVentes[indexNiveau1];
         let trouver: boolean = false;
 
-        for (let indexNiveau2 = 0; indexNiveau2 < organisationItem.pointVentes.length; indexNiveau2++) {
-          const pointVenteItem = organisationItem.pointVentes[indexNiveau2];
-          if (pointVenteItem.id == $event.data.id) {
-            this.pointVenteSelected = pointVenteItem
+        for (let indexNiveau2 = 0; indexNiveau2 < organisationItem.etablissements.length; indexNiveau2++) {
+          const etablissementItem = organisationItem.etablissements[indexNiveau2];
 
-            trouver = true
-            break
+
+          for (let indexNiveau3 = 0; indexNiveau3 < etablissementItem.pointVentes.length; indexNiveau3++) {
+            const pointVenteItem = etablissementItem.pointVentes[indexNiveau3];
+            if (pointVenteItem.id == $event.data.id) {
+              this.pointVenteSelected = pointVenteItem
+
+              trouver = true
+              break
+            }
           }
         }
-        if(trouver) break
+        if (trouver) break
 
       }
     }
@@ -364,7 +411,7 @@ export class PointventeComponent {
       this.openModal(this.templateForm, this.pointVenteSelected)
     }
   }
-  
+
   deleteSelectedItem() {
     if (this.pointVenteSelected == null) {
       Swal.fire("Aucune sélection", "Veuillez sélectionner un point de vente svp");

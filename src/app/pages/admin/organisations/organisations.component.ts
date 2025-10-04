@@ -65,6 +65,9 @@ export class OrganisationsComponent {
       raisonSociale: ['', Validators.required],
       sigle: [''],
       logo: [null],
+      indexLectureFichier: [0],
+      isOrderedByPaiementMethod: [false],
+      isPrixUnitaireDefined: [false]
     })
 
     this.organisation = new Organisation()
@@ -118,6 +121,9 @@ export class OrganisationsComponent {
       this.organisation.numcc = this.organisationForm.controls['ncc'].value
       this.organisation.raisonSocial = this.organisationForm.controls['raisonSociale'].value
       this.organisation.sigle = this.organisationForm.controls['sigle'].value
+      this.organisation.indexLectureFichier = this.organisationForm.controls['indexLectureFichier'].value || 0
+      this.organisation.isOrderedByPaiementMethod = this.organisationForm.controls['isOrderedByPaiementMethod'].value || false
+      this.organisation.isPrixUnitaireDefined = this.organisationForm.controls['isPrixUnitaireDefined'].value || false
       if (this.organisationForm.controls['logo'].value != null) {
         this.organisation.image = this.organisationForm.controls['logo'].value
       }
@@ -257,6 +263,9 @@ export class OrganisationsComponent {
         raisonSociale: '',
         sigle: '',
         logo: null,
+        indexLectureFichier: 0,
+        isOrderedByPaiementMethod: false,
+        isPrixUnitaireDefined: false,
       })
     } else {
       this.organisationForm.patchValue({
@@ -264,6 +273,9 @@ export class OrganisationsComponent {
         ncc: this.organisation.numcc,
         raisonSociale: this.organisation.raisonSocial,
         sigle: this.organisation.sigle,
+        indexLectureFichier: this.organisation.indexLectureFichier,
+        isOrderedByPaiementMethod: this.organisation.isOrderedByPaiementMethod,
+        isPrixUnitaireDefined: this.organisation.isPrixUnitaireDefined,
       })
 
       this.imageURL = this.organisation.logo

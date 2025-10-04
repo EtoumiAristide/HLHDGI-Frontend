@@ -9,6 +9,7 @@ import { FacturespiServices } from './service/facture-api.service';
 import { Facture } from './model/facture.model';
 import { Router } from '@angular/router';
 import { objectToFormData } from 'src/app/core-custom/utils/utils.service';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-factures',
@@ -73,6 +74,9 @@ export class FacturesComponent {
   extractedFactureData?: any
   isLoadFacture: boolean = false
 
+  pageSize = environment.pageSize;
+  pageNum = 0;
+
   constructor(
     private _factureApi: FacturespiServices,
     private modalService: BsModalService,
@@ -135,7 +139,8 @@ export class FacturesComponent {
   }
 
   chargerListeFacture() {
-    this._factureApi.getAll().subscribe({
+    // this._factureApi.getAll().subscribe({
+    this._factureApi.getAllByEntreprise({ pageNum: this.pageNum, size: this.pageSize }).subscribe({
       next: (response) => {
         // console.log(response);
 
@@ -321,5 +326,14 @@ export class FacturesComponent {
     this.facture = new Facture()
     this.factureForm.reset()
     this.extractedFactureData = {}
+  }
+
+  showFactureGenere(data: Facture) {
+    if (data && data.reponseFNE) {
+      const url = data.reponseFNE.token;
+      console.log(data.reponseFNE);
+      
+      window.open(url, '_blank'); 
+    }
   }
 }

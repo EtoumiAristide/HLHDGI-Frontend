@@ -48,6 +48,12 @@ export const MENU: MenuItem[] = [
                         parentId: 6
                     },
                     {
+                        id: 7,
+                        label: 'Etablissement',
+                        link: '/parametrage/etablissement',
+                        parentId: 6
+                    },
+                    {
                         id: 8,
                         label: 'Points de vente',
                         link: '/parametrage/point-vente',

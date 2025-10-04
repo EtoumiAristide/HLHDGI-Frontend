@@ -7,6 +7,7 @@ export class Facture {
     typeFacture: string
     dateCreation: string
     dateModification: string
+    reponseFNE: any
 
     constructor() {
         this.id = 0
@@ -17,5 +18,6 @@ export class Facture {
         this.typeFacture = ''
         this.dateCreation = ''
         this.dateModification = ''
+        // this.reponseFNE = {}
     }
 }

@@ -25,7 +25,8 @@ export const environment = {
     realm: 'dgifne', //Realm name
     clientId: 'frontend',
   },
-  pageSize: 10
+  pageSize: 10,
+  //entpriseBK: ["SIA RESTAURATION RAPIDE COTE D'IVOIRE", "BK AEROPORT"],
 };
 
 /*

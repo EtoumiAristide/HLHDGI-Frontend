@@ -1,16 +1,18 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import { KeycloakService } from 'keycloak-angular';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
+import { Observable } from 'rxjs';
 import { btnFormState } from 'src/app/core-custom/constants/form-btn-state.constant';
 import { formModalHeader } from 'src/app/core-custom/constants/form-modal-header.constant';
 import { ToastService } from 'src/app/core-custom/services/toast.service';
-import { Facture } from '../model/facture.model';
-import { FacturespiServices } from '../service/facture-api.service';
-import { Router } from '@angular/router';
-import { Observable } from 'rxjs';
 import { methodePaiement, objectToFormData, typeClient, typeFacture } from 'src/app/core-custom/utils/utils.service';
 import { PointVente } from '../../admin/pointvente/models/pointvente.model';
 import { PointVenteService } from '../../admin/pointvente/services/pointvente.service';
+import { Facture } from '../model/facture.model';
+import { FacturespiServices } from '../service/facture-api.service';
+
 
 @Component({
   selector: 'app-facture-form',
@@ -63,6 +65,9 @@ export class FactureFormComponent {
   extractedFactureData?: any[]
   isLoadFacture: boolean = false
 
+  // userEtablissement: string = ''
+  isOrderedByPaiementMethod: boolean = false
+
   constructor(
     private _factureApi: FacturespiServices,
     private _pointVenteApi: PointVenteService,
@@ -70,6 +75,7 @@ export class FactureFormComponent {
     private fb: FormBuilder,
     private _toastServive: ToastService,
     private _router: Router,
+    private _keycloakService: KeycloakService
   ) {
 
 
@@ -79,7 +85,7 @@ export class FactureFormComponent {
       id: [0],
       typeFacture: ['', Validators.required],
       typeClient: ['', Validators.required],
-      modePaiement: ['', Validators.required],
+      modePaiement: [''],
       pointVente: ['', Validators.required],
       fichier: [null, Validators.required]
     })
@@ -94,14 +100,22 @@ export class FactureFormComponent {
     this.breadCrumbItems = [{ label: 'Accueil', url: '/' }, { label: 'Factures', url: '/factures' }, { label: 'Form', active: true }];
 
     this.chargerPointVente()
+    // const token = this._keycloakService.getKeycloakInstance().token
+    // const decode: any = jwtDecode(token)
+    // if (decode.groups != undefined && decode.groups.length != 0) this.userEtablissement = decode.groups[0]
+    // //console.log(this.userEntreprise);
+    // this.isentrepriseBK = environment.entpriseBK.includes(this.userEtablissement)
+
   }
 
   chargerPointVente() {
-    this._pointVenteApi.getAll().subscribe({
+    // this._pointVenteApi.getAll().subscribe({
+    this._pointVenteApi.getAllByEntreprise().subscribe({
       next: (response) => {
         console.log(response);
 
         this.listePointVente = response.data
+        if (this.listePointVente.length != 0) this.isOrderedByPaiementMethod = this.listePointVente[0].etablissement.organisation.isOrderedByPaiementMethod
       },
       error(err) {
         console.log(err);

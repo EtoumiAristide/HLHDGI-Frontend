@@ -2,6 +2,8 @@ import { Injectable } from "@angular/core";
 import { url_path } from "src/app/core-custom/constants/app.constant";
 import { ApiRequestService } from "src/app/core-custom/services/api-request.service";
 import { Facture } from "../model/facture.model";
+import { ApiPaginatedResponse } from "src/app/shared/model/api-response.model";
+import { Observable } from "rxjs";
 
 @Injectable({
   providedIn: 'root'
@@ -12,6 +14,10 @@ export class FacturespiServices {
 
   getAll() {
     return this._apiRequestService.getAll(url_path.FACTURE);
+  }
+
+  getAllByEntreprise(paginationData: any): Observable<ApiPaginatedResponse<Facture>> {
+    return this._apiRequestService.getByPage({ endpoint: url_path.FACTURE + '/byentreprise', paginationData: paginationData });
   }
 
   getById(id: number) {
