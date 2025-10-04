@@ -11,7 +11,7 @@ export const environment = {
     appId: '',
     measurementId: ''
   },
-  BASE_URL_API: "http://62.171.143.224:8082/api/v1",
+  BASE_URL_API: "https://app.camandsonsentreprises.com/api/v1",
   keycloak: {
     enable: true, //Enable or disable Keycloak for Frontend app
     authority: 'https://auth.camandsonsentreprises.com', //Keycloak URL
