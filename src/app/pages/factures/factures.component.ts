@@ -328,10 +328,12 @@ export class FacturesComponent {
     this.extractedFactureData = {}
   }
 
-  showFactureGenere(data: Facture) {
+  showFactureGenere(data: any) {
+    // console.log(data);
     if (data && data.reponseFNE) {
-      const url = data.reponseFNE.token;
-      console.log(data.reponseFNE);
+      let reponseFNE = JSON.parse(data.reponseFNE)
+      const url = reponseFNE.token;
+      // console.log(data.reponseFNE);
       
       window.open(url, '_blank'); 
     }
