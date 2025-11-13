@@ -67,7 +67,9 @@ export class OrganisationsComponent {
       logo: [null],
       indexLectureFichier: [0],
       isOrderedByPaiementMethod: [false],
-      isPrixUnitaireDefined: [false]
+      isPrixUnitaireDefined: [false],
+      isFactureInitiale: [false],
+      isTDTBaseTVA: [false],
     })
 
     this.organisation = new Organisation()
@@ -124,6 +126,8 @@ export class OrganisationsComponent {
       this.organisation.indexLectureFichier = this.organisationForm.controls['indexLectureFichier'].value || 0
       this.organisation.isOrderedByPaiementMethod = this.organisationForm.controls['isOrderedByPaiementMethod'].value || false
       this.organisation.isPrixUnitaireDefined = this.organisationForm.controls['isPrixUnitaireDefined'].value || false
+      this.organisation.isFactureInitiale = this.organisationForm.controls['isFactureInitiale'].value || false
+      this.organisation.isTDTBaseTVA = this.organisationForm.controls['isTDTBaseTVA'].value || false
       if (this.organisationForm.controls['logo'].value != null) {
         this.organisation.image = this.organisationForm.controls['logo'].value
       }
@@ -266,6 +270,8 @@ export class OrganisationsComponent {
         indexLectureFichier: 0,
         isOrderedByPaiementMethod: false,
         isPrixUnitaireDefined: false,
+        isFactureInitiale: false,
+        isTDTBaseTVA: false,
       })
     } else {
       this.organisationForm.patchValue({
@@ -276,6 +282,8 @@ export class OrganisationsComponent {
         indexLectureFichier: this.organisation.indexLectureFichier,
         isOrderedByPaiementMethod: this.organisation.isOrderedByPaiementMethod,
         isPrixUnitaireDefined: this.organisation.isPrixUnitaireDefined,
+        isFactureInitiale: this.organisation.isFactureInitiale,
+        isTDTBaseTVA: this.organisation.isTDTBaseTVA,
       })
 
       this.imageURL = this.organisation.logo

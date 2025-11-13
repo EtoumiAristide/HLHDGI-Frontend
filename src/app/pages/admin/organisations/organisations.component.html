@@ -250,6 +250,36 @@
 
             </div>
             <div class="form-group mb-3 ">
+                <label for="isFactureInitiale" class="form-label">Fichier excel initial ?</label>
+                <button type="button" class="btn btn-soft-info btn-sm rounded-5 ms-3" [popover]="popTemplate4"
+                  popoverTitle="Aide pour cette rubrique" 
+                  data-bs-toggle="tooltip" tooltip="Cliquer pour voir/masquer la description"><i
+                    class="fa fa-info-circle"></i></button>
+                    <!-- triggers="mouseenter:mouseleave" -->
+                <ng-template #popTemplate4>
+                  <div [innerHTML]="'S\'il s\'agit d\'un fichier excel consolidé veuillez ne pas cocher'"></div>
+                </ng-template>
+                <div class="input-group">
+                    <ui-switch formControlName="isFactureInitiale"  color="#556ee6"  [checked]="false" uncheckedLabel="NON" checkedLabel="OUI" size="small" class="me-1"></ui-switch>
+                </div>
+
+            </div>
+            <!-- <div class="form-group mb-3 ">
+                <label for="isTDTBaseTVA" class="form-label">TDT est base taxable de TVA ?</label>
+                <button type="button" class="btn btn-soft-info btn-sm rounded-5 ms-3" [popover]="popTemplate5"
+                  popoverTitle="Aide pour cette rubrique" 
+                  data-bs-toggle="tooltip" tooltip="Cliquer pour voir/masquer la description"><i
+                    class="fa fa-info-circle"></i></button> -->
+                    <!-- triggers="mouseenter:mouseleave" -->
+                <!-- <ng-template #popTemplate5>
+                  <div [innerHTML]="'Est-ce que la TDT fait partie du calcul de la TVA'"></div>
+                </ng-template>
+                <div class="input-group">
+                    <ui-switch formControlName="isTDTBaseTVA"  color="#556ee6"  [checked]="false" uncheckedLabel="NON" checkedLabel="OUI" size="small" class="me-1"></ui-switch>
+                </div>
+
+            </div> -->
+            <div class="form-group mb-3 ">
                 <label for="image" class="form-label">Logo</label>
                 <div class="input-group">
                     <input type="file" accept="image/*" (change)="showPreview($event)" class="form-control" id="image"
