@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, TemplateRef, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { KeycloakService } from 'keycloak-angular';
@@ -12,6 +12,7 @@ import { PointVente } from '../../admin/pointvente/models/pointvente.model';
 import { PointVenteService } from '../../admin/pointvente/services/pointvente.service';
 import { Facture } from '../model/facture.model';
 import { FacturespiServices } from '../service/facture-api.service';
+import { Payment } from '../model/payment.model';
 
 
 @Component({
@@ -63,10 +64,25 @@ export class FactureFormComponent {
   formData: FormData
 
   extractedFactureData?: any[]
+  payments: Payment[] = [];
+  filteredPayments: Payment[] = [];
+  montantTimbre: number = 0;
   isLoadFacture: boolean = false
+  selectedType: string = 'ALL';
+  isLoading: boolean = false;
+
+  paymentTypes = [
+    { value: 'ALL', label: 'Tous les paiements' },
+    { value: 'CASH', label: 'Espèces' },
+    { value: 'BACKUP_CC', label: 'Backup CC' },
+    { value: 'HD_GLOVO', label: 'HD Glovo' },
+    { value: 'CASH_WAVE', label: 'Cash Wave' }
+  ];
 
   // userEtablissement: string = ''
   isOrderedByPaiementMethod: boolean = false
+
+  @ViewChild('templateModal') templateModal: TemplateRef<void>;
 
   constructor(
     private _factureApi: FacturespiServices,
@@ -75,7 +91,8 @@ export class FactureFormComponent {
     private fb: FormBuilder,
     private _toastServive: ToastService,
     private _router: Router,
-    private _keycloakService: KeycloakService
+    private _keycloakService: KeycloakService,
+    private _modalService: BsModalService,
   ) {
 
 
@@ -182,12 +199,17 @@ export class FactureFormComponent {
       apiSend.subscribe({
         next: (response: any) => {
           console.log(response);
-          this.extractedFactureData = response.data
+          this.extractedFactureData = response.data.factures
+
+          if (response.data.payments != undefined) {
+            this.payments = response.data.payments
+            this.filteredPayments = response.data.payments;
+            this.montantTimbre = this.payments.filter(payment => payment.amount > 5000).length * 100;
+          }
           this.isLoadFacture = true
 
           this._toastServive.success(" Données de facture extraites avec succès", "Extraction éffectué").onHidden.subscribe(() => {
             this.initFormElement(false);
-
           })
         },
         error: error => {
@@ -260,6 +282,43 @@ export class FactureFormComponent {
 
   openViewList() {
     this._router.navigate(['/factures'])
+  }
+
+  openModal(template: TemplateRef<void>) {
+    //console.log(etablissementToUpdate);
+    this.modalRef = this._modalService.show(template, this.config)
+  }
+
+  onTypeChange(): void {
+    if (this.selectedType === 'ALL') {
+      this.filteredPayments = this.payments;
+    } else {
+      /*this.reportService.getPaymentsByType(this.selectedType).subscribe({
+        next: (data) => {
+          this.filteredPayments = data;
+        },
+        error: (error) => {
+          console.error('Erreur lors du filtrage:', error);
+        }
+      });*/
+      this.filteredPayments = this.payments.filter(payment => payment.paymentType === this.selectedType);
+      this.montantTimbre = this.filteredPayments.filter(payment => payment.amount > 5000).length * 100;
+    }
+  }
+
+  getTotalAmount(): number {
+    return this.filteredPayments.reduce((sum, payment) => sum + payment.total, 0);
+  }
+
+  formatCurrency(amount: number): string {
+    return new Intl.NumberFormat('fr-FR', {
+      style: 'currency',
+      currency: 'XOF'
+    }).format(amount);
+  }
+
+  getPaymentTypeClass(type: string): string {
+    return `badge-${type}`;
   }
 
 }
