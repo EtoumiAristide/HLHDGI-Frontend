@@ -6,6 +6,8 @@ export interface Payment {
   qty?: number;
   amount: number;
   tip: number;
+  tdt: number;
+  tva: number;
   total: number;
   emp: string;
   paymentType: 'CASH' | 'BACKUP_CC' | 'HD_GLOVO' | 'CASH_WAVE';

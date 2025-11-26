@@ -453,6 +453,8 @@
                   <th>Type</th>
                   <th>Montant</th>
                   <!-- <th>Timbre</th> -->
+                  <th>TDT</th>
+                  <th>TVA</th>
                   <th>Total</th>
                   <th>Employé</th>
                 </tr>
@@ -469,6 +471,8 @@
                     </span>
                   </td>
                   <td>{{ formatCurrency(payment.amount) }}</td>
+                  <td>{{ formatCurrency(payment.tdt) }}</td>
+                  <td>{{ formatCurrency(payment.tva) }}</td>
                   <!-- <td>
                       {{
                         (payment.amount > 5000 &&
