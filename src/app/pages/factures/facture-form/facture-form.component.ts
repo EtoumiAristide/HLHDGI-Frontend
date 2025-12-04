@@ -129,7 +129,7 @@ export class FactureFormComponent {
     // this._pointVenteApi.getAll().subscribe({
     this._pointVenteApi.getAllByEntreprise().subscribe({
       next: (response) => {
-        console.log(response);
+        // console.log(response);
 
         this.listePointVente = response.data
         if (this.listePointVente.length != 0) this.isOrderedByPaiementMethod = this.listePointVente[0].etablissement.organisation.isOrderedByPaiementMethod
@@ -144,7 +144,7 @@ export class FactureFormComponent {
   //Ajout d'un nouvel élément
   save() {
     if (this.factureForm.valid) {
-      console.log("Data form: " + JSON.stringify(this.factureForm.value));
+      // console.log("Data form: " + JSON.stringify(this.factureForm.value));
 
       this.changeFormElement();
 
@@ -181,7 +181,7 @@ export class FactureFormComponent {
 
   loadFromFile() {
     if (this.factureForm.valid) {
-      console.log("Data form: " + JSON.stringify(this.factureForm.value));
+      // console.log("Data form: " + JSON.stringify(this.factureForm.value));
 
       this.changeFormElement();
 
@@ -198,7 +198,7 @@ export class FactureFormComponent {
 
       apiSend.subscribe({
         next: (response: any) => {
-          console.log(response);
+          // console.log(response);
           this.extractedFactureData = response.data.factures
 
           if (response.data.payments != undefined) {

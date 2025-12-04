@@ -330,8 +330,8 @@
                               <td>{{ $index + 1 }}</td>
                               <td>{{ item.produit }}</td>
                               <td>{{ item.quantite }}</td>
-                              <td>{{ item.prixUnitaireHT }}</td>
-                              <td>{{ item.montantHT }}</td>
+                              <td>{{ item.prixUnitaireHT | number:'1.0-0':'fr-FR'}}</td>
+                              <td>{{ item.montantHT | number:'1.0-0':'fr-FR'}}</td>
                             </tr>
                             }
                           </tbody>
@@ -352,22 +352,22 @@
                             <tr>
                               <td>HT</td>
                               <td></td>
-                              <td>{{ data?.totauxPayload?.ht }}</td>
+                              <td>{{ data?.totauxPayload?.ht | number:'1.0-0':'fr-FR' }}</td>
                             </tr>
-                            <tr>
+                            <tr hidden="{{!data?.totauxPayload?.tdt}}">
                               <td>TDT {{ data?.totauxPayload?.tdt?.taux }}%</td>
-                              <td>{{ data?.totauxPayload?.tdt?.base }}</td>
-                              <td>{{ data?.totauxPayload?.tdt?.montant }}</td>
+                              <td>{{ data?.totauxPayload?.tdt?.base | number:'1.0-0':'fr-FR' }}</td>
+                              <td>{{ data?.totauxPayload?.tdt?.montant | number:'1.0-0':'fr-FR' }}</td>
                             </tr>
                             <tr>
                               <td>TVA {{ data?.totauxPayload?.tva?.taux }}%</td>
-                              <td>{{ data?.totauxPayload?.tva?.base }}</td>
-                              <td>{{ data?.totauxPayload?.tva?.montant }}</td>
+                              <td>{{ data?.totauxPayload?.tva?.base | number:'1.0-0':'fr-FR' }}</td>
+                              <td>{{ data?.totauxPayload?.tva?.montant | number:'1.0-0':'fr-FR' }}</td>
                             </tr>
                             <tr>
                               <td>TTC</td>
                               <td></td>
-                              <td>{{ data?.totauxPayload?.ttc }}</td>
+                              <td>{{ data?.totauxPayload?.ttc | number:'1.0-0':'fr-FR'}}</td>
                             </tr>
                             <tr>
                               <td>Mode de paiement</td>
