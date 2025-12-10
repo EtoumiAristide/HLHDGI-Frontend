@@ -13,6 +13,7 @@ import { PointVenteService } from '../../admin/pointvente/services/pointvente.se
 import { Facture } from '../model/facture.model';
 import { FacturespiServices } from '../service/facture-api.service';
 import { Payment } from '../model/payment.model';
+import { el } from '@fullcalendar/core/internal-common';
 
 
 @Component({
@@ -70,14 +71,11 @@ export class FactureFormComponent {
   isLoadFacture: boolean = false
   selectedType: string = 'ALL';
   isLoading: boolean = false;
+  isFactureAvoir: boolean = false;
+  isFactureAvoirLoad: boolean = false;
 
-  paymentTypes = [
-    { value: 'ALL', label: 'Tous les paiements' },
-    { value: 'CASH', label: 'Espèces' },
-    { value: 'BACKUP_CC', label: 'Backup CC' },
-    { value: 'HD_GLOVO', label: 'HD Glovo' },
-    { value: 'CASH_WAVE', label: 'Cash Wave' }
-  ];
+  urlFacture: string = ''
+  reponseFNE: any = {}
 
   // userEtablissement: string = ''
   isOrderedByPaiementMethod: boolean = false
@@ -104,7 +102,8 @@ export class FactureFormComponent {
       typeClient: ['', Validators.required],
       modePaiement: [''],
       pointVente: ['', Validators.required],
-      fichier: [null, Validators.required]
+      fichier: [null, Validators.required],
+      numeroFacture: [''],
     })
 
     this.isModif = false
@@ -150,14 +149,18 @@ export class FactureFormComponent {
 
       let dataToSend: any = {}
       dataToSend.type = this.factureForm.controls['typeFacture'].value
-      dataToSend.file = this.factureForm.controls['fichier'].value
-      dataToSend.client = this.factureForm.controls['typeClient'].value
-      dataToSend.paiement = this.factureForm.controls['modePaiement'].value
-      dataToSend.pointvente = this.listePointVente.find(pointVente => pointVente.id == this.factureForm.controls['pointVente'].value).nom
+      if (this.isFactureAvoir) {
+        dataToSend.numeroFacture = this.factureForm.controls['numeroFacture'].value
+      } else {
 
+        dataToSend.file = this.factureForm.controls['fichier'].value
+        dataToSend.client = this.factureForm.controls['typeClient'].value
+        dataToSend.paiement = this.factureForm.controls['modePaiement'].value
+        dataToSend.pointvente = this.listePointVente.find(pointVente => pointVente.id == this.factureForm.controls['pointVente'].value).nom
+      }
       this.formData = objectToFormData(dataToSend)
 
-      let apiSend: Observable<Object> = !this.isModif ? this._factureApi.save(this.formData) : this._factureApi.update(this.facture.id, this.formData);
+      let apiSend: Observable<Object> = !this.isFactureAvoir ? this._factureApi.save(this.formData) : this._factureApi.saveAvoir(this.formData);
 
       apiSend.subscribe({
         next: response => {
@@ -187,26 +190,42 @@ export class FactureFormComponent {
 
       let dataToSend: any = {}
       dataToSend.type = this.factureForm.controls['typeFacture'].value
-      dataToSend.file = this.factureForm.controls['fichier'].value
-      dataToSend.client = this.factureForm.controls['typeClient'].value
-      dataToSend.paiement = this.factureForm.controls['modePaiement'].value
-      dataToSend.pointvente = this.factureForm.controls['pointVente'].value
+      if (this.isFactureAvoir) {
+        dataToSend.numeroFacture = this.factureForm.controls['numeroFacture'].value
+      } else {
+        dataToSend.type = this.factureForm.controls['typeFacture'].value
+        dataToSend.file = this.factureForm.controls['fichier'].value
+        dataToSend.client = this.factureForm.controls['typeClient'].value
+        dataToSend.paiement = this.factureForm.controls['modePaiement'].value
+        dataToSend.pointvente = this.factureForm.controls['pointVente'].value
+        this.formData = objectToFormData(dataToSend)
+      }
 
-      this.formData = objectToFormData(dataToSend)
 
-      let apiSend: Observable<Object> = this._factureApi.loadFromFile(this.formData)
+      let apiSend: Observable<Object> = this.isFactureAvoir ? this._factureApi.getByNumfne(this.factureForm.controls['numeroFacture'].value) : this._factureApi.loadFromFile(this.formData)
 
       apiSend.subscribe({
         next: (response: any) => {
-          // console.log(response);
-          this.extractedFactureData = response.data.factures
+          //console.log(response);
 
-          if (response.data.payments != undefined) {
-            this.payments = response.data.payments
-            this.filteredPayments = response.data.payments;
-            this.montantTimbre = this.payments.filter(payment => payment.amount > 5000).length * 100;
+          if (this.isFactureAvoir) {
+            this.isFactureAvoirLoad = true;
+            if (response.data && response.data.reponseFNE) {
+              this.reponseFNE = JSON.parse(response.data.reponseFNE)
+              this.urlFacture = this.reponseFNE.token;
+              // console.log(data.reponseFNE);
+            }
+          } else {
+            this.isFactureAvoirLoad = false;
+            this.isLoadFacture = true
+            this.extractedFactureData = response.data.factures
+
+            if (response.data.payments != undefined) {
+              this.payments = response.data.payments
+              this.filteredPayments = response.data.payments;
+              this.montantTimbre = this.payments.filter(payment => payment.amount > 5000).length * 100;
+            }
           }
-          this.isLoadFacture = true
 
           this._toastServive.success(" Données de facture extraites avec succès", "Extraction éffectué").onHidden.subscribe(() => {
             this.initFormElement(false);
@@ -319,6 +338,42 @@ export class FactureFormComponent {
 
   getPaymentTypeClass(type: string): string {
     return `badge-${type}`;
+  }
+
+  selectionTypeFacture() {
+    const selectedType = this.factureForm.get('typeFacture')?.value;
+    console.log(selectedType);
+
+    if (selectedType === 'FACTURE_AVOIR') {
+      this.isFactureAvoir = true;
+
+      // this.factureForm.get('modePaiement')?.clearValidators();
+      this.factureForm.get('typeClient')?.clearValidators();
+      this.factureForm.get('typeClient')?.updateValueAndValidity();
+      this.factureForm.get('pointVente')?.clearValidators();
+      this.factureForm.get('pointVente')?.updateValueAndValidity();
+      this.factureForm.get('fichier')?.clearValidators();
+      this.factureForm.get('fichier')?.updateValueAndValidity();
+
+      this.factureForm.get('numeroFacture')?.addValidators(Validators.required);
+      this.factureForm.get('numeroFacture')?.updateValueAndValidity();
+
+    } else {
+      this.isFactureAvoir = false;
+
+      this.factureForm.get('numeroFacture')?.clearValidators();
+      this.factureForm.get('numeroFacture')?.updateValueAndValidity();
+
+      // this.factureForm.get('modePaiement')?.addValidators(Validators.required);
+      this.factureForm.get('typeClient')?.addValidators(Validators.required);
+      this.factureForm.get('typeClient')?.updateValueAndValidity();
+      this.factureForm.get('pointVente')?.addValidators(Validators.required);
+      this.factureForm.get('pointVente')?.updateValueAndValidity();
+      this.factureForm.get('fichier')?.addValidators(Validators.required);
+      this.factureForm.get('fichier')?.updateValueAndValidity();
+
+    }
+
   }
 
 }

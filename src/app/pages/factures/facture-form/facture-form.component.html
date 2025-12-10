@@ -22,6 +22,50 @@
           >
             <div class="row">
               <div class="col-md-3 col-sm-12">
+                <!-- {{listeTypeFacture|json}} -->
+                <div class="mb-3">
+                  <input type="hidden" name="id" formControlName="id" />
+                  <label for="typeFacture"
+                    >Type de facture <span class="text-danger">*</span></label
+                  >
+                  <select
+                    name="typeFacture"
+                    class="form-select"
+                    id="typeFacture"
+                    formControlName="typeFacture"
+                    (change)="selectionTypeFacture()"
+                    [ngClass]="{
+                      'is-invalid':
+                        factureForm.controls['typeFacture'].invalid &&
+                        (factureForm.controls['typeFacture'].dirty ||
+                          factureForm.controls['typeFacture'].touched),
+                      'is-valid': factureForm.controls['typeFacture'].valid
+                    }"
+                  >
+                    <option value="" disabled selected>Sélectionner...</option>
+                    @for (typeFacture of listeTypeFacture; track $index) {
+                    <option value="{{ typeFacture.valeur }}">
+                      {{ typeFacture.label }}
+                    </option>
+                    }
+                  </select>
+                  <div
+                    *ngIf="
+                      factureForm.controls['typeFacture'].invalid &&
+                      (factureForm.controls['typeFacture'].dirty ||
+                        factureForm.controls['typeFacture'].touched)
+                    "
+                    class="invalid-feedback"
+                  >
+                    <div
+                      *ngIf="factureForm.controls['typeFacture'].errors?.['required']"
+                    >
+                      Ce champ est obligatoire
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3 col-sm-12" [hidden]="isFactureAvoir">
                 <div class="mb-3">
                   <label for="pointVente" class="form-label"
                     >Point de vente <span class="text-danger">*</span></label
@@ -52,56 +96,13 @@
                     <div
                       *ngIf="factureForm.controls['pointVente'].errors?.['required']"
                     >
-                      Veuillez sélectionner l'entreprise
+                      Veuillez sélectionner le point de vente
                     </div>
                   </div>
                 </div>
               </div>
-              <div class="col-md-3 col-sm-12">
-                <!-- {{listeTypeFacture|json}} -->
-                <div class="mb-3">
-                  <input type="hidden" name="id" formControlName="id" />
-                  <label for="typeFacture"
-                    >Type de facture <span class="text-danger">*</span></label
-                  >
-                  <select
-                    name="typeFacture"
-                    class="form-select"
-                    id="typeFacture"
-                    formControlName="typeFacture"
-                    [ngClass]="{
-                      'is-invalid':
-                        factureForm.controls['typeFacture'].invalid &&
-                        (factureForm.controls['typeFacture'].dirty ||
-                          factureForm.controls['typeFacture'].touched),
-                      'is-valid': factureForm.controls['typeFacture'].valid
-                    }"
-                    required
-                  >
-                    <option value="" disabled selected>Sélectionner...</option>
-                    @for (typeFacture of listeTypeFacture; track $index) {
-                    <option value="{{ typeFacture.valeur }}">
-                      {{ typeFacture.label }}
-                    </option>
-                    }
-                  </select>
-                  <div
-                    *ngIf="
-                      factureForm.controls['typeFacture'].invalid &&
-                      (factureForm.controls['typeFacture'].dirty ||
-                        factureForm.controls['typeFacture'].touched)
-                    "
-                    class="invalid-feedback"
-                  >
-                    <div
-                      *ngIf="factureForm.controls['typeFacture'].errors?.['required']"
-                    >
-                      Ce champ est obligatoire
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-3 col-sm-12">
+              
+              <div class="col-md-3 col-sm-12" [hidden]="isFactureAvoir">
                 <!-- {{listeTypeFacture|json}} -->
                 <div class="mb-3">
                   <input type="hidden" name="id" formControlName="id" />
@@ -120,7 +121,6 @@
                           factureForm.controls['typeClient'].touched),
                       'is-valid': factureForm.controls['typeClient'].valid
                     }"
-                    required
                   >
                     <option value="" disabled selected>Sélectionner...</option>
                     @for (typeFacture of typeClient; track $index) {
@@ -147,7 +147,7 @@
               </div>
               <div
                 class="col-md-3 col-sm-12"
-                [hidden]="isOrderedByPaiementMethod"
+                [hidden]="isOrderedByPaiementMethod || isFactureAvoir"
               >
                 <!-- {{listeTypeFacture|json}} -->
                 <div class="mb-3">
@@ -191,7 +191,7 @@
                   </div>
                 </div>
               </div>
-              <div class="col-md-3 col-sm-12">
+              <div class="col-md-3 col-sm-12" [hidden]="isFactureAvoir">
                 <div class="mb-3">
                   <label for="login"
                     >Fichier <span class="text-danger">*</span></label
@@ -211,7 +211,6 @@
                           factureForm.controls['fichier'].touched),
                       'is-valid': factureForm.controls['fichier'].valid
                     }"
-                    required
                   />
                   <div
                     *ngIf="
@@ -223,6 +222,42 @@
                   >
                     <div
                       *ngIf="factureForm.controls['fichier'].errors?.['required']"
+                    >
+                      Ce champ est obligatoire
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3 col-sm-12" [hidden]="!isFactureAvoir">
+                <div class="mb-3">
+                  <label for="login"
+                    >N° Facture FNE à rembourser <span class="text-danger">*</span></label
+                  >
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="numeroFacture"
+                    name="numeroFacture"
+                    formControlName="numeroFacture"
+                    [readOnly]="isView"
+                    [ngClass]="{
+                      'is-invalid':
+                        factureForm.controls['numeroFacture'].invalid &&
+                        (factureForm.controls['numeroFacture'].dirty ||
+                          factureForm.controls['numeroFacture'].touched),
+                      'is-valid': factureForm.controls['numeroFacture'].valid
+                    }"
+                  />
+                  <div
+                    *ngIf="
+                      factureForm.controls['numeroFacture'].invalid &&
+                      (factureForm.controls['numeroFacture'].dirty ||
+                        factureForm.controls['numeroFacture'].touched)
+                    "
+                    class="invalid-feedback"
+                  >
+                    <div
+                      *ngIf="factureForm.controls['numeroFacture'].errors?.['required']"
                     >
                       Ce champ est obligatoire
                     </div>
@@ -386,6 +421,14 @@
               </div>
             </div>
 
+            <div class="row" [hidden]="!isFactureAvoirLoad">
+              <div class="col-12">
+                <hr />
+                <h4 class="text-center">Facture Trouvée: <a href="{{urlFacture}}" target="_blank">Facture {{reponseFNE.reference}}</a></h4>
+                <hr />
+              </div>
+            </div>
+
             <div class="row">
               <div class="col-12 text-center mt-3">
                 <button
@@ -399,7 +442,7 @@
                 <button
                   type="submit"
                   [hidden]="isView"
-                  [disabled]="!factureForm.valid && !isLoadFacture"
+                  [disabled]="!factureForm.valid"
                   class="btn btn-primary w-md"
                 >
                   <i

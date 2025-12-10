@@ -145,6 +145,12 @@ export class FacturesComponent {
         // console.log(response);
 
         this.factureList = response.data
+        this.factureList.forEach(facture => {
+          if (facture.reponseFNE) {
+            facture.reponseFNE = JSON.parse(facture.reponseFNE)
+          }
+        });
+
         this.factureListeSearch = response.data
       },
       error(err) {
@@ -331,8 +337,9 @@ export class FacturesComponent {
   showFactureGenere(data: any) {
     // console.log(data);
     if (data && data.reponseFNE) {
-      let reponseFNE = JSON.parse(data.reponseFNE)
-      const url = reponseFNE.token;
+      //let reponseFNE = JSON.parse(data.reponseFNE)
+      // const url = reponseFNE.token;
+      const url = data.reponseFNE.token;
       // console.log(data.reponseFNE);
       
       window.open(url, '_blank'); 
