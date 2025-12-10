@@ -74,6 +74,14 @@ export class FactureFormComponent {
   isFactureAvoir: boolean = false;
   isFactureAvoirLoad: boolean = false;
 
+  paymentTypes = [
+    { value: 'ALL', label: 'Tous les paiements' },
+    { value: 'CASH', label: 'Espèces' },
+    { value: 'BACKUP_CC', label: 'Backup CC' },
+    { value: 'HD_GLOVO', label: 'HD Glovo' },
+    { value: 'CASH_WAVE', label: 'Cash Wave' }
+  ];
+
   urlFacture: string = ''
   reponseFNE: any = {}
 
