@@ -389,7 +389,8 @@
                               <td></td>
                               <td>{{ data?.totauxPayload?.ht | number:'1.0-0':'fr-FR' }}</td>
                             </tr>
-                            <tr hidden="{{!data?.totauxPayload?.tdt}}">
+                            <!-- <tr hidden="{{!data?.totauxPayload?.tdt}}"> -->
+                            <tr>
                               <td>TDT {{ data?.totauxPayload?.tdt?.taux }}%</td>
                               <td>{{ data?.totauxPayload?.tdt?.base | number:'1.0-0':'fr-FR' }}</td>
                               <td>{{ data?.totauxPayload?.tdt?.montant | number:'1.0-0':'fr-FR' }}</td>

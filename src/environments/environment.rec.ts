@@ -14,10 +14,10 @@ export const environment = {
   BASE_URL_API: "http://38.242.201.239:8080/api/v1",
   keycloak: {
     enable: true, //Enable or disable Keycloak for Frontend app
-    authority: 'http://38.242.201.239:8090', //Keycloak URL
+    authority: 'https://auth.camandsonsentreprises.com', //Keycloak URL
     redirectUri: 'http://38.242.201.239:8080', //Frontend app URL
     postLogoutRedirectUri: 'http://38.242.201.239:8090/logout', //Optional value
-    realm: 'dgifne', //Realm name
+    realm: 'dgifne-test', //Realm name
     clientId: 'frontend',
   },
   pageSize: 10,
