@@ -30,7 +30,7 @@ export const MENU: MenuItem[] = [
         icon: 'bx-sitemap',
         link: '/',
     },
-    /*{
+    {
         id: 5,
         label: 'Paramétrage',
         icon: 'bx-customize',
@@ -116,7 +116,7 @@ export const MENU: MenuItem[] = [
                 ]
             },
         ]
-    },*/
+    },
 
 ];
 
