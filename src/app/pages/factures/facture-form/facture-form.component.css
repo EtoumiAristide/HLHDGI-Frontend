@@ -1,0 +1,29 @@
+.payment-list-container {
+  margin: 20px 0;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8em;
+}
+
+.badge-CASH { background-color: #28a745; color: white; }
+.badge-BACKUP_CC { background-color: #007bff; color: white; }
+.badge-HD_GLOVO { background-color: #6c757d; color: white; }
+.badge-CASH_WAVE { background-color: #ffc107; color: black; }
+
+.total-row {
+  background-color: #e9ecef;
+  font-weight: bold;
+}
+
+.loading, .no-data {
+  text-align: center;
+  padding: 40px;
+  color: #6c757d;
+}

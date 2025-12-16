@@ -33,6 +33,7 @@
                                     <th scope="col" style="width: 40px;">#</th>
                                     <th scope="col">Date Création</th>
                                     <th scope="col">N° Facture</th>
+                                    <th scope="col">N° Facture FNE</th>
                                     <th scope="col">Date</th>
                                     <th scope="col">Client</th>
                                     <th scope="col">Type</th>
@@ -45,9 +46,10 @@
                                     <td>{{$index+1}}</td>
                                     <td>{{data.dateCreation | date:'dd/MM/yyyy HH:mm:ss'}}</td>
                                     <td>{{data.numFacture}}</td>
+                                    <td class="fw-bold">{{data.reponseFNE.reference}}</td>
                                     <td>{{data.dateFacture | date:'dd/MM/yyyy'}}</td>
                                     <td>{{data.nomClient}}</td>
-                                    <td>{{data.typeFacture}}</td>
+                                    <td class="fw-bold text-{{data.typeFacture == 'FACTURE_AVOIR' ? 'danger':'primary'}}">{{data.typeFacture}}</td>
                                     <td>
                                         <ul class="list-unstyled hstack gap-1 mb-0">
                                             <li data-bs-toggle="tooltip" data-bs-placement="top" title="Consulter">

@@ -9,6 +9,8 @@ export class Organisation {
   indexLectureFichier: number;
   isOrderedByPaiementMethod: boolean;
   isPrixUnitaireDefined: boolean;
+  isFactureInitiale: boolean;
+  isTDTBaseTVA: boolean;
   // isEranoveGroupe?: boolean
   // isPrincipal?: number
 
@@ -22,5 +24,7 @@ export class Organisation {
     this.indexLectureFichier = 0
     this.isOrderedByPaiementMethod = false
     this.isPrixUnitaireDefined = false
+    this.isFactureInitiale = false
+    this.isTDTBaseTVA = false
   }
 }

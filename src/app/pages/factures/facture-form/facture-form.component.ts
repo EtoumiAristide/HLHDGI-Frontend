@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, TemplateRef, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { KeycloakService } from 'keycloak-angular';
@@ -12,6 +12,8 @@ import { PointVente } from '../../admin/pointvente/models/pointvente.model';
 import { PointVenteService } from '../../admin/pointvente/services/pointvente.service';
 import { Facture } from '../model/facture.model';
 import { FacturespiServices } from '../service/facture-api.service';
+import { Payment } from '../model/payment.model';
+import { el } from '@fullcalendar/core/internal-common';
 
 
 @Component({
@@ -63,10 +65,30 @@ export class FactureFormComponent {
   formData: FormData
 
   extractedFactureData?: any[]
+  payments: Payment[] = [];
+  filteredPayments: Payment[] = [];
+  montantTimbre: number = 0;
   isLoadFacture: boolean = false
+  selectedType: string = 'ALL';
+  isLoading: boolean = false;
+  isFactureAvoir: boolean = false;
+  isFactureAvoirLoad: boolean = false;
+
+  paymentTypes = [
+    { value: 'ALL', label: 'Tous les paiements' },
+    { value: 'CASH', label: 'Espèces' },
+    { value: 'BACKUP_CC', label: 'Backup CC' },
+    { value: 'HD_GLOVO', label: 'HD Glovo' },
+    { value: 'CASH_WAVE', label: 'Cash Wave' }
+  ];
+
+  urlFacture: string = ''
+  reponseFNE: any = {}
 
   // userEtablissement: string = ''
   isOrderedByPaiementMethod: boolean = false
+
+  @ViewChild('templateModal') templateModal: TemplateRef<void>;
 
   constructor(
     private _factureApi: FacturespiServices,
@@ -75,7 +97,8 @@ export class FactureFormComponent {
     private fb: FormBuilder,
     private _toastServive: ToastService,
     private _router: Router,
-    private _keycloakService: KeycloakService
+    private _keycloakService: KeycloakService,
+    private _modalService: BsModalService,
   ) {
 
 
@@ -87,7 +110,8 @@ export class FactureFormComponent {
       typeClient: ['', Validators.required],
       modePaiement: [''],
       pointVente: ['', Validators.required],
-      fichier: [null, Validators.required]
+      fichier: [null, Validators.required],
+      numeroFacture: [''],
     })
 
     this.isModif = false
@@ -112,7 +136,7 @@ export class FactureFormComponent {
     // this._pointVenteApi.getAll().subscribe({
     this._pointVenteApi.getAllByEntreprise().subscribe({
       next: (response) => {
-        console.log(response);
+        // console.log(response);
 
         this.listePointVente = response.data
         if (this.listePointVente.length != 0) this.isOrderedByPaiementMethod = this.listePointVente[0].etablissement.organisation.isOrderedByPaiementMethod
@@ -127,20 +151,24 @@ export class FactureFormComponent {
   //Ajout d'un nouvel élément
   save() {
     if (this.factureForm.valid) {
-      console.log("Data form: " + JSON.stringify(this.factureForm.value));
+      // console.log("Data form: " + JSON.stringify(this.factureForm.value));
 
       this.changeFormElement();
 
       let dataToSend: any = {}
       dataToSend.type = this.factureForm.controls['typeFacture'].value
-      dataToSend.file = this.factureForm.controls['fichier'].value
-      dataToSend.client = this.factureForm.controls['typeClient'].value
-      dataToSend.paiement = this.factureForm.controls['modePaiement'].value
-      dataToSend.pointvente = this.listePointVente.find(pointVente => pointVente.id == this.factureForm.controls['pointVente'].value).nom
+      if (this.isFactureAvoir) {
+        dataToSend.numeroFacture = this.factureForm.controls['numeroFacture'].value
+      } else {
 
+        dataToSend.file = this.factureForm.controls['fichier'].value
+        dataToSend.client = this.factureForm.controls['typeClient'].value
+        dataToSend.paiement = this.factureForm.controls['modePaiement'].value
+        dataToSend.pointvente = this.listePointVente.find(pointVente => pointVente.id == this.factureForm.controls['pointVente'].value).nom
+      }
       this.formData = objectToFormData(dataToSend)
 
-      let apiSend: Observable<Object> = !this.isModif ? this._factureApi.save(this.formData) : this._factureApi.update(this.facture.id, this.formData);
+      let apiSend: Observable<Object> = !this.isFactureAvoir ? this._factureApi.save(this.formData) : this._factureApi.saveAvoir(this.formData);
 
       apiSend.subscribe({
         next: response => {
@@ -164,30 +192,51 @@ export class FactureFormComponent {
 
   loadFromFile() {
     if (this.factureForm.valid) {
-      console.log("Data form: " + JSON.stringify(this.factureForm.value));
+      // console.log("Data form: " + JSON.stringify(this.factureForm.value));
 
       this.changeFormElement();
 
       let dataToSend: any = {}
       dataToSend.type = this.factureForm.controls['typeFacture'].value
-      dataToSend.file = this.factureForm.controls['fichier'].value
-      dataToSend.client = this.factureForm.controls['typeClient'].value
-      dataToSend.paiement = this.factureForm.controls['modePaiement'].value
-      dataToSend.pointvente = this.factureForm.controls['pointVente'].value
+      if (this.isFactureAvoir) {
+        dataToSend.numeroFacture = this.factureForm.controls['numeroFacture'].value
+      } else {
+        dataToSend.type = this.factureForm.controls['typeFacture'].value
+        dataToSend.file = this.factureForm.controls['fichier'].value
+        dataToSend.client = this.factureForm.controls['typeClient'].value
+        dataToSend.paiement = this.factureForm.controls['modePaiement'].value
+        dataToSend.pointvente = this.factureForm.controls['pointVente'].value
+        this.formData = objectToFormData(dataToSend)
+      }
 
-      this.formData = objectToFormData(dataToSend)
 
-      let apiSend: Observable<Object> = this._factureApi.loadFromFile(this.formData)
+      let apiSend: Observable<Object> = this.isFactureAvoir ? this._factureApi.getByNumfne(this.factureForm.controls['numeroFacture'].value) : this._factureApi.loadFromFile(this.formData)
 
       apiSend.subscribe({
         next: (response: any) => {
-          console.log(response);
-          this.extractedFactureData = response.data
-          this.isLoadFacture = true
+          //console.log(response);
+
+          if (this.isFactureAvoir) {
+            this.isFactureAvoirLoad = true;
+            if (response.data && response.data.reponseFNE) {
+              this.reponseFNE = JSON.parse(response.data.reponseFNE)
+              this.urlFacture = this.reponseFNE.token;
+              // console.log(data.reponseFNE);
+            }
+          } else {
+            this.isFactureAvoirLoad = false;
+            this.isLoadFacture = true
+            this.extractedFactureData = response.data.factures
+
+            if (response.data.payments != undefined) {
+              this.payments = response.data.payments
+              this.filteredPayments = response.data.payments;
+              this.montantTimbre = this.payments.filter(payment => payment.amount > 5000).length * 100;
+            }
+          }
 
           this._toastServive.success(" Données de facture extraites avec succès", "Extraction éffectué").onHidden.subscribe(() => {
             this.initFormElement(false);
-
           })
         },
         error: error => {
@@ -260,6 +309,79 @@ export class FactureFormComponent {
 
   openViewList() {
     this._router.navigate(['/factures'])
+  }
+
+  openModal(template: TemplateRef<void>) {
+    //console.log(etablissementToUpdate);
+    this.modalRef = this._modalService.show(template, this.config)
+  }
+
+  onTypeChange(): void {
+    if (this.selectedType === 'ALL') {
+      this.filteredPayments = this.payments;
+    } else {
+      /*this.reportService.getPaymentsByType(this.selectedType).subscribe({
+        next: (data) => {
+          this.filteredPayments = data;
+        },
+        error: (error) => {
+          console.error('Erreur lors du filtrage:', error);
+        }
+      });*/
+      this.filteredPayments = this.payments.filter(payment => payment.paymentType === this.selectedType);
+      this.montantTimbre = this.filteredPayments.filter(payment => payment.amount > 5000).length * 100;
+    }
+  }
+
+  getTotalAmount(): number {
+    return this.filteredPayments.reduce((sum, payment) => sum + payment.total, 0);
+  }
+
+  formatCurrency(amount: number): string {
+    return new Intl.NumberFormat('fr-FR', {
+      style: 'currency',
+      currency: 'XOF'
+    }).format(amount);
+  }
+
+  getPaymentTypeClass(type: string): string {
+    return `badge-${type}`;
+  }
+
+  selectionTypeFacture() {
+    const selectedType = this.factureForm.get('typeFacture')?.value;
+    console.log(selectedType);
+
+    if (selectedType === 'FACTURE_AVOIR') {
+      this.isFactureAvoir = true;
+
+      // this.factureForm.get('modePaiement')?.clearValidators();
+      this.factureForm.get('typeClient')?.clearValidators();
+      this.factureForm.get('typeClient')?.updateValueAndValidity();
+      this.factureForm.get('pointVente')?.clearValidators();
+      this.factureForm.get('pointVente')?.updateValueAndValidity();
+      this.factureForm.get('fichier')?.clearValidators();
+      this.factureForm.get('fichier')?.updateValueAndValidity();
+
+      this.factureForm.get('numeroFacture')?.addValidators(Validators.required);
+      this.factureForm.get('numeroFacture')?.updateValueAndValidity();
+
+    } else {
+      this.isFactureAvoir = false;
+
+      this.factureForm.get('numeroFacture')?.clearValidators();
+      this.factureForm.get('numeroFacture')?.updateValueAndValidity();
+
+      // this.factureForm.get('modePaiement')?.addValidators(Validators.required);
+      this.factureForm.get('typeClient')?.addValidators(Validators.required);
+      this.factureForm.get('typeClient')?.updateValueAndValidity();
+      this.factureForm.get('pointVente')?.addValidators(Validators.required);
+      this.factureForm.get('pointVente')?.updateValueAndValidity();
+      this.factureForm.get('fichier')?.addValidators(Validators.required);
+      this.factureForm.get('fichier')?.updateValueAndValidity();
+
+    }
+
   }
 
 }

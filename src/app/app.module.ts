@@ -1,4 +1,4 @@
-import { APP_INITIALIZER, NgModule } from '@angular/core';
+import { APP_INITIALIZER, LOCALE_ID, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
@@ -42,8 +42,10 @@ import { AuthInterceptor } from './core-custom/auth/auth.interceptor';
 import { SessionWarningComponent } from './session-warning/session-warning.component';
 import { KeycloakAngularModule, KeycloakService } from 'keycloak-angular';
 import { initializeKeycloak } from './core-custom/init/keycloak.init';
+import { registerLocaleData } from '@angular/common';
 // import { KeycloakAngularModule, KeycloakService } from 'keycloak-angular';
 // import { initializeKeycloak } from './core-custom/init/keycloak.init';
+import localeFr from '@angular/common/locales/fr'; // Import the desired locale data
 if (environment.defaultauth === 'firebase') {
   initFirebaseBackend(environment.firebaseConfig);
 } else {
@@ -58,6 +60,8 @@ export function createTranslateLoader(http: HttpClient): any {
 export function tokenGetter() {
   return localStorage.getItem('access_token');
 }
+
+registerLocaleData(localeFr); // Register the locale data
 
 @NgModule({
   declarations: [
@@ -121,6 +125,7 @@ export function tokenGetter() {
       multi: true,
       deps: [KeycloakService],
     },
+    { provide: LOCALE_ID, useValue: 'fr-FR' } // Set the default locale for the application
   ],
 })
 export class AppModule { }

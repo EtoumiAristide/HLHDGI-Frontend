@@ -20,8 +20,8 @@ export class KeycloakGuard extends KeycloakAuthGuard {
    
       if (!this.authenticated) {
         await this.keycloak.login({
-          // redirectUri: window.location.origin + state.url,
-          redirectUri: window.location.origin + '/',
+          redirectUri: window.location.origin + state.url,
+          // redirectUri: window.location.origin + '/',
         });
       }
    
