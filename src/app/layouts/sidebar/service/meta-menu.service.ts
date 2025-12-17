@@ -3,13 +3,14 @@ import { Observable } from "rxjs";
 import { url_path } from "src/app/core-custom/constants/app.constant";
 import { ApiRequestService } from "src/app/core-custom/services/api-request.service";
 import { MenuItem } from "../menu.model";
+import { KeycloakService } from "keycloak-angular";
 
 @Injectable({
   providedIn: 'root'
 })
 export class MetaMenuService {
 
-  constructor(private _crudService: ApiRequestService) {
+  constructor(private _crudService: ApiRequestService, private keycloak: KeycloakService) {
   }
 
   getMenus(): Observable<MenuItem[]> {
@@ -34,5 +35,24 @@ export class MetaMenuService {
 
   delete(id: number): Observable<void> {
     return this._crudService.delete(url_path.MENU_EP + '/' + id)
+  }
+
+  private getUserRoles(): string[] {
+    const token = this.keycloak.getKeycloakInstance().tokenParsed as any;
+    return token?.roles || [];
+  }
+
+  filterMenu(menu: MenuItem[]): MenuItem[] {
+    const userRoles = this.getUserRoles();
+
+    return menu
+      .filter(item =>
+        !item.roles || item.roles.some(r => userRoles.includes(r))
+      )
+      .map(item => ({
+        ...item,
+        subItems: item.subItems ? this.filterMenu(item.subItems) : undefined
+      }))
+      .filter(item => !item.subItems || item.subItems.length > 0);
   }
 }

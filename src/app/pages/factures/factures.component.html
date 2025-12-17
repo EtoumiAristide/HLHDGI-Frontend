@@ -79,13 +79,59 @@
                             </tbody>
                         </table>
                     </div>
-                    <div class="row">
-                        <div class="col-lg-12">
-                            <ul class="pagination pagination-rounded justify-content-center mt-4">
+                    <div class="table-footer">
+                        <div class="dataTables_length">
+                            <label>
 
-                                <pagination class="pagination-wrap hstack gap-2" [totalItems]="factureList?.length"
-                                    [itemsPerPage]="10" (pageChanged)="pageChanged($event)"></pagination>
-                            </ul>
+                            </label>
+                        </div>
+                        <div class="pagination">
+                            <div class="entries ms-2">
+                                @if(apiResponse.current_page!=undefined){
+                                Affichage de <b>{{(apiResponse.current_page * apiResponse.page_size)+1}}</b> à
+                                <b>
+                                    @if (apiResponse.current_page+1==apiResponse.total_pages) {
+                                    {{apiResponse.total_items}}
+                                    } @else {
+                                    {{((apiResponse.current_page+1) * apiResponse.page_size)}}
+                                    }
+                                </b> sur
+                                <b>{{apiResponse.total_items}}</b>
+                                }@else {
+                                Affichage de 0 à {{pageSize}} sur {{pageNum}}
+                                }
+                            </div>
+                            <div class="col-sm-12 col-md-7">
+                                <div class="pagination_section">
+                                    <nav aria-label="Page navigation" class="pagination-style-1">
+                                        <ul class="pagination mb-0 justify-content-end">
+                                            <li class="page-item">
+                                                <a class="page-link" href="javascript:void(0);"
+                                                    (click)="changePage('prev')">
+                                                    <i class="fas fa-angle-left align-middle"></i>
+                                                    <i class="ri-arrow-left-s-line align-middle"></i>
+                                                </a>
+                                            </li>
+                                            <li class="page-item active"><a class="page-link"
+                                                    href="javascript:void(0);">
+                                                    <b>Page @if(apiResponse.current_page!=undefined){ {{
+                                                        (apiResponse.current_page + 1) +' / '+ apiResponse.total_pages}}
+                                                        }@else {
+                                                        {{pageNum}} / {{pageNum}}
+                                                        }
+                                                    </b></a>
+                                            </li>
+                                            <li class="page-item">
+                                                <a class="page-link" href="javascript:void(0);"
+                                                    (click)="changePage('next')">
+                                                    <i class="fas fa-angle-right align-middle"></i>
+                                                    <i class="ri-arrow-right-s-line align-middle"></i>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </nav>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

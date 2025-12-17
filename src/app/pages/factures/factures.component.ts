@@ -10,6 +10,7 @@ import { Facture } from './model/facture.model';
 import { Router } from '@angular/router';
 import { objectToFormData } from 'src/app/core-custom/utils/utils.service';
 import { environment } from 'src/environments/environment';
+import { ApiPaginatedResponse } from 'src/app/shared/model/api-response.model';
 
 @Component({
   selector: 'app-factures',
@@ -76,6 +77,7 @@ export class FacturesComponent {
 
   pageSize = environment.pageSize;
   pageNum = 0;
+  apiResponse: ApiPaginatedResponse<Facture> = new ApiPaginatedResponse();
 
   constructor(
     private _factureApi: FacturespiServices,
@@ -143,7 +145,9 @@ export class FacturesComponent {
     this._factureApi.getAllByEntreprise({ pageNum: this.pageNum, size: this.pageSize }).subscribe({
       next: (response) => {
         // console.log(response);
-
+        this.apiResponse = response as ApiPaginatedResponse<Facture>;
+        // console.log(this.apiResponse);
+        
         this.factureList = response.data
         this.factureList.forEach(facture => {
           if (facture.reponseFNE) {
@@ -344,5 +348,18 @@ export class FacturesComponent {
       
       window.open(url, '_blank'); 
     }
+  }
+
+  //Gestion de la pagination
+  changePage(newPage: number | string): void {
+    if (newPage === 'prev') {
+      this.pageNum--;
+      if (this.pageNum < 0) this.pageNum = 0
+    } else if (newPage === 'next') {
+      this.pageNum++;
+      if (this.pageNum == this.apiResponse.total_pages) this.pageNum = this.apiResponse.current_page
+    }
+
+    this.chargerListeFacture();
   }
 }
