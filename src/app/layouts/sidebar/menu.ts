@@ -34,6 +34,7 @@ export const MENU: MenuItem[] = [
         id: 5,
         label: 'Paramétrage',
         icon: 'bx-customize',
+        roles: ['Super-Admin'],   // 👈 ROLE REQUIS
         subItems: [
             {
                 id: 6,

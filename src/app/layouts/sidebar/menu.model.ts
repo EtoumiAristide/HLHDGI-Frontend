@@ -9,4 +9,5 @@ export interface MenuItem {
     parentId?: number;
     parentLabel?: string;
     isLayout?: boolean;
+    roles?: string[];
 }

@@ -8,6 +8,9 @@ import { HttpClient } from '@angular/common/http';
 import { MENU } from './menu';
 import { MenuItem } from './menu.model';
 import { TranslateService } from '@ngx-translate/core';
+import { Key } from '@fullcalendar/core/preact';
+import { KeycloakService } from 'keycloak-angular';
+import { MetaMenuService } from './service/meta-menu.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -28,7 +31,13 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnChanges {
 
   @ViewChild('sideMenu') sideMenu: ElementRef;
 
-  constructor(private eventService: EventService, private router: Router, public translate: TranslateService, private http: HttpClient) {
+  constructor(
+    private eventService: EventService,
+    private router: Router,
+    public translate: TranslateService,
+    private http: HttpClient,
+    private metamenuService: MetaMenuService
+  ) {
     router.events.forEach((event) => {
       if (event instanceof NavigationEnd) {
         this._activateMenuDropdown();
@@ -139,7 +148,9 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnChanges {
    * Initialize
    */
   initialize(): void {
-    this.menuItems = MENU;
+    this.menuItems = this.metamenuService.filterMenu(MENU);
+    // this.menuItems = MENU;
+    // console.log(this.keycloakService.getUserRoles(true));
   }
 
   /**
