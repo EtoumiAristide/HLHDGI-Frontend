@@ -11,6 +11,7 @@ import { Router } from '@angular/router';
 import { objectToFormData } from 'src/app/core-custom/utils/utils.service';
 import { environment } from 'src/environments/environment';
 import { ApiPaginatedResponse } from 'src/app/shared/model/api-response.model';
+import { KeycloakService } from 'keycloak-angular';
 
 @Component({
   selector: 'app-factures',
@@ -79,12 +80,15 @@ export class FacturesComponent {
   pageNum = 0;
   apiResponse: ApiPaginatedResponse<Facture> = new ApiPaginatedResponse();
 
+  isViewer: boolean = false;
+
   constructor(
     private _factureApi: FacturespiServices,
     private modalService: BsModalService,
     private fb: FormBuilder,
     private _toastServive: ToastService,
     private _router: Router,
+    private _keycloak:KeycloakService,
   ) {
 
 
@@ -105,6 +109,11 @@ export class FacturesComponent {
   ngOnInit() {
     this.breadCrumbItems = [{ label: 'Accueil' }, { label: 'Factures', active: true }];
     this.chargerListeFacture()
+
+    const roles = this._keycloak.getUserRoles();
+    console.log(roles);
+    
+    this.isViewer = roles.includes('Viewer');
   }
 
   /**

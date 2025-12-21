@@ -18,7 +18,7 @@
                         <div class="col-sm-8">
                             <div class="text-sm-end">
                                 <!-- <button type="button" data-bs-toggle="modal" (click)="openModal(content, null)" -->
-                                <button type="button" data-bs-toggle="modal" (click)="openForm()"
+                                <button type="button" [hidden]="isViewer" data-bs-toggle="modal" (click)="openForm()"
                                     class="btn btn-primary btn-rounded waves-effect waves-light addContact-modal mb-2"><i
                                         class="mdi mdi-plus me-1"></i> Nouvelle Facture</button>
                             </div>
