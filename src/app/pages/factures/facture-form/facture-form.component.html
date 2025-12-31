@@ -101,7 +101,7 @@
                   </div>
                 </div>
               </div>
-              
+
               <div class="col-md-3 col-sm-12" [hidden]="isFactureAvoir">
                 <!-- {{listeTypeFacture|json}} -->
                 <div class="mb-3">
@@ -231,7 +231,8 @@
               <div class="col-md-3 col-sm-12" [hidden]="!isFactureAvoir">
                 <div class="mb-3">
                   <label for="login"
-                    >N° Facture FNE à rembourser <span class="text-danger">*</span></label
+                    >N° Facture FNE à rembourser
+                    <span class="text-danger">*</span></label
                   >
                   <input
                     type="text"
@@ -264,18 +265,22 @@
                   </div>
                 </div>
               </div>
-              <div class="col-md-3 col-sm-12">
+              <div class="col-md-6 col-sm-12">
                 <div class="mb-3 mt-4">
                   <button
                     type="button"
                     class="btn btn-primary"
                     (click)="loadFromFile()"
-                    [disabled]="!factureForm.valid"
-                    [ngClass]="{
-                      'fa fa-spinner': loadingBtnFac,
-                      'fa fa-check': !loadingBtnFac
-                    }"
+                    [disabled]="!factureForm.valid || loadingBtnFac"
                   >
+                    <i
+                      class="fa"
+                      [ngClass]="{
+                        'fa-spin fa-spinner': loadingBtnFac,
+                        'fa fa-check': !loadingBtnFac
+                      }"
+                    >
+                    </i>
                     {{ textButtonFac }}
                   </button>
 
@@ -365,8 +370,17 @@
                               <td>{{ $index + 1 }}</td>
                               <td>{{ item.produit }}</td>
                               <td>{{ item.quantite }}</td>
-                              <td>{{ item.prixUnitaireHT | number:'1.0-0':'fr-FR'}}</td>
-                              <td>{{ item.montantHT | number:'1.0-0':'fr-FR'}}</td>
+                              <td>
+                                {{
+                                  item.prixUnitaireHT
+                                    | number : "1.0-0" : "fr-FR"
+                                }}
+                              </td>
+                              <td>
+                                {{
+                                  item.montantHT | number : "1.0-0" : "fr-FR"
+                                }}
+                              </td>
                             </tr>
                             }
                           </tbody>
@@ -387,23 +401,53 @@
                             <tr>
                               <td>HT</td>
                               <td></td>
-                              <td>{{ data?.totauxPayload?.ht | number:'1.0-0':'fr-FR' }}</td>
+                              <td>
+                                {{
+                                  data?.totauxPayload?.ht
+                                    | number : "1.0-0" : "fr-FR"
+                                }}
+                              </td>
                             </tr>
                             <!-- <tr hidden="{{!data?.totauxPayload?.tdt}}"> -->
                             <tr>
                               <td>TDT {{ data?.totauxPayload?.tdt?.taux }}%</td>
-                              <td>{{ data?.totauxPayload?.tdt?.base | number:'1.0-0':'fr-FR' }}</td>
-                              <td>{{ data?.totauxPayload?.tdt?.montant | number:'1.0-0':'fr-FR' }}</td>
+                              <td>
+                                {{
+                                  data?.totauxPayload?.tdt?.base
+                                    | number : "1.0-0" : "fr-FR"
+                                }}
+                              </td>
+                              <td>
+                                {{
+                                  data?.totauxPayload?.tdt?.montant
+                                    | number : "1.0-0" : "fr-FR"
+                                }}
+                              </td>
                             </tr>
                             <tr>
                               <td>TVA {{ data?.totauxPayload?.tva?.taux }}%</td>
-                              <td>{{ data?.totauxPayload?.tva?.base | number:'1.0-0':'fr-FR' }}</td>
-                              <td>{{ data?.totauxPayload?.tva?.montant | number:'1.0-0':'fr-FR' }}</td>
+                              <td>
+                                {{
+                                  data?.totauxPayload?.tva?.base
+                                    | number : "1.0-0" : "fr-FR"
+                                }}
+                              </td>
+                              <td>
+                                {{
+                                  data?.totauxPayload?.tva?.montant
+                                    | number : "1.0-0" : "fr-FR"
+                                }}
+                              </td>
                             </tr>
                             <tr>
                               <td>TTC</td>
                               <td></td>
-                              <td>{{ data?.totauxPayload?.ttc | number:'1.0-0':'fr-FR'}}</td>
+                              <td>
+                                {{
+                                  data?.totauxPayload?.ttc
+                                    | number : "1.0-0" : "fr-FR"
+                                }}
+                              </td>
                             </tr>
                             <tr>
                               <td>Mode de paiement</td>
@@ -425,7 +469,12 @@
             <div class="row" [hidden]="!isFactureAvoirLoad">
               <div class="col-12">
                 <hr />
-                <h4 class="text-center">Facture Trouvée: <a href="{{urlFacture}}" target="_blank">Facture {{reponseFNE.reference}}</a></h4>
+                <h4 class="text-center">
+                  Facture Trouvée:
+                  <a href="{{ urlFacture }}" target="_blank"
+                    >Facture {{ reponseFNE.reference }}</a
+                  >
+                </h4>
                 <hr />
               </div>
             </div>
@@ -443,7 +492,9 @@
                 <button
                   type="submit"
                   [hidden]="isView"
-                  [disabled]="!factureForm.valid"
+                  [disabled]="
+                    !factureForm.valid || !isLoadFacture || loadingBtn
+                  "
                   class="btn btn-primary w-md"
                 >
                   <i

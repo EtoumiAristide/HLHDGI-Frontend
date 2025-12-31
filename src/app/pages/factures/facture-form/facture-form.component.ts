@@ -194,7 +194,7 @@ export class FactureFormComponent {
     if (this.factureForm.valid) {
       // console.log("Data form: " + JSON.stringify(this.factureForm.value));
 
-      this.changeFormElement();
+      this.changeFormElement(true);
 
       let dataToSend: any = {}
       dataToSend.type = this.factureForm.controls['typeFacture'].value
