@@ -34,7 +34,7 @@ export class OrganisationService {
   }
 
   update(id: number, organisation: any): Observable<ApiPaginatedResponse<Organisation>> {
-    return this._crudService.putForFile({ endpoint: url_path.ORGANISATION_EP + '/' + id, data: organisation })
+    return this._crudService.postForFile({ endpoint: url_path.ORGANISATION_EP + '/' + id, data: organisation })
   }
 
   delete(id: number): Observable<void> {

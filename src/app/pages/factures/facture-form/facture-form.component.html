@@ -21,6 +21,54 @@
             (ngSubmit)="save()"
           >
             <div class="row">
+              @if (isFacturationMultiple) {
+
+              <div class="col-md-3 col-sm-12">
+                <!-- {{listeTypeFacture|json}} -->
+                <div class="mb-3">
+                  <input type="hidden" name="id" formControlName="id" />
+                  <label for="typeFacture"
+                    >Mode de facturation
+                    <span class="text-danger">*</span></label
+                  >
+                  <select
+                    name="modeFacturation"
+                    class="form-select"
+                    id="modeFacturation"
+                    formControlName="modeFacturation"
+                    (change)="selectionModeFacturation()"
+                    [ngClass]="{
+                      'is-invalid':
+                        factureForm.controls['modeFacturation'].invalid &&
+                        (factureForm.controls['modeFacturation'].dirty ||
+                          factureForm.controls['modeFacturation'].touched),
+                      'is-valid': factureForm.controls['modeFacturation'].valid
+                    }"
+                  >
+                    <option value="" disabled selected>Sélectionner...</option>
+                    @for (modeFacture of modesFacturation; track $index) {
+                    <option value="{{ modeFacture.value }}">
+                      {{ modeFacture.label }}
+                    </option>
+                    }
+                  </select>
+                  <div
+                    *ngIf="
+                      factureForm.controls['modeFacturation'].invalid &&
+                      (factureForm.controls['modeFacturation'].dirty ||
+                        factureForm.controls['modeFacturation'].touched)
+                    "
+                    class="invalid-feedback"
+                  >
+                    <div
+                      *ngIf="factureForm.controls['modeFacturation'].errors?.['required']"
+                    >
+                      Ce champ est obligatoire
+                    </div>
+                  </div>
+                </div>
+              </div>
+              }
               <div class="col-md-3 col-sm-12">
                 <!-- {{listeTypeFacture|json}} -->
                 <div class="mb-3">
@@ -147,7 +195,11 @@
               </div>
               <div
                 class="col-md-3 col-sm-12"
-                [hidden]="isOrderedByPaiementMethod || isFactureAvoir"
+                [hidden]="
+                  (isOrderedByPaiementMethod ||
+                  isFactureAvoir) &&
+                  !isZinoFactureConsolide
+                "
               >
                 <!-- {{listeTypeFacture|json}} -->
                 <div class="mb-3">

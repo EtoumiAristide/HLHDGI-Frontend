@@ -24,6 +24,10 @@ export class EtablissementService {
     return this._crudService.getAll(url_path.ETABLISSEMENT_EP + '/byEntreprise')
   }
 
+  getAllByKeycloakGroup() {
+    return this._crudService.getAll(url_path.ETABLISSEMENT_EP + '/bykeycloakgroup')
+  }
+
   getAllByEntrepriseId(entrepriseId: number) {
     return this._crudService.getAll(url_path.ETABLISSEMENT_EP + '/organisation/' + entrepriseId)
   }

@@ -70,6 +70,7 @@ export class OrganisationsComponent {
       isPrixUnitaireDefined: [false],
       isFactureInitiale: [false],
       isTDTBaseTVA: [false],
+      isFacturationMultiple: [false],
     })
 
     this.organisation = new Organisation()
@@ -84,7 +85,7 @@ export class OrganisationsComponent {
   getAllOrganisation() {
     this._organisationApi.getAllByPage({ pageNum: this.pageNum, size: this.pageSize }).subscribe({
       next: (response: any) => {
-        console.log(JSON.stringify(response))
+        // console.log(JSON.stringify(response))
         this.apiResponse = response as ApiPaginatedResponse<Organisation>;
         //this.organisations = this.apiResponse.content
         this.organisations = response.data
@@ -118,22 +119,23 @@ export class OrganisationsComponent {
       this.changeFormElement();
 
       //Ajout des données au formData
-      this.organisation = new Organisation()
-      this.organisation.id = this.organisationForm.controls['id'].value || 0
-      this.organisation.numcc = this.organisationForm.controls['ncc'].value
-      this.organisation.raisonSocial = this.organisationForm.controls['raisonSociale'].value
-      this.organisation.sigle = this.organisationForm.controls['sigle'].value
-      this.organisation.indexLectureFichier = this.organisationForm.controls['indexLectureFichier'].value || 0
-      this.organisation.isOrderedByPaiementMethod = this.organisationForm.controls['isOrderedByPaiementMethod'].value || false
-      this.organisation.isPrixUnitaireDefined = this.organisationForm.controls['isPrixUnitaireDefined'].value || false
-      this.organisation.isFactureInitiale = this.organisationForm.controls['isFactureInitiale'].value || false
-      this.organisation.isTDTBaseTVA = this.organisationForm.controls['isTDTBaseTVA'].value || false
+      let organisation: any = {}
+      organisation.id = this.organisationForm.controls['id'].value || 0
+      organisation.numcc = this.organisationForm.controls['ncc'].value
+      organisation.raisonSocial = this.organisationForm.controls['raisonSociale'].value
+      organisation.sigle = this.organisationForm.controls['sigle'].value
+      organisation.indexLectureFichier = this.organisationForm.controls['indexLectureFichier'].value || 0
+      organisation.isOrderedByPaiementMethod = this.organisationForm.controls['isOrderedByPaiementMethod'].value || false
+      organisation.isPrixUnitaireDefined = this.organisationForm.controls['isPrixUnitaireDefined'].value || false
+      organisation.isFactureInitiale = this.organisationForm.controls['isFactureInitiale'].value || false
+      organisation.isTDTBaseTVA = this.organisationForm.controls['isTDTBaseTVA'].value || false
+      organisation.isFacturationMultiple = this.organisationForm.controls['isFacturationMultiple'].value || false
       if (this.organisationForm.controls['logo'].value != null) {
         this.organisation.image = this.organisationForm.controls['logo'].value
       }
 
       //console.log("Data send: " + JSON.stringify(this.formData));
-      this.formData = objectToFormData(this.organisation)
+      this.formData = objectToFormData(organisation)
 
       let apiSend: Observable<ApiPaginatedResponse<Organisation>> = this.organisation.id == 0 ? this._organisationApi.save(this.formData) : this._organisationApi.update(this.organisation.id, this.formData);
 
@@ -272,6 +274,7 @@ export class OrganisationsComponent {
         isPrixUnitaireDefined: false,
         isFactureInitiale: false,
         isTDTBaseTVA: false,
+        isFacturationMultiple: false,
       })
     } else {
       this.organisationForm.patchValue({
@@ -284,6 +287,7 @@ export class OrganisationsComponent {
         isPrixUnitaireDefined: this.organisation.isPrixUnitaireDefined,
         isFactureInitiale: this.organisation.isFactureInitiale,
         isTDTBaseTVA: this.organisation.isTDTBaseTVA,
+        isFacturationMultiple: this.organisation.isFacturationMultiple,
       })
 
       this.imageURL = this.organisation.logo

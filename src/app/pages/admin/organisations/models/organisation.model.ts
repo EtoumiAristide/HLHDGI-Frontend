@@ -11,6 +11,7 @@ export class Organisation {
   isPrixUnitaireDefined: boolean;
   isFactureInitiale: boolean;
   isTDTBaseTVA: boolean;
+  isFacturationMultiple: boolean;
   // isEranoveGroupe?: boolean
   // isPrincipal?: number
 
@@ -26,5 +27,6 @@ export class Organisation {
     this.isPrixUnitaireDefined = false
     this.isFactureInitiale = false
     this.isTDTBaseTVA = false
+    this.isFacturationMultiple = false
   }
 }

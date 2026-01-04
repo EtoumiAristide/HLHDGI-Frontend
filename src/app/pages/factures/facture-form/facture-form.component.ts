@@ -1,7 +1,6 @@
 import { Component, TemplateRef, ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { KeycloakService } from 'keycloak-angular';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { Observable } from 'rxjs';
 import { btnFormState } from 'src/app/core-custom/constants/form-btn-state.constant';
@@ -11,9 +10,8 @@ import { methodePaiement, objectToFormData, typeClient, typeFacture } from 'src/
 import { PointVente } from '../../admin/pointvente/models/pointvente.model';
 import { PointVenteService } from '../../admin/pointvente/services/pointvente.service';
 import { Facture } from '../model/facture.model';
-import { FacturespiServices } from '../service/facture-api.service';
 import { Payment } from '../model/payment.model';
-import { el } from '@fullcalendar/core/internal-common';
+import { FacturespiServices } from '../service/facture-api.service';
 
 
 @Component({
@@ -73,6 +71,7 @@ export class FactureFormComponent {
   isLoading: boolean = false;
   isFactureAvoir: boolean = false;
   isFactureAvoirLoad: boolean = false;
+  isZinoFactureConsolide: boolean = false;
 
   paymentTypes = [
     { value: 'ALL', label: 'Tous les paiements' },
@@ -87,17 +86,24 @@ export class FactureFormComponent {
 
   // userEtablissement: string = ''
   isOrderedByPaiementMethod: boolean = false
+  isFacturationMultiple: boolean = false
+
+  modesFacturation = [
+    { value: 'FACTURE_DETAILLE', label: 'Facture détaillée' },
+    { value: 'FACTURE_CONSOLIDE', label: 'Facture consolidée' },
+  ]
 
   @ViewChild('templateModal') templateModal: TemplateRef<void>;
 
   constructor(
     private _factureApi: FacturespiServices,
     private _pointVenteApi: PointVenteService,
+    //private _etablissementApi: EtablissementService,
     private modalService: BsModalService,
     private fb: FormBuilder,
     private _toastServive: ToastService,
     private _router: Router,
-    private _keycloakService: KeycloakService,
+    //private _keycloakService: KeycloakService,
     private _modalService: BsModalService,
   ) {
 
@@ -139,14 +145,38 @@ export class FactureFormComponent {
         // console.log(response);
 
         this.listePointVente = response.data
-        if (this.listePointVente.length != 0) this.isOrderedByPaiementMethod = this.listePointVente[0].etablissement.organisation.isOrderedByPaiementMethod
+        if (this.listePointVente.length != 0) {
+          this.isOrderedByPaiementMethod = this.listePointVente[0].etablissement.organisation.isOrderedByPaiementMethod
+          this.isFacturationMultiple = this.listePointVente[0].etablissement.organisation.isFacturationMultiple
+        }
+
+        if (this.isFacturationMultiple) {
+          let modeFacturation: FormControl = new FormControl('', Validators.required)
+          this.factureForm.addControl('modeFacturation', modeFacturation)
+        }
+
+        //this.chargerEtablissement()
+      },
+      error(err) {
+        console.log(err);
+      },
+    })
+  }
+
+  /*chargerEtablissement() {
+    // this._pointVenteApi.getAll().subscribe({
+
+    this._etablissementApi.getAllByKeycloakGroup().subscribe({
+      next: (response) => {
+        console.log(response);
+
       },
       error(err) {
         console.log(err);
 
       },
     })
-  }
+  }*/
 
   //Ajout d'un nouvel élément
   save() {
@@ -206,6 +236,9 @@ export class FactureFormComponent {
         dataToSend.client = this.factureForm.controls['typeClient'].value
         dataToSend.paiement = this.factureForm.controls['modePaiement'].value
         dataToSend.pointvente = this.factureForm.controls['pointVente'].value
+        if(this.isFacturationMultiple){
+          dataToSend.facturation = this.factureForm.controls['modeFacturation'].value
+        }
         this.formData = objectToFormData(dataToSend)
       }
 
@@ -383,5 +416,11 @@ export class FactureFormComponent {
     }
 
   }
+  selectionModeFacturation() {
+    const selectedType = this.factureForm.get('modeFacturation')?.value;
+    console.log(selectedType);
 
+    selectedType === 'FACTURE_CONSOLIDE' ? this.isZinoFactureConsolide = true : this.isZinoFactureConsolide = false;
+
+  }
 }
