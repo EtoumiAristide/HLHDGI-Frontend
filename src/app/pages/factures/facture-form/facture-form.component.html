@@ -21,7 +21,52 @@
             (ngSubmit)="save()"
           >
             <div class="row">
-              @if (isFacturationMultiple) {
+              
+              <div class="col-md-3 col-sm-12">
+                <!-- {{listeTypeFacture|json}} -->
+                <div class="mb-3">
+                  <input type="hidden" name="id" formControlName="id" />
+                  <label for="typeFacture"
+                    >Type de facture <span class="text-danger">*</span></label
+                  >
+                  <select
+                    name="typeFacture"
+                    class="form-select"
+                    id="typeFacture"
+                    formControlName="typeFacture"
+                    (change)="selectionTypeFacture()"
+                    [ngClass]="{
+                      'is-invalid':
+                        factureForm.controls['typeFacture'].invalid &&
+                        (factureForm.controls['typeFacture'].dirty ||
+                          factureForm.controls['typeFacture'].touched),
+                      'is-valid': factureForm.controls['typeFacture'].valid
+                    }"
+                  >
+                    <option value="" disabled selected>Sélectionner...</option>
+                    @for (typeFacture of listeTypeFacture; track $index) {
+                    <option value="{{ typeFacture.valeur }}">
+                      {{ typeFacture.label }}
+                    </option>
+                    }
+                  </select>
+                  <div
+                    *ngIf="
+                      factureForm.controls['typeFacture'].invalid &&
+                      (factureForm.controls['typeFacture'].dirty ||
+                        factureForm.controls['typeFacture'].touched)
+                    "
+                    class="invalid-feedback"
+                  >
+                    <div
+                      *ngIf="factureForm.controls['typeFacture'].errors?.['required']"
+                    >
+                      Ce champ est obligatoire
+                    </div>
+                  </div>
+                </div>
+              </div>
+              @if (isFacturationMultiple && !isFactureAvoir) {
 
               <div class="col-md-3 col-sm-12">
                 <!-- {{listeTypeFacture|json}} -->
@@ -69,50 +114,6 @@
                 </div>
               </div>
               }
-              <div class="col-md-3 col-sm-12">
-                <!-- {{listeTypeFacture|json}} -->
-                <div class="mb-3">
-                  <input type="hidden" name="id" formControlName="id" />
-                  <label for="typeFacture"
-                    >Type de facture <span class="text-danger">*</span></label
-                  >
-                  <select
-                    name="typeFacture"
-                    class="form-select"
-                    id="typeFacture"
-                    formControlName="typeFacture"
-                    (change)="selectionTypeFacture()"
-                    [ngClass]="{
-                      'is-invalid':
-                        factureForm.controls['typeFacture'].invalid &&
-                        (factureForm.controls['typeFacture'].dirty ||
-                          factureForm.controls['typeFacture'].touched),
-                      'is-valid': factureForm.controls['typeFacture'].valid
-                    }"
-                  >
-                    <option value="" disabled selected>Sélectionner...</option>
-                    @for (typeFacture of listeTypeFacture; track $index) {
-                    <option value="{{ typeFacture.valeur }}">
-                      {{ typeFacture.label }}
-                    </option>
-                    }
-                  </select>
-                  <div
-                    *ngIf="
-                      factureForm.controls['typeFacture'].invalid &&
-                      (factureForm.controls['typeFacture'].dirty ||
-                        factureForm.controls['typeFacture'].touched)
-                    "
-                    class="invalid-feedback"
-                  >
-                    <div
-                      *ngIf="factureForm.controls['typeFacture'].errors?.['required']"
-                    >
-                      Ce champ est obligatoire
-                    </div>
-                  </div>
-                </div>
-              </div>
               <div class="col-md-3 col-sm-12" [hidden]="isFactureAvoir">
                 <div class="mb-3">
                   <label for="pointVente" class="form-label"
@@ -196,8 +197,7 @@
               <div
                 class="col-md-3 col-sm-12"
                 [hidden]="
-                  (isOrderedByPaiementMethod ||
-                  isFactureAvoir) &&
+                  (isOrderedByPaiementMethod || isFactureAvoir) &&
                   !isZinoFactureConsolide
                 "
               >
@@ -241,6 +241,19 @@
                       Ce champ est obligatoire
                     </div>
                   </div>
+                </div>
+              </div>
+              <div class="col-md-3 col-sm-12">
+                <!-- {{listeTypeFacture|json}} -->
+                <div class="mb-3">
+                  <label for="messageCommercial">Message Commercial </label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    formControlName="messageCommercial"
+                    name="messageCommercial"
+                    id="messageCommercial"
+                  />
                 </div>
               </div>
               <div class="col-md-3 col-sm-12" [hidden]="isFactureAvoir">
@@ -530,7 +543,6 @@
                 <hr />
               </div>
             </div>
-
             <div class="row">
               <div class="col-12 text-center mt-3">
                 <button
@@ -545,7 +557,9 @@
                   type="submit"
                   [hidden]="isView"
                   [disabled]="
-                    !factureForm.valid || !isLoadFacture || loadingBtn
+                    !factureForm.valid ||
+                    (!isLoadFacture && !isFactureAvoirLoad) ||
+                    loadingBtn
                   "
                   class="btn btn-primary w-md"
                 >

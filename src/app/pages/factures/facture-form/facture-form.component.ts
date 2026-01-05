@@ -118,6 +118,7 @@ export class FactureFormComponent {
       pointVente: ['', Validators.required],
       fichier: [null, Validators.required],
       numeroFacture: [''],
+      messageCommercial: [''],
     })
 
     this.isModif = false
@@ -187,6 +188,7 @@ export class FactureFormComponent {
 
       let dataToSend: any = {}
       dataToSend.type = this.factureForm.controls['typeFacture'].value
+      dataToSend.messageCommercial = this.factureForm.controls['messageCommercial'].value
       if (this.isFactureAvoir) {
         dataToSend.numeroFacture = this.factureForm.controls['numeroFacture'].value
       } else {
@@ -228,6 +230,7 @@ export class FactureFormComponent {
 
       let dataToSend: any = {}
       dataToSend.type = this.factureForm.controls['typeFacture'].value
+      dataToSend.messageCommercial = this.factureForm.controls['messageCommercial'].value
       if (this.isFactureAvoir) {
         dataToSend.numeroFacture = this.factureForm.controls['numeroFacture'].value
       } else {
@@ -251,6 +254,7 @@ export class FactureFormComponent {
 
           if (this.isFactureAvoir) {
             this.isFactureAvoirLoad = true;
+            this.isLoadFacture = false
             if (response.data && response.data.reponseFNE) {
               this.reponseFNE = JSON.parse(response.data.reponseFNE)
               this.urlFacture = this.reponseFNE.token;
@@ -269,7 +273,7 @@ export class FactureFormComponent {
           }
 
           this._toastServive.success(" Données de facture extraites avec succès", "Extraction éffectué").onHidden.subscribe(() => {
-            this.initFormElement(false);
+            this.initFormElement();
           })
         },
         error: error => {

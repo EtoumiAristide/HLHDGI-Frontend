@@ -113,7 +113,7 @@ export class OrganisationsComponent {
 
   save() {
     if (this.organisationForm.valid) {
-      //console.log("Data send: " + JSON.stringify(this.organisationForm));
+      // console.log("Data send: " + JSON.stringify(this.organisationForm.value));
 
       //Changement de l'apparance du bouton
       this.changeFormElement();
@@ -131,13 +131,13 @@ export class OrganisationsComponent {
       organisation.isTDTBaseTVA = this.organisationForm.controls['isTDTBaseTVA'].value || false
       organisation.isFacturationMultiple = this.organisationForm.controls['isFacturationMultiple'].value || false
       if (this.organisationForm.controls['logo'].value != null) {
-        this.organisation.image = this.organisationForm.controls['logo'].value
+        organisation.image = this.organisationForm.controls['logo'].value
       }
 
-      //console.log("Data send: " + JSON.stringify(this.formData));
+      // console.log("Data send: " + JSON.stringify(this.formData));
       this.formData = objectToFormData(organisation)
 
-      let apiSend: Observable<ApiPaginatedResponse<Organisation>> = this.organisation.id == 0 ? this._organisationApi.save(this.formData) : this._organisationApi.update(this.organisation.id, this.formData);
+      let apiSend: Observable<ApiPaginatedResponse<Organisation>> = this.organisationForm.controls['id'].value == 0 ? this._organisationApi.save(this.formData) : this._organisationApi.update(this.organisation.id, this.formData);
 
       apiSend.subscribe({
         next: response => {
@@ -217,7 +217,8 @@ export class OrganisationsComponent {
       this.updateFormValues()
     } else {
       this.txtModalHeader = formModalHeader.save + " d'une filiale";
-      this.cleanFormData()
+      //this.cleanFormData()
+      this.updateFormValues(true)
     }
 
     this.modalRef = this._modalService.show(template, this.config)
