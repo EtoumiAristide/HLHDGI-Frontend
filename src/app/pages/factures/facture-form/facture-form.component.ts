@@ -197,6 +197,9 @@ export class FactureFormComponent {
         dataToSend.client = this.factureForm.controls['typeClient'].value
         dataToSend.paiement = this.factureForm.controls['modePaiement'].value
         dataToSend.pointvente = this.listePointVente.find(pointVente => pointVente.id == this.factureForm.controls['pointVente'].value).nom
+        if(this.isFacturationMultiple){
+          dataToSend.facturation = this.factureForm.controls['modeFacturation'].value
+        }
       }
       this.formData = objectToFormData(dataToSend)
 
@@ -234,7 +237,6 @@ export class FactureFormComponent {
       if (this.isFactureAvoir) {
         dataToSend.numeroFacture = this.factureForm.controls['numeroFacture'].value
       } else {
-        dataToSend.type = this.factureForm.controls['typeFacture'].value
         dataToSend.file = this.factureForm.controls['fichier'].value
         dataToSend.client = this.factureForm.controls['typeClient'].value
         dataToSend.paiement = this.factureForm.controls['modePaiement'].value

@@ -71,7 +71,6 @@
               <div class="col-md-3 col-sm-12">
                 <!-- {{listeTypeFacture|json}} -->
                 <div class="mb-3">
-                  <input type="hidden" name="id" formControlName="id" />
                   <label for="typeFacture"
                     >Mode de facturation
                     <span class="text-danger">*</span></label
@@ -154,7 +153,6 @@
               <div class="col-md-3 col-sm-12" [hidden]="isFactureAvoir">
                 <!-- {{listeTypeFacture|json}} -->
                 <div class="mb-3">
-                  <input type="hidden" name="id" formControlName="id" />
                   <label for="typeClient"
                     >Type de client <span class="text-danger">*</span></label
                   >
@@ -203,7 +201,6 @@
               >
                 <!-- {{listeTypeFacture|json}} -->
                 <div class="mb-3">
-                  <input type="hidden" name="id" formControlName="id" />
                   <label for="modePaiement"
                     >Mode de Paiement <span class="text-danger">*</span></label
                   >
@@ -241,19 +238,6 @@
                       Ce champ est obligatoire
                     </div>
                   </div>
-                </div>
-              </div>
-              <div class="col-md-3 col-sm-12">
-                <!-- {{listeTypeFacture|json}} -->
-                <div class="mb-3">
-                  <label for="messageCommercial">Message Commercial </label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    formControlName="messageCommercial"
-                    name="messageCommercial"
-                    id="messageCommercial"
-                  />
                 </div>
               </div>
               <div class="col-md-3 col-sm-12" [hidden]="isFactureAvoir">
@@ -328,6 +312,18 @@
                       Ce champ est obligatoire
                     </div>
                   </div>
+                </div>
+              </div>
+              <div class="col-md-3 col-sm-12">
+                <div class="mb-3">
+                  <label for="messageCommercial">Message Commercial </label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    formControlName="messageCommercial"
+                    name="messageCommercial"
+                    id="messageCommercial"
+                  />
                 </div>
               </div>
               <div class="col-md-6 col-sm-12">
