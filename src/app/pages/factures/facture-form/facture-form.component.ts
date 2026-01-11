@@ -1,5 +1,5 @@
 import { Component, TemplateRef, ViewChild } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { Observable } from 'rxjs';
@@ -32,6 +32,12 @@ export class FactureFormComponent {
   // Table data
   factureForm!: FormGroup;
   facture: Facture
+
+  factureAvoirForm!: FormArray
+  // flag whether all avoirs are selected
+  allAvoirsSelected: boolean = false
+  // total refund amount computed from selected lines
+  totalAvoir: number = 0
 
   deleteId: any;
 
@@ -82,6 +88,7 @@ export class FactureFormComponent {
   ];
 
   urlFacture: string = ''
+  montantFacture: number = 0
   reponseFNE: any = {}
 
   // userEtablissement: string = ''
@@ -120,6 +127,8 @@ export class FactureFormComponent {
       numeroFacture: [''],
       messageCommercial: [''],
     })
+
+    this.factureAvoirForm= this.fb.array([])
 
     this.isModif = false
 
@@ -191,16 +200,31 @@ export class FactureFormComponent {
       dataToSend.messageCommercial = this.factureForm.controls['messageCommercial'].value
       if (this.isFactureAvoir) {
         dataToSend.numeroFacture = this.factureForm.controls['numeroFacture'].value
+        // collect selected lines (id, designation, quantite)
+        const selectedLines: Array<any> = []
+        for (let i = 0; i < this.factureAvoirForm.length; i++) {
+          const grp = this.factureAvoirForm.at(i) as FormGroup
+          if (grp.get('isSelected')?.value) {
+            selectedLines.push({
+              id: grp.get('itemId')?.value,
+              designation: grp.get('description')?.value,
+              quantite: Number(grp.get('quantite')?.value) || 0
+            })
+          }
+        }
+        dataToSend.selectedLines = selectedLines
       } else {
 
         dataToSend.file = this.factureForm.controls['fichier'].value
         dataToSend.client = this.factureForm.controls['typeClient'].value
         dataToSend.paiement = this.factureForm.controls['modePaiement'].value
         dataToSend.pointvente = this.listePointVente.find(pointVente => pointVente.id == this.factureForm.controls['pointVente'].value).nom
-        if(this.isFacturationMultiple){
+        if (this.isFacturationMultiple) {
           dataToSend.facturation = this.factureForm.controls['modeFacturation'].value
         }
       }
+      console.log(dataToSend);
+      
       this.formData = objectToFormData(dataToSend)
 
       let apiSend: Observable<Object> = !this.isFactureAvoir ? this._factureApi.save(this.formData) : this._factureApi.saveAvoir(this.formData);
@@ -241,7 +265,7 @@ export class FactureFormComponent {
         dataToSend.client = this.factureForm.controls['typeClient'].value
         dataToSend.paiement = this.factureForm.controls['modePaiement'].value
         dataToSend.pointvente = this.factureForm.controls['pointVente'].value
-        if(this.isFacturationMultiple){
+        if (this.isFacturationMultiple) {
           dataToSend.facturation = this.factureForm.controls['modeFacturation'].value
         }
         this.formData = objectToFormData(dataToSend)
@@ -252,7 +276,7 @@ export class FactureFormComponent {
 
       apiSend.subscribe({
         next: (response: any) => {
-          //console.log(response);
+          // console.log(response);
 
           if (this.isFactureAvoir) {
             this.isFactureAvoirLoad = true;
@@ -260,7 +284,9 @@ export class FactureFormComponent {
             if (response.data && response.data.reponseFNE) {
               this.reponseFNE = JSON.parse(response.data.reponseFNE)
               this.urlFacture = this.reponseFNE.token;
-              // console.log(data.reponseFNE);
+              // console.log(JSON.stringify(this.reponseFNE));
+              this.montantFacture = this.reponseFNE.invoice.totalDue
+              this.setFactureAvoirForm(this.reponseFNE.invoice.items);
             }
           } else {
             this.isFactureAvoirLoad = false;
@@ -290,6 +316,91 @@ export class FactureFormComponent {
         }
       });
     }
+  }
+
+  setFactureAvoirForm(items: any[]) {
+    //Constitution du formulaire
+    this.factureAvoirForm = this.fb.array([])
+    for (let index = 0; index < items.length; index++) {
+      const item = items[index]
+      const grp = this.fb.group({
+        itemId: [item.id],
+        description: [item.description],
+        quantite: [item.quantity, Validators.compose([Validators.required, Validators.max(item.quantity)])],
+        montant: [item.amount],
+        isSelected: [false],
+      })
+
+      // disable quantity by default until the line is selected
+      grp.get('quantite')?.disable({ emitEvent: false })
+
+      // recompute total when quantity changes
+      grp.get('quantite')?.valueChanges.subscribe(() => {
+        this.computeTotalAvoir()
+      })
+
+      // when isSelected changes, enable/disable quantity and recompute total
+      grp.get('isSelected')?.valueChanges.subscribe((checked: boolean) => {
+        if (checked) {
+          grp.get('quantite')?.enable({ emitEvent: false })
+        } else {
+          grp.get('quantite')?.disable({ emitEvent: false })
+        }
+        this.computeTotalAvoir()
+        this.updateAllSelectedFlag()
+      })
+
+      this.factureAvoirForm.push(grp)
+
+    }
+  }
+
+  toggleAvoir(index: number, checked: boolean) {
+    const ctrl = this.factureAvoirForm.at(index) as FormGroup
+    ctrl.get('isSelected')?.setValue(checked)
+    if (checked) {
+      ctrl.get('quantite')?.enable({ emitEvent: false })
+    } else {
+      ctrl.get('quantite')?.disable({ emitEvent: false })
+    }
+    this.computeTotalAvoir()
+    this.updateAllSelectedFlag()
+  }
+
+  selectAllAvoir(selectAll: boolean) {
+    for (let i = 0; i < this.factureAvoirForm.length; i++) {
+      const ctrl = this.factureAvoirForm.at(i) as FormGroup
+      ctrl.get('isSelected')?.setValue(selectAll)
+      if (selectAll) {
+        ctrl.get('quantite')?.enable({ emitEvent: false })
+      } else {
+        ctrl.get('quantite')?.disable({ emitEvent: false })
+      }
+    }
+    this.computeTotalAvoir()
+    this.allAvoirsSelected = selectAll
+  }
+
+  toggleSelectAll() {
+    this.selectAllAvoir(!this.allAvoirsSelected)
+  }
+
+  updateAllSelectedFlag() {
+    this.allAvoirsSelected = this.factureAvoirForm.length > 0 && this.factureAvoirForm.controls.every((c: any) => c.get('isSelected')?.value === true)
+  }
+
+  computeTotalAvoir(): number {
+    let total = 0
+    for (let i = 0; i < this.factureAvoirForm.length; i++) {
+      const ctrl = this.factureAvoirForm.at(i) as FormGroup
+      if (ctrl.get('isSelected')?.value) {
+        const q = Number(ctrl.get('quantite')?.value) || 0
+        const m = Number(ctrl.get('montant')?.value) || 0
+        total += q * m
+      }
+    }
+    this.totalAvoir = total
+    return total
   }
 
   onFileSelect(event: any) {

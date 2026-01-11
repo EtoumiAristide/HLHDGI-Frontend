@@ -21,7 +21,6 @@
             (ngSubmit)="save()"
           >
             <div class="row">
-              
               <div class="col-md-3 col-sm-12">
                 <!-- {{listeTypeFacture|json}} -->
                 <div class="mb-3">
@@ -538,6 +537,116 @@
                 </h4>
                 <hr />
               </div>
+
+              <div class="col-12">
+                <div class="d-flex justify-content-end mb-2">
+                  <button type="button" class="btn btn-sm btn-outline-primary me-2" (click)="toggleSelectAll()">
+                    {{ allAvoirsSelected ? 'Tout désélectionner' : 'Tout sélectionner' }}
+                  </button>
+                </div>
+                @for (itemAvoir of factureAvoirForm.controls; track $index) {
+                <div class="row" formArrayName="factureAvoirForm">
+                  <div
+                    [formGroup]="$any(itemAvoir)"
+                    class="card mb-3 p-3 border-secondary"
+                  >
+                    <div class="row align-items-center">
+                      <div class="col-md-1 col-sm-12 d-flex justify-content-center">
+                          <div class="form-check">
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            [checked]="itemAvoir.get('isSelected').value"
+                            (change)="toggleAvoir($index, $event.target.checked)"
+                            title="Sélectionner la ligne {{ $index + 1 }}"
+                          />
+                        </div>
+                      </div>
+                      <div class="col-md-4 col-sm-12">
+                        <label for="description">Désignation</label>
+                        <input
+                          type="hidden"
+                          class="form-control"
+                          formControlName="itemId"
+                          id="itemId"
+                          name="itemId"
+                          readonly
+                        />
+                        <input
+                          type="text"
+                          class="form-control"
+                          formControlName="description"
+                          id="description"
+                          name="description"
+                          readonly
+                        />
+                      </div>
+                      <div class="col-md-3 col-sm-12">
+                        <label for="quantite">Quantité</label>
+                        <input
+                          type="number"
+                          class="form-control"
+                          formControlName="quantite"
+                          id="quantite"
+                          name="quantite"
+                          min="1"
+                          [max]="itemAvoir.get('quantite').value"
+                          [disabled]="!itemAvoir.get('isSelected')?.value"
+                          [ngClass]="{
+                            'is-invalid':
+                              itemAvoir.get('quantite')?.invalid &&
+                              (itemAvoir.get('quantite')?.dirty ||
+                                itemAvoir.get('quantite')?.touched),
+                            'is-valid': itemAvoir.get('quantite')?.valid
+                          }"
+                        />
+                        <div
+                          *ngIf="
+                            itemAvoir.get('quantite')?.invalid &&
+                            (itemAvoir.get('quantite')?.dirty ||
+                              itemAvoir.get('quantite')?.touched)
+                          "
+                          class="text-danger"
+                        >
+                          <div
+                            *ngIf="itemAvoir.get('quantite')?.errors?.['required']"
+                          >
+                            Veuillez renseigner la quantité
+                          </div>
+                          <div
+                            *ngIf="itemAvoir.get('quantite')?.errors?.['max']"
+                          >
+                            La quantité ne doit pas dépasser
+                            {{
+                              itemAvoir.get('quantite')?.errors?.['max']?.max
+                            }}
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-4 col-sm-12">
+                        <label for="montant">Montant</label>
+                        <input
+                          type="number"
+                          class="form-control"
+                          formControlName="montant"
+                          id="montant"
+                          name="montant"
+                          readonly
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                }
+                <div class="row mt-3">
+                  <div class="col-12 text-end">
+                    <h5>
+                      Montant total remboursement:
+                      <strong><span class="text-danger">{{ formatCurrency(totalAvoir) }}</span> /  {{ formatCurrency(montantFacture) }}</strong>
+                    </h5>
+                  </div>
+                </div>
+              </div>
             </div>
             <div class="row">
               <div class="col-12 text-center mt-3">
@@ -555,7 +664,8 @@
                   [disabled]="
                     !factureForm.valid ||
                     (!isLoadFacture && !isFactureAvoirLoad) ||
-                    loadingBtn
+                    loadingBtn ||
+                    (isFactureAvoir && totalAvoir === 0)
                   "
                   class="btn btn-primary w-md"
                 >
