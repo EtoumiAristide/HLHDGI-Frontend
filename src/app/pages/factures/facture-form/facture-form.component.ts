@@ -128,7 +128,7 @@ export class FactureFormComponent {
       messageCommercial: [''],
     })
 
-    this.factureAvoirForm= this.fb.array([])
+    this.factureAvoirForm = this.fb.array([])
 
     this.isModif = false
 
@@ -224,7 +224,7 @@ export class FactureFormComponent {
         }
       }
       console.log(dataToSend);
-      
+
       this.formData = objectToFormData(dataToSend)
 
       let apiSend: Observable<Object> = !this.isFactureAvoir ? this._factureApi.save(this.formData) : this._factureApi.saveAvoir(this.formData);
@@ -258,21 +258,23 @@ export class FactureFormComponent {
       let dataToSend: any = {}
       dataToSend.type = this.factureForm.controls['typeFacture'].value
       dataToSend.messageCommercial = this.factureForm.controls['messageCommercial'].value
+      dataToSend.file = this.factureForm.controls['fichier'].value
       if (this.isFactureAvoir) {
         dataToSend.numeroFacture = this.factureForm.controls['numeroFacture'].value
       } else {
-        dataToSend.file = this.factureForm.controls['fichier'].value
+        // dataToSend.file = this.factureForm.controls['fichier'].value
         dataToSend.client = this.factureForm.controls['typeClient'].value
         dataToSend.paiement = this.factureForm.controls['modePaiement'].value
         dataToSend.pointvente = this.factureForm.controls['pointVente'].value
         if (this.isFacturationMultiple) {
           dataToSend.facturation = this.factureForm.controls['modeFacturation'].value
         }
-        this.formData = objectToFormData(dataToSend)
+        // this.formData = objectToFormData(dataToSend)
       }
+      this.formData = objectToFormData(dataToSend)
 
 
-      let apiSend: Observable<Object> = this.isFactureAvoir ? this._factureApi.getByNumfne(this.factureForm.controls['numeroFacture'].value) : this._factureApi.loadFromFile(this.formData)
+      let apiSend: Observable<Object> = this.isFactureAvoir ? this._factureApi.getByNumfne(this.factureForm.controls['numeroFacture'].value, this.formData) : this._factureApi.loadFromFile(this.formData)
 
       apiSend.subscribe({
         next: (response: any) => {
@@ -281,12 +283,17 @@ export class FactureFormComponent {
           if (this.isFactureAvoir) {
             this.isFactureAvoirLoad = true;
             this.isLoadFacture = false
-            if (response.data && response.data.reponseFNE) {
-              this.reponseFNE = JSON.parse(response.data.reponseFNE)
+            if (response.data && response.data.factureVente.reponseFNE) {
+              // this.reponseFNE = JSON.parse(response.data.reponseFNE)
+              this.reponseFNE = JSON.parse(response.data.factureVente.reponseFNE)
               this.urlFacture = this.reponseFNE.token;
+
+              const dataFactures = response.data.donneesExtraite
+              console.log(dataFactures);
+              
               // console.log(JSON.stringify(this.reponseFNE));
               this.montantFacture = this.reponseFNE.invoice.totalDue
-              this.setFactureAvoirForm(this.reponseFNE.invoice.items);
+              this.setFactureAvoirForm(this.reponseFNE.invoice.items, dataFactures);
             }
           } else {
             this.isFactureAvoirLoad = false;
@@ -300,7 +307,7 @@ export class FactureFormComponent {
             }
           }
 
-          this._toastServive.success(" Données de facture extraites avec succès", "Extraction éffectué").onHidden.subscribe(() => {
+          this._toastServive.success(" Données de facture extraites avec succès", "Extraction éffectuée").onHidden.subscribe(() => {
             this.initFormElement();
           })
         },
@@ -318,15 +325,20 @@ export class FactureFormComponent {
     }
   }
 
-  setFactureAvoirForm(items: any[]) {
-    //Constitution du formulaire
+  setFactureAvoirForm(items: any[], donneesExtraites?: any[]) {
+    // Constitution du formulaire
     this.factureAvoirForm = this.fb.array([])
     for (let index = 0; index < items.length; index++) {
       const item = items[index]
+      // build validators safely (item.quantity may be null/undefined)
+      const quantValidators: any[] = [Validators.required]
+      if (item && typeof item.quantity === 'number') {
+        quantValidators.push(Validators.max(item.quantity))
+      }
       const grp = this.fb.group({
         itemId: [item.id],
         description: [item.description],
-        quantite: [item.quantity, Validators.compose([Validators.required, Validators.max(item.quantity)])],
+        quantite: [item.quantity, Validators.compose(quantValidators)],
         montant: [item.amount],
         isSelected: [false],
       })
@@ -351,7 +363,90 @@ export class FactureFormComponent {
       })
 
       this.factureAvoirForm.push(grp)
+    }
 
+    // If extracted data provided, try to map them to the generated form groups
+    if (donneesExtraites && Array.isArray(donneesExtraites) && donneesExtraites.length > 0) {
+      // Support two formats for donneesExtraites:
+      // 1) array of lignes [{produit, quantite, ...}, ...]
+      // 2) array of factures [{ lignes: [...] }, ...]
+      const lignesToMatch: any[] = []
+      if (donneesExtraites[0] && Array.isArray(donneesExtraites[0].lignes)) {
+        for (const facture of donneesExtraites) {
+          if (facture && Array.isArray(facture.lignes)) {
+            lignesToMatch.push(...facture.lignes)
+          }
+        }
+      } else {
+        lignesToMatch.push(...donneesExtraites)
+      }
+
+      if (lignesToMatch.length === 0) {
+        this._toastServive.error('Aucune ligne trouvée dans les données extraites.', 'Erreur de correspondance')
+        return
+      }
+
+      try {
+        for (const ext of lignesToMatch) {
+          const prodName = (ext.produit || '').toString().trim().toLowerCase()
+          const qty = Number(ext.quantite) || 0
+
+          let matched = false
+          for (let i = 0; i < this.factureAvoirForm.length; i++) {
+            const ctrl = this.factureAvoirForm.at(i) as FormGroup
+            const desc = (ctrl.get('description')?.value || '').toString().trim().toLowerCase()
+            const existingQty = Number(ctrl.get('quantite')?.value) || 0
+
+            if (desc === prodName) {
+              matched = true
+              if (qty > existingQty) {
+                this._toastServive.error(
+                  'La quantité demandée pour "' + (ext.produit || prodName) + '" est supérieure à la quantité disponible.',
+                  'Erreur de correspondance'
+                )
+                return
+              }
+
+              // Set the quantity to the extracted value and make it read-only (disabled)
+              ctrl.get('quantite')?.setValue(qty, { emitEvent: false })
+              ctrl.get('quantite')?.disable({ emitEvent: false })
+              // ensure validators are up-to-date
+              ctrl.get('quantite')?.updateValueAndValidity({ onlySelf: true, emitEvent: false })
+              // mark selected and lock the checkbox so user can't change it
+              ctrl.get('isSelected')?.setValue(true, { emitEvent: false })
+              ctrl.get('isSelected')?.disable({ emitEvent: false })
+              break
+            }
+          }
+
+          if (!matched) {
+            this._toastServive.error(
+              'Aucun article correspondant trouvé pour "' + (ext.produit || '') + '". Vérifiez le nom du produit.',
+              'Erreur de correspondance'
+            )
+            return
+          }
+        }
+
+        // Disable all non-matched lines (ensure only matched are selectable) and compute totals
+        for (let i = 0; i < this.factureAvoirForm.length; i++) {
+          const ctrl = this.factureAvoirForm.at(i) as FormGroup
+          if (!ctrl.get('isSelected')?.value) {
+            ctrl.get('isSelected')?.setValue(false, { emitEvent: false })
+            // disable the checkbox control so user can't select unmatched lines
+            ctrl.get('isSelected')?.disable({ emitEvent: false })
+            ctrl.get('quantite')?.disable({ emitEvent: false })
+          }
+        }
+
+        this.updateAllSelectedFlag()
+        this.computeTotalAvoir()
+
+        this._toastServive.success('Correspondances appliquées. Les lignes correspondantes ont été sélectionnées.', 'Succès')
+      } catch (err) {
+        console.error('Erreur lors de l\'application des correspondances', err)
+        this._toastServive.error('Erreur interne lors du traitement des correspondances.', 'Erreur')
+      }
     }
   }
 
@@ -406,7 +501,7 @@ export class FactureFormComponent {
   onFileSelect(event: any) {
     if (event.target.files.length > 0) {
       const file = event.target.files[0];
-      console.log(file);
+      // console.log(file);
 
       this.factureForm.controls['fichier']?.setValue(file)
     }
@@ -500,7 +595,7 @@ export class FactureFormComponent {
 
   selectionTypeFacture() {
     const selectedType = this.factureForm.get('typeFacture')?.value;
-    console.log(selectedType);
+    // console.log(selectedType);
 
     if (selectedType === 'FACTURE_AVOIR') {
       this.isFactureAvoir = true;
@@ -510,8 +605,8 @@ export class FactureFormComponent {
       this.factureForm.get('typeClient')?.updateValueAndValidity();
       this.factureForm.get('pointVente')?.clearValidators();
       this.factureForm.get('pointVente')?.updateValueAndValidity();
-      this.factureForm.get('fichier')?.clearValidators();
-      this.factureForm.get('fichier')?.updateValueAndValidity();
+      //this.factureForm.get('fichier')?.clearValidators();
+      //this.factureForm.get('fichier')?.updateValueAndValidity();
 
       this.factureForm.get('numeroFacture')?.addValidators(Validators.required);
       this.factureForm.get('numeroFacture')?.updateValueAndValidity();
@@ -527,8 +622,8 @@ export class FactureFormComponent {
       this.factureForm.get('typeClient')?.updateValueAndValidity();
       this.factureForm.get('pointVente')?.addValidators(Validators.required);
       this.factureForm.get('pointVente')?.updateValueAndValidity();
-      this.factureForm.get('fichier')?.addValidators(Validators.required);
-      this.factureForm.get('fichier')?.updateValueAndValidity();
+      //this.factureForm.get('fichier')?.addValidators(Validators.required);
+      //this.factureForm.get('fichier')?.updateValueAndValidity();
 
     }
 

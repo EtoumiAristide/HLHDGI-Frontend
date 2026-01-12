@@ -24,8 +24,10 @@ export class FacturespiServices {
     return this._apiRequestService.getById(url_path.FACTURE + '/' + id);
   }
 
-  getByNumfne(numfne: string) {
-    return this._apiRequestService.getById(url_path.FACTURE + '/bynumfne/' + numfne);
+  getByNumfne(numfne: string, data: any) {
+  // getByNumfne(numfne: string) {
+    // return this._apiRequestService.getById(url_path.FACTURE + '/bynumfne/' + numfne);
+    return this._apiRequestService.postForFile({ endpoint: url_path.FACTURE + '/bynumfne/' + numfne, data: data } );
   }
 
   save(data: any) {

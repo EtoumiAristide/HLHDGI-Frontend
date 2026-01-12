@@ -239,7 +239,8 @@
                   </div>
                 </div>
               </div>
-              <div class="col-md-3 col-sm-12" [hidden]="isFactureAvoir">
+              <!-- <div class="col-md-3 col-sm-12" [hidden]="isFactureAvoir"> -->
+              <div class="col-md-3 col-sm-12">
                 <div class="mb-3">
                   <label for="login"
                     >Fichier <span class="text-danger">*</span></label
@@ -540,9 +541,9 @@
 
               <div class="col-12">
                 <div class="d-flex justify-content-end mb-2">
-                  <button type="button" class="btn btn-sm btn-outline-primary me-2" (click)="toggleSelectAll()">
+                  <!-- <button type="button" class="btn btn-sm btn-outline-primary me-2" (click)="toggleSelectAll()">
                     {{ allAvoirsSelected ? 'Tout désélectionner' : 'Tout sélectionner' }}
-                  </button>
+                  </button> -->
                 </div>
                 @for (itemAvoir of factureAvoirForm.controls; track $index) {
                 <div class="row" formArrayName="factureAvoirForm">
