@@ -111,7 +111,7 @@ export class FacturesComponent {
     this.chargerListeFacture()
 
     const roles = this._keycloak.getUserRoles();
-    console.log(roles);
+    // console.log(roles);
     
     this.isViewer = roles.includes('Viewer');
   }

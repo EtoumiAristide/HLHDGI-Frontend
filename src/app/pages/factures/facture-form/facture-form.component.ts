@@ -96,8 +96,8 @@ export class FactureFormComponent {
   isFacturationMultiple: boolean = false
 
   modesFacturation = [
-    { value: 'FACTURE_DETAILLE', label: 'Facture détaillée' },
-    { value: 'FACTURE_CONSOLIDE', label: 'Facture consolidée' },
+    { value: 'FACTURE_DETAILLE', label: 'Facture journalière' },
+    { value: 'FACTURE_CONSOLIDE', label: 'Facture unifiée' },
   ]
 
   @ViewChild('templateModal') templateModal: TemplateRef<void>;
@@ -129,6 +129,15 @@ export class FactureFormComponent {
     })
 
     this.factureAvoirForm = this.fb.array([])
+
+    // expose the FormArray on the main FormGroup so template using formArrayName finds it
+    if (this.factureForm && this.factureForm instanceof FormGroup) {
+      if (!this.factureForm.get('factureAvoirForm')) {
+        this.factureForm.addControl('factureAvoirForm', this.factureAvoirForm)
+      } else {
+        this.factureForm.setControl('factureAvoirForm', this.factureAvoirForm)
+      }
+    }
 
     this.isModif = false
 
@@ -383,6 +392,7 @@ export class FactureFormComponent {
 
       if (lignesToMatch.length === 0) {
         this._toastServive.error('Aucune ligne trouvée dans les données extraites.', 'Erreur de correspondance')
+        this.disableAllAvoirCheckboxes()
         return
       }
 
@@ -404,6 +414,7 @@ export class FactureFormComponent {
                   'La quantité demandée pour "' + (ext.produit || prodName) + '" est supérieure à la quantité disponible.',
                   'Erreur de correspondance'
                 )
+                this.disableAllAvoirCheckboxes()
                 return
               }
 
@@ -424,6 +435,7 @@ export class FactureFormComponent {
               'Aucun article correspondant trouvé pour "' + (ext.produit || '') + '". Vérifiez le nom du produit.',
               'Erreur de correspondance'
             )
+            this.disableAllAvoirCheckboxes()
             return
           }
         }
@@ -442,12 +454,40 @@ export class FactureFormComponent {
         this.updateAllSelectedFlag()
         this.computeTotalAvoir()
 
+        // Ensure all checkboxes are disabled so user can't change selection after matching
+        for (let i = 0; i < this.factureAvoirForm.length; i++) {
+          const ctrl = this.factureAvoirForm.at(i) as FormGroup
+          const isSel = ctrl.get('isSelected')
+          if (isSel) {
+            isSel.disable({ emitEvent: false })
+          }
+        }
+
         this._toastServive.success('Correspondances appliquées. Les lignes correspondantes ont été sélectionnées.', 'Succès')
       } catch (err) {
         console.error('Erreur lors de l\'application des correspondances', err)
+        this.disableAllAvoirCheckboxes()
         this._toastServive.error('Erreur interne lors du traitement des correspondances.', 'Erreur')
       }
     }
+  }
+
+  // Disable all isSelected checkboxes and quantities (used when correspondence attempt finishes)
+  private disableAllAvoirCheckboxes(): void {
+    if (!this.factureAvoirForm) return
+    for (let i = 0; i < this.factureAvoirForm.length; i++) {
+      const ctrl = this.factureAvoirForm.at(i) as FormGroup
+      const isSel = ctrl.get('isSelected')
+      if (isSel) {
+        isSel.disable({ emitEvent: false })
+      }
+      const quant = ctrl.get('quantite')
+      if (quant) {
+        quant.disable({ emitEvent: false })
+      }
+    }
+    this.updateAllSelectedFlag()
+    this.computeTotalAvoir()
   }
 
   toggleAvoir(index: number, checked: boolean) {

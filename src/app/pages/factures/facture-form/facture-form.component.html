@@ -557,9 +557,8 @@
                           <input
                             class="form-check-input"
                             type="checkbox"
-                            [checked]="itemAvoir.get('isSelected').value"
-                            (change)="toggleAvoir($index, $event.target.checked)"
-                            title="Sélectionner la ligne {{ $index + 1 }}"
+                            formControlName="isSelected"
+                            [attr.title]="'Sélectionner la ligne ' + ($index + 1)"
                           />
                         </div>
                       </div>
