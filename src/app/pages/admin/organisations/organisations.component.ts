@@ -1,17 +1,16 @@
-import { Component, OnInit, TemplateRef } from '@angular/core';
-import { Router, RouterLink } from "@angular/router";
-import { Organisation } from "./models/organisation.model";
-import { OrganisationService } from "./services/organisation.service";
-import { FormBuilder, FormGroup, FormsModule, NgForm, NgModel, Validators } from '@angular/forms';
-import { ApiPaginatedResponse } from 'src/app/shared/model/api-response.model';
+import { Component, TemplateRef } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router } from "@angular/router";
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { Observable } from 'rxjs';
-import { TooltipModule } from 'ngx-bootstrap/tooltip';
 import { btnFormState } from 'src/app/core-custom/constants/form-btn-state.constant';
 import { formModalHeader } from 'src/app/core-custom/constants/form-modal-header.constant';
 import { ToastService } from 'src/app/core-custom/services/toast.service';
 import { objectToFormData } from 'src/app/core-custom/utils/utils.service';
+import { ApiPaginatedResponse } from 'src/app/shared/model/api-response.model';
 import { environment } from 'src/environments/environment';
+import { Organisation } from "./models/organisation.model";
+import { OrganisationService } from "./services/organisation.service";
 
 @Component({
   selector: 'app-organisations',
@@ -71,6 +70,9 @@ export class OrganisationsComponent {
       isFactureInitiale: [false],
       isTDTBaseTVA: [false],
       isFacturationMultiple: [false],
+      valeurTVA: [0.0],
+      valeurTDT: [0.0],
+      valeurTCN: [0],
     })
 
     this.organisation = new Organisation()
@@ -118,6 +120,8 @@ export class OrganisationsComponent {
       //Changement de l'apparance du bouton
       this.changeFormElement();
 
+      this.formData=new FormData();
+
       //Ajout des données au formData
       let organisation: any = {}
       organisation.id = this.organisationForm.controls['id'].value || 0
@@ -130,12 +134,18 @@ export class OrganisationsComponent {
       organisation.isFactureInitiale = this.organisationForm.controls['isFactureInitiale'].value || false
       organisation.isTDTBaseTVA = this.organisationForm.controls['isTDTBaseTVA'].value || false
       organisation.isFacturationMultiple = this.organisationForm.controls['isFacturationMultiple'].value || false
+      organisation.valeurTVA = this.organisationForm.controls['valeurTVA'].value || 0
+      organisation.valeurTDT = this.organisationForm.controls['valeurTDT'].value || 0
+      organisation.valeurTCN = this.organisationForm.controls['valeurTCN'].value || 0
       if (this.organisationForm.controls['logo'].value != null) {
-        organisation.image = this.organisationForm.controls['logo'].value
+        // organisation.image = this.organisationForm.controls['logo'].value
+        this.formData.append('image', this.organisationForm.controls['logo'].value)
       }
 
       // console.log("Data send: " + JSON.stringify(this.formData));
-      this.formData = objectToFormData(organisation)
+      // this.formData = objectToFormData(organisation)
+      
+      this.formData.append('organisationJson', JSON.stringify(organisation));
 
       let apiSend: Observable<ApiPaginatedResponse<Organisation>> = this.organisationForm.controls['id'].value == 0 ? this._organisationApi.save(this.formData) : this._organisationApi.update(this.organisation.id, this.formData);
 
@@ -276,6 +286,9 @@ export class OrganisationsComponent {
         isFactureInitiale: false,
         isTDTBaseTVA: false,
         isFacturationMultiple: false,
+        valeurTVA: 0.0,
+        valeurTDT: 0.0,
+        valeurTCN: 0,
       })
     } else {
       this.organisationForm.patchValue({
@@ -289,6 +302,9 @@ export class OrganisationsComponent {
         isFactureInitiale: this.organisation.isFactureInitiale,
         isTDTBaseTVA: this.organisation.isTDTBaseTVA,
         isFacturationMultiple: this.organisation.isFacturationMultiple,
+        valeurTVA: this.organisation.valeurTVA,
+        valeurTDT: this.organisation.valeurTDT,
+        valeurTCN: this.organisation.valeurTCN,
       })
 
       this.imageURL = this.organisation.logo

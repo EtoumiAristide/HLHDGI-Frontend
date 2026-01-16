@@ -470,7 +470,7 @@
                               </td>
                             </tr>
                             <!-- <tr hidden="{{!data?.totauxPayload?.tdt}}"> -->
-                            <tr>
+                            <tr [hidden]="data?.totauxPayload?.tdt?.taux==0">
                               <td>TDT {{ data?.totauxPayload?.tdt?.taux }}%</td>
                               <td>
                                 {{
@@ -485,7 +485,7 @@
                                 }}
                               </td>
                             </tr>
-                            <tr>
+                            <tr [hidden]="data?.totauxPayload?.tva?.taux==0">
                               <td>TVA {{ data?.totauxPayload?.tva?.taux }}%</td>
                               <td>
                                 {{
@@ -496,6 +496,21 @@
                               <td>
                                 {{
                                   data?.totauxPayload?.tva?.montant
+                                    | number : "1.0-0" : "fr-FR"
+                                }}
+                              </td>
+                            </tr>
+                            <tr [hidden]="data?.totauxPayload?.tcn?.taux==0">
+                              <td>TCN ({{ data?.totauxPayload?.tcn?.taux }})</td>
+                              <td>
+                                {{
+                                  data?.totauxPayload?.tcn?.base
+                                    | number : "1.0-0" : "fr-FR"
+                                }}
+                              </td>
+                              <td>
+                                {{
+                                  data?.totauxPayload?.tcn?.montant
                                     | number : "1.0-0" : "fr-FR"
                                 }}
                               </td>

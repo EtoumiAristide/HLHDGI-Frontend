@@ -12,9 +12,10 @@ export class Organisation {
   isFactureInitiale: boolean;
   isTDTBaseTVA: boolean;
   isFacturationMultiple: boolean;
-  // isEranoveGroupe?: boolean
-  // isPrincipal?: number
 
+  valeurTVA: number;
+  valeurTDT: number;
+  valeurTCN: number;
   constructor() {
     this.id = 0
     this.numcc = ''
