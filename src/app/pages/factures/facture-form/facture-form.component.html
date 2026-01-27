@@ -240,7 +240,7 @@
                 </div>
               </div>
               <!-- <div class="col-md-3 col-sm-12" [hidden]="isFactureAvoir"> -->
-              <div class="col-md-3 col-sm-12">
+              <div class="col-md-3 col-sm-12" [hidden]="isAvoirFirstVersion">
                 <div class="mb-3">
                   <label for="login"
                     >Fichier <span class="text-danger">*</span></label
@@ -470,7 +470,7 @@
                               </td>
                             </tr>
                             <!-- <tr hidden="{{!data?.totauxPayload?.tdt}}"> -->
-                            <tr [hidden]="data?.totauxPayload?.tdt?.taux==0">
+                            <tr [hidden]="!data?.totauxPayload?.tdt || data?.totauxPayload?.tdt.base===0">
                               <td>TDT {{ data?.totauxPayload?.tdt?.taux }}%</td>
                               <td>
                                 {{
@@ -485,7 +485,7 @@
                                 }}
                               </td>
                             </tr>
-                            <tr [hidden]="data?.totauxPayload?.tva?.taux==0">
+                            <tr [hidden]="!data?.totauxPayload?.tva || data?.totauxPayload?.tva.base===0">
                               <td>TVA {{ data?.totauxPayload?.tva?.taux }}%</td>
                               <td>
                                 {{
@@ -500,7 +500,7 @@
                                 }}
                               </td>
                             </tr>
-                            <tr [hidden]="data?.totauxPayload?.tcn?.taux==0">
+                            <tr [hidden]="!data?.totauxPayload?.tcn || data?.totauxPayload?.tcn.base===0">
                               <td>TCN ({{ data?.totauxPayload?.tcn?.taux }})</td>
                               <td>
                                 {{
@@ -653,14 +653,16 @@
                   </div>
                 </div>
                 }
-                <div class="row mt-3">
-                  <div class="col-12 text-end">
-                    <h5>
-                      Montant total remboursement:
-                      <strong><span class="text-danger">{{ formatCurrency(totalAvoir) }}</span> /  {{ formatCurrency(montantFacture) }}</strong>
-                    </h5>
+                @if (factureAvoirForm.length != 0) {
+                  <div class="row mt-3">
+                    <div class="col-12 text-end">
+                      <h5>
+                        Montant total remboursement:
+                        <strong><span class="text-danger">{{ formatCurrency(totalAvoir) }}</span> /  {{ formatCurrency(montantFacture) }}</strong>
+                      </h5>
+                    </div>
                   </div>
-                </div>
+                }
               </div>
             </div>
             <div class="row">
@@ -680,7 +682,7 @@
                     !factureForm.valid ||
                     (!isLoadFacture && !isFactureAvoirLoad) ||
                     loadingBtn ||
-                    (isFactureAvoir && totalAvoir === 0)
+                    (isFactureAvoir && totalAvoir === 0 && factureAvoirForm.length != 0)
                   "
                   class="btn btn-primary w-md"
                 >

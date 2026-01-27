@@ -94,6 +94,7 @@ export class FactureFormComponent {
   // userEtablissement: string = ''
   isOrderedByPaiementMethod: boolean = false
   isFacturationMultiple: boolean = false
+  isAvoirFirstVersion: boolean = false
 
   modesFacturation = [
     { value: 'FACTURE_DETAILLE', label: 'Facture journalière' },
@@ -167,6 +168,7 @@ export class FactureFormComponent {
         if (this.listePointVente.length != 0) {
           this.isOrderedByPaiementMethod = this.listePointVente[0].etablissement.organisation.isOrderedByPaiementMethod
           this.isFacturationMultiple = this.listePointVente[0].etablissement.organisation.isFacturationMultiple
+          this.isAvoirFirstVersion = this.listePointVente[0].etablissement.organisation.isAvoirFirstVersion
         }
 
         if (this.isFacturationMultiple) {
@@ -298,11 +300,13 @@ export class FactureFormComponent {
               this.urlFacture = this.reponseFNE.token;
 
               const dataFactures = response.data.donneesExtraite
-              console.log(dataFactures);
-              
+              // console.log(dataFactures);
+
               // console.log(JSON.stringify(this.reponseFNE));
               this.montantFacture = this.reponseFNE.invoice.totalDue
-              this.setFactureAvoirForm(this.reponseFNE.invoice.items, dataFactures);
+              if (dataFactures && dataFactures.length > 0) {
+                this.setFactureAvoirForm(this.reponseFNE.invoice.items, dataFactures);
+              }
             }
           } else {
             this.isFactureAvoirLoad = false;
@@ -645,6 +649,10 @@ export class FactureFormComponent {
       this.factureForm.get('typeClient')?.updateValueAndValidity();
       this.factureForm.get('pointVente')?.clearValidators();
       this.factureForm.get('pointVente')?.updateValueAndValidity();
+      if (this.isAvoirFirstVersion) {
+        this.factureForm.get('fichier')?.clearValidators();
+        this.factureForm.get('fichier')?.updateValueAndValidity();
+      }
       //this.factureForm.get('fichier')?.clearValidators();
       //this.factureForm.get('fichier')?.updateValueAndValidity();
 

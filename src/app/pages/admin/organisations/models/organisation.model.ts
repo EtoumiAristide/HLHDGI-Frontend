@@ -12,6 +12,7 @@ export class Organisation {
   isFactureInitiale: boolean;
   isTDTBaseTVA: boolean;
   isFacturationMultiple: boolean;
+  isAvoirFirstVersion:boolean;
 
   valeurTVA: number;
   valeurTDT: number;
@@ -29,5 +30,6 @@ export class Organisation {
     this.isFactureInitiale = false
     this.isTDTBaseTVA = false
     this.isFacturationMultiple = false
+    this.isAvoirFirstVersion = false
   }
 }

@@ -70,6 +70,7 @@ export class OrganisationsComponent {
       isFactureInitiale: [false],
       isTDTBaseTVA: [false],
       isFacturationMultiple: [false],
+      isAvoirFirstVersion: [false],
       valeurTVA: [0.0],
       valeurTDT: [0.0],
       valeurTCN: [0],
@@ -134,6 +135,7 @@ export class OrganisationsComponent {
       organisation.isFactureInitiale = this.organisationForm.controls['isFactureInitiale'].value || false
       organisation.isTDTBaseTVA = this.organisationForm.controls['isTDTBaseTVA'].value || false
       organisation.isFacturationMultiple = this.organisationForm.controls['isFacturationMultiple'].value || false
+      organisation.isAvoirFirstVersion = this.organisationForm.controls['isAvoirFirstVersion'].value || false
       organisation.valeurTVA = this.organisationForm.controls['valeurTVA'].value || 0
       organisation.valeurTDT = this.organisationForm.controls['valeurTDT'].value || 0
       organisation.valeurTCN = this.organisationForm.controls['valeurTCN'].value || 0
