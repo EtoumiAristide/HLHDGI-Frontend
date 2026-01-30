@@ -12,7 +12,8 @@ export class Organisation {
   isFactureInitiale: boolean;
   isTDTBaseTVA: boolean;
   isFacturationMultiple: boolean;
-  isAvoirFirstVersion:boolean;
+  isAvoirFirstVersion: boolean;
+  isBkWorkflow: boolean;
 
   valeurTVA: number;
   valeurTDT: number;

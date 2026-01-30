@@ -168,7 +168,6 @@ export class FactureFormComponent {
         if (this.listePointVente.length != 0) {
           this.isOrderedByPaiementMethod = this.listePointVente[0].etablissement.organisation.isOrderedByPaiementMethod
           this.isFacturationMultiple = this.listePointVente[0].etablissement.organisation.isFacturationMultiple
-          this.isAvoirFirstVersion = this.listePointVente[0].etablissement.organisation.isAvoirFirstVersion
         }
 
         if (this.isFacturationMultiple) {
@@ -674,6 +673,8 @@ export class FactureFormComponent {
       //this.factureForm.get('fichier')?.updateValueAndValidity();
 
     }
+
+    this.isAvoirFirstVersion = this.listePointVente[0].etablissement.organisation.isAvoirFirstVersion && this.isFactureAvoir
 
   }
   selectionModeFacturation() {

@@ -342,6 +342,21 @@
                 </div>
 
             </div>
+            <div class="form-group mb-3 ">
+                <label for="isBkWorkflow" class="form-label">Workflow BK ?</label>
+                <button type="button" class="btn btn-soft-info btn-sm rounded-5 ms-3" [popover]="popTemplate6"
+                  popoverTitle="Aide pour cette rubrique" 
+                  data-bs-toggle="tooltip" tooltip="Cliquer pour voir/masquer la description"><i
+                    class="fa fa-info-circle"></i></button>
+                    <!-- triggers="mouseenter:mouseleave" -->
+                <ng-template #popTemplate6>
+                  <div [innerHTML]="'Cocher si l\'entreprise utilise le workflow BK'"></div>
+                </ng-template>
+                <div class="input-group">
+                    <ui-switch formControlName="isBkWorkflow"  color="#556ee6"  [checked]="false" uncheckedLabel="NON" checkedLabel="OUI" size="small" class="me-1"></ui-switch>
+                </div>
+
+            </div>
             <!-- <div class="form-group mb-3 ">
                 <label for="isTDTBaseTVA" class="form-label">TDT est base taxable de TVA ?</label>
                 <button type="button" class="btn btn-soft-info btn-sm rounded-5 ms-3" [popover]="popTemplate5"

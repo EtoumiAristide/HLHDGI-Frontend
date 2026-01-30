@@ -71,6 +71,7 @@ export class OrganisationsComponent {
       isTDTBaseTVA: [false],
       isFacturationMultiple: [false],
       isAvoirFirstVersion: [false],
+      isBkWorkflow: [false],
       valeurTVA: [0.0],
       valeurTDT: [0.0],
       valeurTCN: [0],
@@ -139,6 +140,7 @@ export class OrganisationsComponent {
       organisation.valeurTVA = this.organisationForm.controls['valeurTVA'].value || 0
       organisation.valeurTDT = this.organisationForm.controls['valeurTDT'].value || 0
       organisation.valeurTCN = this.organisationForm.controls['valeurTCN'].value || 0
+      organisation.isBkWorkflow = this.organisationForm.controls['isBkWorkflow'].value || false
       if (this.organisationForm.controls['logo'].value != null) {
         // organisation.image = this.organisationForm.controls['logo'].value
         this.formData.append('image', this.organisationForm.controls['logo'].value)
@@ -291,6 +293,7 @@ export class OrganisationsComponent {
         valeurTVA: 0.0,
         valeurTDT: 0.0,
         valeurTCN: 0,
+        isBkWorkflow: false,
       })
     } else {
       this.organisationForm.patchValue({
@@ -307,6 +310,7 @@ export class OrganisationsComponent {
         valeurTVA: this.organisation.valeurTVA,
         valeurTDT: this.organisation.valeurTDT,
         valeurTCN: this.organisation.valeurTCN,
+        isBkWorkflow: this.organisation.isBkWorkflow,
       })
 
       this.imageURL = this.organisation.logo
