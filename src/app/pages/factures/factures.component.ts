@@ -82,6 +82,10 @@ export class FacturesComponent {
 
   isViewer: boolean = false;
 
+  isComptaBK: boolean = false;
+
+  loadedFactures: Facture[] = [];
+
   constructor(
     private _factureApi: FacturespiServices,
     private modalService: BsModalService,
@@ -114,6 +118,11 @@ export class FacturesComponent {
     // console.log(roles);
     
     this.isViewer = roles.includes('Viewer');
+    this.isComptaBK = roles.includes('Compta-BK') || roles.includes('Admin-BK');
+
+    if (this.isComptaBK) {
+      this.chargerLoadedFactures();
+    }
   }
 
   /**
@@ -359,7 +368,6 @@ export class FacturesComponent {
     }
   }
 
-  //Gestion de la pagination
   changePage(newPage: number | string): void {
     if (newPage === 'prev') {
       this.pageNum--;
@@ -370,5 +378,26 @@ export class FacturesComponent {
     }
 
     this.chargerListeFacture();
+  }
+
+  chargerLoadedFactures() {
+    this._factureApi.getAllLoadedByEntreprise({ pageNum: this.pageNum, size: this.pageSize }).subscribe({
+      next: (response) => {
+        this.loadedFactures = response.data;
+      },
+      error(err) {
+        console.log(err);
+      },
+    });
+  }
+
+  editLoadedFacture(data: Facture) {
+    this._router.navigate(['factures/edit-loaded', data.id]);
+  }
+
+  openLoadedFacturesModal(content: any) {
+    this.modalRef = this.modalService.show(content, this.config);
+
+    this.chargerLoadedFactures();
   }
 }

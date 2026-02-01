@@ -1,6 +1,6 @@
 import { Component, TemplateRef, ViewChild } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { Observable } from 'rxjs';
 import { btnFormState } from 'src/app/core-custom/constants/form-btn-state.constant';
@@ -12,6 +12,9 @@ import { PointVenteService } from '../../admin/pointvente/services/pointvente.se
 import { Facture } from '../model/facture.model';
 import { Payment } from '../model/payment.model';
 import { FacturespiServices } from '../service/facture-api.service';
+import { KeycloakService } from 'keycloak-angular';
+import { environment } from 'src/environments/environment';
+import Swal from 'sweetalert2';
 
 
 @Component({
@@ -52,6 +55,7 @@ export class FactureFormComponent {
   loadingBtn: boolean = false;
   loadingBtnFac: boolean = false;
   textButton: string = btnFormState.save;
+  textButtonDelete: string = btnFormState.delete;
   textButtonFac: string = btnFormState.load;
   txtModalHeader = formModalHeader.save
 
@@ -95,6 +99,8 @@ export class FactureFormComponent {
   isOrderedByPaiementMethod: boolean = false
   isFacturationMultiple: boolean = false
   isAvoirFirstVersion: boolean = false
+  isComptaBK: boolean = false
+  factureLoadId: string = ''
 
   modesFacturation = [
     { value: 'FACTURE_DETAILLE', label: 'Facture journalière' },
@@ -111,13 +117,13 @@ export class FactureFormComponent {
     private fb: FormBuilder,
     private _toastServive: ToastService,
     private _router: Router,
-    //private _keycloakService: KeycloakService,
+    private _activatedRoute: ActivatedRoute,
+    private _keycloakService: KeycloakService,
     private _modalService: BsModalService,
   ) {
 
 
     this.facture = new Facture()
-
     this.factureForm = this.fb.group({
       id: [0],
       typeFacture: ['', Validators.required],
@@ -143,19 +149,26 @@ export class FactureFormComponent {
     this.isModif = false
 
     this.formData = new FormData()
+    const roles = this._keycloakService.getUserRoles();
+
+    this.isComptaBK = roles.includes('Compta-BK');
 
   }
 
   ngOnInit() {
     this.breadCrumbItems = [{ label: 'Accueil', url: '/' }, { label: 'Factures', url: '/factures' }, { label: 'Form', active: true }];
 
-    this.chargerPointVente()
-    // const token = this._keycloakService.getKeycloakInstance().token
-    // const decode: any = jwtDecode(token)
-    // if (decode.groups != undefined && decode.groups.length != 0) this.userEtablissement = decode.groups[0]
-    // //console.log(this.userEntreprise);
-    // this.isentrepriseBK = environment.entpriseBK.includes(this.userEtablissement)
+    this._activatedRoute.params.subscribe(params => {
+      this.factureLoadId = params['id'];
+      if (this.factureLoadId) {
+        if (this._router.url.includes('edit-loaded')) {
+          this.loadLoadedFactureData(this.factureLoadId);
+          this.isModif = true;
+        }
+      }
+    });
 
+    this.chargerPointVente()
   }
 
   chargerPointVente() {
@@ -183,24 +196,35 @@ export class FactureFormComponent {
     })
   }
 
-  /*chargerEtablissement() {
-    // this._pointVenteApi.getAll().subscribe({
+  loadLoadedFactureData(id: string) {
+    this._factureApi.getSaved(id).subscribe({
+      next: (response: any) => {
+        this.isFactureAvoirLoad = false;
+        this.isLoadFacture = true
+        this.extractedFactureData = JSON.parse(response.data.dataFacture);
+        // console.log(this.extractedFactureData);
 
-    this._etablissementApi.getAllByKeycloakGroup().subscribe({
-      next: (response) => {
-        console.log(response);
-
+        // Peut-être pré-remplir le formulaire avec les données du point de vente
+        if (this.extractedFactureData != undefined && this.extractedFactureData.length > 0) {
+          const firstFacture = this.extractedFactureData[0];
+          this.factureForm.patchValue({
+            typeFacture: firstFacture.typeFacture,
+            pointVente: response.data.pointVente.id,
+            typeClient: firstFacture.typeClient,
+            messageCommercial: firstFacture.reception,
+          });
+        }
       },
-      error(err) {
+      error: (err) => {
         console.log(err);
-
-      },
-    })
-  }*/
+        this._toastServive.error("Erreur lors du chargement des données", "Erreur");
+      }
+    });
+  }
 
   //Ajout d'un nouvel élément
   save() {
-    if (this.factureForm.valid) {
+    if (this.factureForm.valid || this.isModif) {
       // console.log("Data form: " + JSON.stringify(this.factureForm.value));
 
       this.changeFormElement();
@@ -231,6 +255,10 @@ export class FactureFormComponent {
         dataToSend.pointvente = this.listePointVente.find(pointVente => pointVente.id == this.factureForm.controls['pointVente'].value).nom
         if (this.isFacturationMultiple) {
           dataToSend.facturation = this.factureForm.controls['modeFacturation'].value
+        }
+        if (this.isModif) {
+          dataToSend.dataFactureLoadId = this.factureLoadId
+          dataToSend.dataFacture = JSON.stringify(this.extractedFactureData)
         }
       }
       console.log(dataToSend);
@@ -335,6 +363,92 @@ export class FactureFormComponent {
         }
       });
     }
+  }
+  partialSave() {
+    // console.log("Data form: " + JSON.stringify(this.factureForm.value));
+
+    if (!this.isFactureAvoir) {
+      this.changeFormElement(true);
+
+      let dataToSend: any = {}
+      dataToSend.type = this.factureForm.controls['typeFacture'].value
+      dataToSend.messageCommercial = this.factureForm.controls['messageCommercial'].value
+      dataToSend.file = this.factureForm.controls['fichier'].value
+      // dataToSend.file = this.factureForm.controls['fichier'].value
+      dataToSend.client = this.factureForm.controls['typeClient'].value
+      dataToSend.paiement = this.factureForm.controls['modePaiement'].value
+      dataToSend.pointvente = this.listePointVente.find(pointVente => pointVente.id == this.factureForm.controls['pointVente'].value).nom
+      if (this.isFacturationMultiple) {
+        dataToSend.facturation = this.factureForm.controls['modeFacturation'].value
+      }
+      // this.formData = objectToFormData(dataToSend)
+      this.formData = objectToFormData(dataToSend)
+
+
+      this._factureApi.partialSave(this.formData).subscribe({
+        next: (response: any) => {
+          // console.log(response);
+
+          this.isFactureAvoirLoad = false;
+          this.isLoadFacture = true
+          this.extractedFactureData = response.data.factures
+
+          if (response.data.payments != undefined) {
+            this.payments = response.data.payments
+            this.filteredPayments = response.data.payments;
+            this.montantTimbre = this.payments.filter(payment => payment.amount > 5000).length * 100;
+          }
+
+          this._toastServive.success(" Données de facture extraites avec succès", "Extraction éffectuée").onHidden.subscribe(() => {
+            this.initFormElement(true);
+            this.openViewList()
+          })
+        },
+        error: error => {
+          console.error("There is an error !", error);
+          this._toastServive.error("Une erreur est survenue", "Enregistrement échoué").onHidden.subscribe(() => {
+            this.initFormElement();
+            this.isLoadFacture = false
+            // console.log(JSON.stringify(error));
+
+            this.apiCallError = error.error
+          });
+        }
+      });
+    } else {
+      this._toastServive.error("Opération non autorisée", "Vous n'êtes pas autorisé à effectuer cette opération");
+    }
+  }
+
+  deleteLoaded() {
+    Swal.fire({
+      title: 'Êtes-vous sûr de vouloir supprimer cette facture chargée ?',
+      text: "Cette action est irréversible.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Oui, supprimer',
+      cancelButtonText: 'Annuler'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this._factureApi.deleteLoaded(this.factureLoadId).subscribe({
+          next: (response: any) => {
+            this._toastServive.success("Facture chargée supprimée avec succès", "Suppression éffectuée").onHidden.subscribe(() => {
+              this.initFormElement(true);
+              this.openViewList()
+            })
+          },
+          error: (error) => {
+            console.error("There is an error !", error);
+            this._toastServive.error("Une erreur est survenue", "Suppression échouée").onHidden.subscribe(() => {
+              this.initFormElement();
+              this.apiCallError = error.error
+            });
+          }
+        });
+      }
+    });
   }
 
   setFactureAvoirForm(items: any[], donneesExtraites?: any[]) {
@@ -642,6 +756,7 @@ export class FactureFormComponent {
 
     if (selectedType === 'FACTURE_AVOIR') {
       this.isFactureAvoir = true;
+      this.isAvoirFirstVersion = this.listePointVente[0].etablissement.organisation.isAvoirFirstVersion && this.isFactureAvoir
 
       // this.factureForm.get('modePaiement')?.clearValidators();
       this.factureForm.get('typeClient')?.clearValidators();
@@ -674,8 +789,6 @@ export class FactureFormComponent {
 
     }
 
-    this.isAvoirFirstVersion = this.listePointVente[0].etablissement.organisation.isAvoirFirstVersion && this.isFactureAvoir
-
   }
   selectionModeFacturation() {
     const selectedType = this.factureForm.get('modeFacturation')?.value;
@@ -683,5 +796,22 @@ export class FactureFormComponent {
 
     selectedType === 'FACTURE_CONSOLIDE' ? this.isZinoFactureConsolide = true : this.isZinoFactureConsolide = false;
 
+  }
+
+  isSubmitDisabled(): boolean {
+    if (this.isModif) {
+      return false; // mode édition → bouton toujours actif
+    }
+
+    return (
+      !this.factureForm.valid ||
+      (!this.isLoadFacture && !this.isFactureAvoirLoad) ||
+      this.loadingBtn ||
+      (
+        this.isFactureAvoir &&
+        this.totalAvoir === 0 &&
+        this.factureAvoirForm.length !== 0
+      )
+    );
   }
 }
