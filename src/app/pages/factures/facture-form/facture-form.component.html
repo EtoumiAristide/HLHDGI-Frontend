@@ -729,7 +729,7 @@
                 >
                   Annuler
                 </button>
-
+                
                 <button
                   type="button"
                   [hidden]="isView || !isModif"
@@ -740,7 +740,7 @@
                 </button>
                 <button
                   type="submit"
-                  [hidden]="isView"
+                  [hidden]="isView || (isModif && isComptaBK)"
                   [disabled]="isSubmitDisabled()"
                   class="btn btn-primary w-md"
                 >

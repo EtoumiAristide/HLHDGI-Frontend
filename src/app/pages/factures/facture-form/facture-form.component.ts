@@ -802,7 +802,7 @@ export class FactureFormComponent {
     if (this.isModif) {
       return false; // mode édition → bouton toujours actif
     }
-
+    
     return (
       !this.factureForm.valid ||
       (!this.isLoadFacture && !this.isFactureAvoirLoad) ||
