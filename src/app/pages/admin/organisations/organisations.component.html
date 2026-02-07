@@ -219,6 +219,54 @@
 
             </div>
             <div class="form-group mb-3 ">
+                <label for="valeurTVA" class="form-label">Valeur TVA (%)</label>
+                <button type="button" class="btn btn-soft-info btn-sm rounded-5 ms-3" [popover]="popTemplateTVA"
+                  popoverTitle="Aide pour cette rubrique" 
+                  data-bs-toggle="tooltip" tooltip="Cliquer pour voir/masquer la description"><i
+                    class="fa fa-info-circle"></i></button>
+                    <!-- triggers="mouseenter:mouseleave" -->
+                <ng-template #popTemplateTVA>
+                  <div [innerHTML]="'En cas de TVA existante, prière préciser le taux en %'"></div>
+                </ng-template>
+                <div class="input-group">
+                    <input type="number" min="0" max="100" class="form-control" id="valeurTVA" placeholder="Entrez la valeur TVA" name="valeurTVA"
+                        formControlName="valeurTVA">
+                </div>
+
+            </div>
+            <div class="form-group mb-3 ">
+                <label for="valeurTDT" class="form-label">Valeur TDT (%)</label>
+                <button type="button" class="btn btn-soft-info btn-sm rounded-5 ms-3" [popover]="popTemplateTDT"
+                  popoverTitle="Aide pour cette rubrique" 
+                  data-bs-toggle="tooltip" tooltip="Cliquer pour voir/masquer la description"><i
+                    class="fa fa-info-circle"></i></button>
+                    <!-- triggers="mouseenter:mouseleave" -->
+                <ng-template #popTemplateTDT>
+                  <div [innerHTML]="'En cas de Taxe Dévéloppement Touristique existante, prière préciser le taux en %'"></div>
+                </ng-template>
+                <div class="input-group">
+                    <input type="number" min="0" max="100" class="form-control" id="valeurTDT" placeholder="Entrez la valeur TDT" name="valeurTDT"
+                        formControlName="valeurTDT">
+                </div>
+
+            </div>
+            <div class="form-group mb-3 ">
+                <label for="valeurTCN" class="form-label">Valeur TCN (montant)</label>
+                <button type="button" class="btn btn-soft-info btn-sm rounded-5 ms-3" [popover]="popTemplateTCN"
+                  popoverTitle="Aide pour cette rubrique" 
+                  data-bs-toggle="tooltip" tooltip="Cliquer pour voir/masquer la description"><i
+                    class="fa fa-info-circle"></i></button>
+                    <!-- triggers="mouseenter:mouseleave" -->
+                <ng-template #popTemplateTCN>
+                  <div [innerHTML]="'En cas de Taxe Communale de Nuitée existante, prière préciser le montant'"></div>
+                </ng-template>
+                <div class="input-group">
+                    <input type="text" mask="separator.2" class="form-control" id="valeurTCN" placeholder="Entrez la valeur TCN" name="valeurTCN"
+                        formControlName="valeurTCN">
+                </div>
+
+            </div>
+            <div class="form-group mb-3 ">
                 <label for="isOrderedByPaiementMethod" class="form-label">Affichage par mode de paiement ?</label>
                 <button type="button" class="btn btn-soft-info btn-sm rounded-5 ms-3" [popover]="popTemplate2"
                   popoverTitle="Aide pour cette rubrique" 
@@ -261,6 +309,51 @@
                 </ng-template>
                 <div class="input-group">
                     <ui-switch formControlName="isFactureInitiale"  color="#556ee6"  [checked]="false" uncheckedLabel="NON" checkedLabel="OUI" size="small" class="me-1"></ui-switch>
+                </div>
+
+            </div>
+            <div class="form-group mb-3 ">
+                <label for="isFacturationMultiple" class="form-label">Multiple mode de Facturation ?</label>
+                <button type="button" class="btn btn-soft-info btn-sm rounded-5 ms-3" [popover]="popTemplate5"
+                  popoverTitle="Aide pour cette rubrique" 
+                  data-bs-toggle="tooltip" tooltip="Cliquer pour voir/masquer la description"><i
+                    class="fa fa-info-circle"></i></button>
+                    <!-- triggers="mouseenter:mouseleave" -->
+                <ng-template #popTemplate5>
+                  <div [innerHTML]="'Cocher si l\'entreprise doit pouvoir charger des factures consolidées et des factures détaillées (excel)'"></div>
+                </ng-template>
+                <div class="input-group">
+                    <ui-switch formControlName="isFacturationMultiple"  color="#556ee6"  [checked]="false" uncheckedLabel="NON" checkedLabel="OUI" size="small" class="me-1"></ui-switch>
+                </div>
+
+            </div>
+            <div class="form-group mb-3 ">
+                <label for="isAvoirFirstVersion" class="form-label">Chargement fichier dans avoir ?</label>
+                <button type="button" class="btn btn-soft-info btn-sm rounded-5 ms-3" [popover]="popTemplate6"
+                  popoverTitle="Aide pour cette rubrique" 
+                  data-bs-toggle="tooltip" tooltip="Cliquer pour voir/masquer la description"><i
+                    class="fa fa-info-circle"></i></button>
+                    <!-- triggers="mouseenter:mouseleave" -->
+                <ng-template #popTemplate6>
+                  <div [innerHTML]="'Cocher si l\'entreprise ne doit pas charger de fichier durant un avoir'"></div>
+                </ng-template>
+                <div class="input-group">
+                    <ui-switch formControlName="isAvoirFirstVersion"  color="#556ee6"  [checked]="false" uncheckedLabel="NON" checkedLabel="OUI" size="small" class="me-1"></ui-switch>
+                </div>
+
+            </div>
+            <div class="form-group mb-3 ">
+                <label for="isBkWorkflow" class="form-label">Workflow BK ?</label>
+                <button type="button" class="btn btn-soft-info btn-sm rounded-5 ms-3" [popover]="popTemplate6"
+                  popoverTitle="Aide pour cette rubrique" 
+                  data-bs-toggle="tooltip" tooltip="Cliquer pour voir/masquer la description"><i
+                    class="fa fa-info-circle"></i></button>
+                    <!-- triggers="mouseenter:mouseleave" -->
+                <ng-template #popTemplate6>
+                  <div [innerHTML]="'Cocher si l\'entreprise utilise le workflow BK'"></div>
+                </ng-template>
+                <div class="input-group">
+                    <ui-switch formControlName="isBkWorkflow"  color="#556ee6"  [checked]="false" uncheckedLabel="NON" checkedLabel="OUI" size="small" class="me-1"></ui-switch>
                 </div>
 
             </div>

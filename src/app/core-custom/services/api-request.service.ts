@@ -61,7 +61,7 @@ export class ApiRequestService {
       'Accept': '*/*',
     });
   }
-
+  
   httpHeaderForFile() {
     return new HttpHeaders({
       'Access-Control-Allow-Origin': '*',

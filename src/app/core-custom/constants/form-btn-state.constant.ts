@@ -4,6 +4,6 @@ export const btnFormState = {
     load: "Charger",
     connect: "Se Connecter",
     processing: "Traitement en cours...",
-    delete: "Oui",
+    delete: "Supprimer",
     reinit: "Réinitialiser",
 }

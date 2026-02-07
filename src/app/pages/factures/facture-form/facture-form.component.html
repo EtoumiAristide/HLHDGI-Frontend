@@ -18,7 +18,7 @@
             class="needs-validation"
             enctype="multipart/form-data"
             [formGroup]="factureForm"
-            (ngSubmit)="save()"
+            (ngSubmit)="!isComptaBK ? save() : partialSave()"
           >
             <div class="row">
               <div class="col-md-3 col-sm-12">
@@ -39,14 +39,14 @@
                         factureForm.controls['typeFacture'].invalid &&
                         (factureForm.controls['typeFacture'].dirty ||
                           factureForm.controls['typeFacture'].touched),
-                      'is-valid': factureForm.controls['typeFacture'].valid
+                      'is-valid': factureForm.controls['typeFacture'].valid,
                     }"
                   >
                     <option value="" disabled selected>Sélectionner...</option>
                     @for (typeFacture of listeTypeFacture; track $index) {
-                    <option value="{{ typeFacture.valeur }}">
-                      {{ typeFacture.label }}
-                    </option>
+                      <option value="{{ typeFacture.valeur }}">
+                        {{ typeFacture.label }}
+                      </option>
                     }
                   </select>
                   <div
@@ -58,13 +58,68 @@
                     class="invalid-feedback"
                   >
                     <div
-                      *ngIf="factureForm.controls['typeFacture'].errors?.['required']"
+                      *ngIf="
+                        factureForm.controls['typeFacture'].errors?.['required']
+                      "
                     >
                       Ce champ est obligatoire
                     </div>
                   </div>
                 </div>
               </div>
+              @if (isFacturationMultiple && !isFactureAvoir) {
+                <div class="col-md-3 col-sm-12">
+                  <!-- {{listeTypeFacture|json}} -->
+                  <div class="mb-3">
+                    <label for="typeFacture"
+                      >Mode de facturation
+                      <span class="text-danger">*</span></label
+                    >
+                    <select
+                      name="modeFacturation"
+                      class="form-select"
+                      id="modeFacturation"
+                      formControlName="modeFacturation"
+                      (change)="selectionModeFacturation()"
+                      [ngClass]="{
+                        'is-invalid':
+                          factureForm.controls['modeFacturation'].invalid &&
+                          (factureForm.controls['modeFacturation'].dirty ||
+                            factureForm.controls['modeFacturation'].touched),
+                        'is-valid':
+                          factureForm.controls['modeFacturation'].valid,
+                      }"
+                    >
+                      <option value="" disabled selected>
+                        Sélectionner...
+                      </option>
+                      @for (modeFacture of modesFacturation; track $index) {
+                        <option value="{{ modeFacture.value }}">
+                          {{ modeFacture.label }}
+                        </option>
+                      }
+                    </select>
+                    <div
+                      *ngIf="
+                        factureForm.controls['modeFacturation'].invalid &&
+                        (factureForm.controls['modeFacturation'].dirty ||
+                          factureForm.controls['modeFacturation'].touched)
+                      "
+                      class="invalid-feedback"
+                    >
+                      <div
+                        *ngIf="
+                          factureForm.controls['modeFacturation'].errors?.[
+                            'required'
+                          ]
+                        "
+                      >
+                        Ce champ est obligatoire
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              }
               <div class="col-md-3 col-sm-12" [hidden]="isFactureAvoir">
                 <div class="mb-3">
                   <label for="pointVente" class="form-label"
@@ -81,7 +136,7 @@
                         factureForm.controls['pointVente'].invalid &&
                         (factureForm.controls['pointVente'].dirty ||
                           factureForm.controls['pointVente'].touched),
-                      'is-valid': factureForm.controls['pointVente'].valid
+                      'is-valid': factureForm.controls['pointVente'].valid,
                     }"
                   >
                   </ng-select>
@@ -94,18 +149,19 @@
                     class="text-danger"
                   >
                     <div
-                      *ngIf="factureForm.controls['pointVente'].errors?.['required']"
+                      *ngIf="
+                        factureForm.controls['pointVente'].errors?.['required']
+                      "
                     >
                       Veuillez sélectionner le point de vente
                     </div>
                   </div>
                 </div>
               </div>
-              
+
               <div class="col-md-3 col-sm-12" [hidden]="isFactureAvoir">
                 <!-- {{listeTypeFacture|json}} -->
                 <div class="mb-3">
-                  <input type="hidden" name="id" formControlName="id" />
                   <label for="typeClient"
                     >Type de client <span class="text-danger">*</span></label
                   >
@@ -119,14 +175,14 @@
                         factureForm.controls['typeClient'].invalid &&
                         (factureForm.controls['typeClient'].dirty ||
                           factureForm.controls['typeClient'].touched),
-                      'is-valid': factureForm.controls['typeClient'].valid
+                      'is-valid': factureForm.controls['typeClient'].valid,
                     }"
                   >
                     <option value="" disabled selected>Sélectionner...</option>
                     @for (typeFacture of typeClient; track $index) {
-                    <option value="{{ typeFacture.valeur }}">
-                      {{ typeFacture.label }}
-                    </option>
+                      <option value="{{ typeFacture.valeur }}">
+                        {{ typeFacture.label }}
+                      </option>
                     }
                   </select>
                   <div
@@ -138,7 +194,9 @@
                     class="invalid-feedback"
                   >
                     <div
-                      *ngIf="factureForm.controls['typeClient'].errors?.['required']"
+                      *ngIf="
+                        factureForm.controls['typeClient'].errors?.['required']
+                      "
                     >
                       Ce champ est obligatoire
                     </div>
@@ -147,11 +205,13 @@
               </div>
               <div
                 class="col-md-3 col-sm-12"
-                [hidden]="isOrderedByPaiementMethod || isFactureAvoir"
+                [hidden]="
+                  (isOrderedByPaiementMethod || isFactureAvoir) &&
+                  !isZinoFactureConsolide
+                "
               >
                 <!-- {{listeTypeFacture|json}} -->
                 <div class="mb-3">
-                  <input type="hidden" name="id" formControlName="id" />
                   <label for="modePaiement"
                     >Mode de Paiement <span class="text-danger">*</span></label
                   >
@@ -165,14 +225,14 @@
                         factureForm.controls['modePaiement'].invalid &&
                         (factureForm.controls['modePaiement'].dirty ||
                           factureForm.controls['modePaiement'].touched),
-                      'is-valid': factureForm.controls['modePaiement'].valid
+                      'is-valid': factureForm.controls['modePaiement'].valid,
                     }"
                   >
                     <option value="" disabled selected>Sélectionner...</option>
                     @for (typeFacture of methodePaiement; track $index) {
-                    <option value="{{ typeFacture.valeur }}">
-                      {{ typeFacture.label }}
-                    </option>
+                      <option value="{{ typeFacture.valeur }}">
+                        {{ typeFacture.label }}
+                      </option>
                     }
                   </select>
                   <div
@@ -184,14 +244,19 @@
                     class="invalid-feedback"
                   >
                     <div
-                      *ngIf="factureForm.controls['modePaiement'].errors?.['required']"
+                      *ngIf="
+                        factureForm.controls['modePaiement'].errors?.[
+                          'required'
+                        ]
+                      "
                     >
                       Ce champ est obligatoire
                     </div>
                   </div>
                 </div>
               </div>
-              <div class="col-md-3 col-sm-12" [hidden]="isFactureAvoir">
+              <!-- <div class="col-md-3 col-sm-12" [hidden]="isFactureAvoir"> -->
+              <div class="col-md-3 col-sm-12" [hidden]="isAvoirFirstVersion">
                 <div class="mb-3">
                   <label for="login"
                     >Fichier <span class="text-danger">*</span></label
@@ -209,7 +274,7 @@
                         factureForm.controls['fichier'].invalid &&
                         (factureForm.controls['fichier'].dirty ||
                           factureForm.controls['fichier'].touched),
-                      'is-valid': factureForm.controls['fichier'].valid
+                      'is-valid': factureForm.controls['fichier'].valid,
                     }"
                   />
                   <div
@@ -221,7 +286,9 @@
                     class="invalid-feedback"
                   >
                     <div
-                      *ngIf="factureForm.controls['fichier'].errors?.['required']"
+                      *ngIf="
+                        factureForm.controls['fichier'].errors?.['required']
+                      "
                     >
                       Ce champ est obligatoire
                     </div>
@@ -231,7 +298,8 @@
               <div class="col-md-3 col-sm-12" [hidden]="!isFactureAvoir">
                 <div class="mb-3">
                   <label for="login"
-                    >N° Facture FNE à rembourser <span class="text-danger">*</span></label
+                    >N° Facture FNE à rembourser
+                    <span class="text-danger">*</span></label
                   >
                   <input
                     type="text"
@@ -245,7 +313,7 @@
                         factureForm.controls['numeroFacture'].invalid &&
                         (factureForm.controls['numeroFacture'].dirty ||
                           factureForm.controls['numeroFacture'].touched),
-                      'is-valid': factureForm.controls['numeroFacture'].valid
+                      'is-valid': factureForm.controls['numeroFacture'].valid,
                     }"
                   />
                   <div
@@ -257,7 +325,11 @@
                     class="invalid-feedback"
                   >
                     <div
-                      *ngIf="factureForm.controls['numeroFacture'].errors?.['required']"
+                      *ngIf="
+                        factureForm.controls['numeroFacture'].errors?.[
+                          'required'
+                        ]
+                      "
                     >
                       Ce champ est obligatoire
                     </div>
@@ -265,17 +337,33 @@
                 </div>
               </div>
               <div class="col-md-3 col-sm-12">
+                <div class="mb-3">
+                  <label for="messageCommercial">Message Commercial </label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    formControlName="messageCommercial"
+                    name="messageCommercial"
+                    id="messageCommercial"
+                  />
+                </div>
+              </div>
+              <div class="col-md-6 col-sm-12">
                 <div class="mb-3 mt-4">
                   <button
                     type="button"
                     class="btn btn-primary"
                     (click)="loadFromFile()"
-                    [disabled]="!factureForm.valid"
-                    [ngClass]="{
-                      'fa fa-spinner': loadingBtnFac,
-                      'fa fa-check': !loadingBtnFac
-                    }"
+                    [disabled]="!factureForm.valid || loadingBtnFac"
                   >
+                    <i
+                      class="fa"
+                      [ngClass]="{
+                        'fa-spin fa-spinner': loadingBtnFac,
+                        'fa fa-check': !loadingBtnFac,
+                      }"
+                    >
+                    </i>
                     {{ textButtonFac }}
                   </button>
 
@@ -310,114 +398,189 @@
                 <hr />
               </div>
               <div class="col-12">
-                @for(data of extractedFactureData; track $index){
-                <accordion
-                  [closeOthers]="true"
-                  class="accordion"
-                  [isAnimated]="true"
-                >
-                  <!-- <accordion-group [isOpen]="$index==0" heading="{{data?.clientPayload?.nom}}" -->
-                  <accordion-group
-                    heading="{{
-                      isOrderedByPaiementMethod
-                        ? data.sheetName
-                        : data?.clientPayload?.nom
-                    }}"
-                    class="accordion-item"
-                    #group
+                @for (data of extractedFactureData; track $index) {
+                  <accordion
+                    [closeOthers]="true"
+                    class="accordion"
+                    [isAnimated]="true"
                   >
-                    <span accordion-heading class="float-end fs-5">
-                      <i
-                        class="mdi"
-                        [ngClass]="
-                          !group?.isOpen
-                            ? 'mdi mdi-chevron-down accor-plus-icon'
-                            : 'mdi mdi-chevron-up accor-plus-icon'
-                        "
-                      ></i>
-                    </span>
-                    <div class="row">
-                      <div class="col-md-4 col-sm-12">
-                        N° Facture: <b>{{ data?.numeroFacture }}</b>
+                    <!-- <accordion-group [isOpen]="$index==0" heading="{{data?.clientPayload?.nom}}" -->
+                    <accordion-group
+                      heading="{{
+                        isOrderedByPaiementMethod
+                          ? data.sheetName
+                          : data?.clientPayload?.nom
+                      }}"
+                      class="accordion-item"
+                      #group
+                    >
+                      <span accordion-heading class="float-end fs-5">
+                        <i
+                          class="mdi"
+                          [ngClass]="
+                            !group?.isOpen
+                              ? 'mdi mdi-chevron-down accor-plus-icon'
+                              : 'mdi mdi-chevron-up accor-plus-icon'
+                          "
+                        ></i>
+                      </span>
+                      <div class="row">
+                        <div class="col-md-4 col-sm-12">
+                          N° Facture: <b>{{ data?.numeroFacture }}</b>
+                        </div>
+                        <div class="col-md-4 col-sm-12">
+                          Client: <b>{{ data?.clientPayload?.nom }}</b>
+                        </div>
+                        <div class="col-md-4 col-sm-12">
+                          Date: <b>{{ data?.dateFacture }}</b>
+                        </div>
                       </div>
-                      <div class="col-md-4 col-sm-12">
-                        Client: <b>{{ data?.clientPayload?.nom }}</b>
+                      <div class="row">
+                        <div class="col-12">
+                          <table class="table">
+                            <thead>
+                              <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Produit</th>
+                                <th scope="col">Quantité</th>
+                                <th scope="col">Prix unitaire HT</th>
+                                <th scope="col">Montant HT</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              @for (item of data?.lignes; track $index) {
+                                <tr>
+                                  <td>{{ $index + 1 }}</td>
+                                  <td>{{ item.produit }}</td>
+                                  <td>{{ item.quantite }}</td>
+                                  <td>
+                                    {{
+                                      item.prixUnitaireHT
+                                        | number: "1.0-0" : "fr-FR"
+                                    }}
+                                  </td>
+                                  <td>
+                                    {{
+                                      item.montantHT | number: "1.0-0" : "fr-FR"
+                                    }}
+                                  </td>
+                                </tr>
+                              }
+                            </tbody>
+                          </table>
+                        </div>
                       </div>
-                      <div class="col-md-4 col-sm-12">
-                        Date: <b>{{ data?.dateFacture }}</b>
+                      <div class="row">
+                        <div class="col-12">
+                          <table class="table">
+                            <thead>
+                              <tr>
+                                <th scope="col"></th>
+                                <th scope="col">Base</th>
+                                <th scope="col">Montant</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr>
+                                <td>HT</td>
+                                <td></td>
+                                <td>
+                                  {{
+                                    data?.totauxPayload?.ht
+                                      | number: "1.0-0" : "fr-FR"
+                                  }}
+                                </td>
+                              </tr>
+                              <!-- <tr hidden="{{!data?.totauxPayload?.tdt}}"> -->
+                              <tr
+                                [hidden]="
+                                  !data?.totauxPayload?.tdt ||
+                                  data?.totauxPayload?.tdt.base === 0
+                                "
+                              >
+                                <td>
+                                  TDT {{ data?.totauxPayload?.tdt?.taux }}%
+                                </td>
+                                <td>
+                                  {{
+                                    data?.totauxPayload?.tdt?.base
+                                      | number: "1.0-0" : "fr-FR"
+                                  }}
+                                </td>
+                                <td>
+                                  {{
+                                    data?.totauxPayload?.tdt?.montant
+                                      | number: "1.0-0" : "fr-FR"
+                                  }}
+                                </td>
+                              </tr>
+                              <tr
+                                [hidden]="
+                                  !data?.totauxPayload?.tva ||
+                                  data?.totauxPayload?.tva.base === 0
+                                "
+                              >
+                                <td>
+                                  TVA {{ data?.totauxPayload?.tva?.taux }}%
+                                </td>
+                                <td>
+                                  {{
+                                    data?.totauxPayload?.tva?.base
+                                      | number: "1.0-0" : "fr-FR"
+                                  }}
+                                </td>
+                                <td>
+                                  {{
+                                    data?.totauxPayload?.tva?.montant
+                                      | number: "1.0-0" : "fr-FR"
+                                  }}
+                                </td>
+                              </tr>
+                              <tr
+                                [hidden]="
+                                  !data?.totauxPayload?.tcn ||
+                                  data?.totauxPayload?.tcn.base === 0
+                                "
+                              >
+                                <td>
+                                  TCN ({{ data?.totauxPayload?.tcn?.taux }})
+                                </td>
+                                <td>
+                                  {{
+                                    data?.totauxPayload?.tcn?.base
+                                      | number: "1.0-0" : "fr-FR"
+                                  }}
+                                </td>
+                                <td>
+                                  {{
+                                    data?.totauxPayload?.tcn?.montant
+                                      | number: "1.0-0" : "fr-FR"
+                                  }}
+                                </td>
+                              </tr>
+                              <tr>
+                                <td>TTC</td>
+                                <td></td>
+                                <td>
+                                  {{
+                                    data?.totauxPayload?.ttc
+                                      | number: "1.0-0" : "fr-FR"
+                                  }}
+                                </td>
+                              </tr>
+                              <tr>
+                                <td>Mode de paiement</td>
+                                <td colspan="2">
+                                  {{ data?.totauxPayload?.modePaiement }}
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
                       </div>
-                    </div>
-                    <div class="row">
-                      <div class="col-12">
-                        <table class="table">
-                          <thead>
-                            <tr>
-                              <th scope="col">#</th>
-                              <th scope="col">Produit</th>
-                              <th scope="col">Quantité</th>
-                              <th scope="col">Prix unitaire HT</th>
-                              <th scope="col">Montant HT</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            @for (item of data?.lignes; track $index) {
-                            <tr>
-                              <td>{{ $index + 1 }}</td>
-                              <td>{{ item.produit }}</td>
-                              <td>{{ item.quantite }}</td>
-                              <td>{{ item.prixUnitaireHT | number:'1.0-0':'fr-FR'}}</td>
-                              <td>{{ item.montantHT | number:'1.0-0':'fr-FR'}}</td>
-                            </tr>
-                            }
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                    <div class="row">
-                      <div class="col-12">
-                        <table class="table">
-                          <thead>
-                            <tr>
-                              <th scope="col"></th>
-                              <th scope="col">Base</th>
-                              <th scope="col">Montant</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <tr>
-                              <td>HT</td>
-                              <td></td>
-                              <td>{{ data?.totauxPayload?.ht | number:'1.0-0':'fr-FR' }}</td>
-                            </tr>
-                            <!-- <tr hidden="{{!data?.totauxPayload?.tdt}}"> -->
-                            <tr>
-                              <td>TDT {{ data?.totauxPayload?.tdt?.taux }}%</td>
-                              <td>{{ data?.totauxPayload?.tdt?.base | number:'1.0-0':'fr-FR' }}</td>
-                              <td>{{ data?.totauxPayload?.tdt?.montant | number:'1.0-0':'fr-FR' }}</td>
-                            </tr>
-                            <tr>
-                              <td>TVA {{ data?.totauxPayload?.tva?.taux }}%</td>
-                              <td>{{ data?.totauxPayload?.tva?.base | number:'1.0-0':'fr-FR' }}</td>
-                              <td>{{ data?.totauxPayload?.tva?.montant | number:'1.0-0':'fr-FR' }}</td>
-                            </tr>
-                            <tr>
-                              <td>TTC</td>
-                              <td></td>
-                              <td>{{ data?.totauxPayload?.ttc | number:'1.0-0':'fr-FR'}}</td>
-                            </tr>
-                            <tr>
-                              <td>Mode de paiement</td>
-                              <td colspan="2">
-                                {{ data?.totauxPayload?.modePaiement }}
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  </accordion-group>
-                </accordion>
-                <!-- end accordion -->
+                    </accordion-group>
+                  </accordion>
+                  <!-- end accordion -->
                 }
               </div>
             </div>
@@ -425,32 +588,167 @@
             <div class="row" [hidden]="!isFactureAvoirLoad">
               <div class="col-12">
                 <hr />
-                <h4 class="text-center">Facture Trouvée: <a href="{{urlFacture}}" target="_blank">Facture {{reponseFNE.reference}}</a></h4>
+                <h4 class="text-center">
+                  Facture Trouvée:
+                  <a href="{{ urlFacture }}" target="_blank"
+                    >Facture {{ reponseFNE.reference }}</a
+                  >
+                </h4>
                 <hr />
               </div>
-            </div>
 
+              <div class="col-12">
+                <div class="d-flex justify-content-end mb-2">
+                  <!-- <button type="button" class="btn btn-sm btn-outline-primary me-2" (click)="toggleSelectAll()">
+                    {{ allAvoirsSelected ? 'Tout désélectionner' : 'Tout sélectionner' }}
+                  </button> -->
+                </div>
+                @for (itemAvoir of factureAvoirForm.controls; track $index) {
+                  <div class="row" formArrayName="factureAvoirForm">
+                    <div
+                      [formGroup]="$any(itemAvoir)"
+                      class="card mb-3 p-3 border-secondary"
+                    >
+                      <div class="row align-items-center">
+                        <div
+                          class="col-md-1 col-sm-12 d-flex justify-content-center"
+                        >
+                          <div class="form-check">
+                            <input
+                              class="form-check-input"
+                              type="checkbox"
+                              formControlName="isSelected"
+                              [attr.title]="
+                                'Sélectionner la ligne ' + ($index + 1)
+                              "
+                            />
+                          </div>
+                        </div>
+                        <div class="col-md-4 col-sm-12">
+                          <label for="description">Désignation</label>
+                          <input
+                            type="hidden"
+                            class="form-control"
+                            formControlName="itemId"
+                            id="itemId"
+                            name="itemId"
+                            readonly
+                          />
+                          <input
+                            type="text"
+                            class="form-control"
+                            formControlName="description"
+                            id="description"
+                            name="description"
+                            readonly
+                          />
+                        </div>
+                        <div class="col-md-3 col-sm-12">
+                          <label for="quantite">Quantité</label>
+                          <input
+                            type="number"
+                            class="form-control"
+                            formControlName="quantite"
+                            id="quantite"
+                            name="quantite"
+                            min="1"
+                            [max]="itemAvoir.get('quantite').value"
+                            [disabled]="!itemAvoir.get('isSelected')?.value"
+                            [ngClass]="{
+                              'is-invalid':
+                                itemAvoir.get('quantite')?.invalid &&
+                                (itemAvoir.get('quantite')?.dirty ||
+                                  itemAvoir.get('quantite')?.touched),
+                              'is-valid': itemAvoir.get('quantite')?.valid,
+                            }"
+                          />
+                          <div
+                            *ngIf="
+                              itemAvoir.get('quantite')?.invalid &&
+                              (itemAvoir.get('quantite')?.dirty ||
+                                itemAvoir.get('quantite')?.touched)
+                            "
+                            class="text-danger"
+                          >
+                            <div
+                              *ngIf="
+                                itemAvoir.get('quantite')?.errors?.['required']
+                              "
+                            >
+                              Veuillez renseigner la quantité
+                            </div>
+                            <div
+                              *ngIf="itemAvoir.get('quantite')?.errors?.['max']"
+                            >
+                              La quantité ne doit pas dépasser
+                              {{
+                                itemAvoir.get("quantite")?.errors?.["max"]?.max
+                              }}
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-md-4 col-sm-12">
+                          <label for="montant">Montant</label>
+                          <input
+                            type="number"
+                            class="form-control"
+                            formControlName="montant"
+                            id="montant"
+                            name="montant"
+                            readonly
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                }
+                @if (factureAvoirForm.length != 0) {
+                  <div class="row mt-3">
+                    <div class="col-12 text-end">
+                      <h5>
+                        Montant total remboursement:
+                        <strong
+                          ><span class="text-danger">{{
+                            formatCurrency(totalAvoir)
+                          }}</span>
+                          / {{ formatCurrency(montantFacture) }}</strong
+                        >
+                      </h5>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
             <div class="row">
               <div class="col-12 text-center mt-3">
                 <button
                   type="button"
-                  [hidden]="isView"
+                  [hidden]="isView || isModif"
                   class="btn btn-danger me-2"
                   (click)="modalRef?.hide()"
                 >
                   Annuler
                 </button>
+                
+                <button
+                  type="button"
+                  [hidden]="isView || !isModif"
+                  class="btn btn-danger w-md me-2"
+                  (click)="deleteLoaded()"
+                >
+                  {{ textButtonDelete }}
+                </button>
                 <button
                   type="submit"
-                  [hidden]="isView"
-                  [disabled]="!factureForm.valid"
+                  [hidden]="isView || (isModif && isComptaBK)"
+                  [disabled]="isSubmitDisabled()"
                   class="btn btn-primary w-md"
                 >
                   <i
                     class="fa"
                     [ngClass]="{
                       'fa-spin fa-spinner': loadingBtn && isLoadFacture,
-                      'fa-check': !loadingBtn && isLoadFacture
+                      'fa-check': !loadingBtn && isLoadFacture,
                     }"
                   ></i>
                   {{ textButton }}

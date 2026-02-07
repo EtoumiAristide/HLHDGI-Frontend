@@ -20,9 +20,9 @@ const routes: Routes = [
     title: 'Facture | Modification'
   },
   {
-    path: 'view/:id',
+    path: 'edit-loaded/:id',
     component: FactureFormComponent,
-    title: 'Facture | Consultation'
+    title: 'Facture | Modification Chargée'
   },
 ];
 

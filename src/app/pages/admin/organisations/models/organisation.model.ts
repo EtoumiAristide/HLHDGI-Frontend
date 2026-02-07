@@ -11,9 +11,13 @@ export class Organisation {
   isPrixUnitaireDefined: boolean;
   isFactureInitiale: boolean;
   isTDTBaseTVA: boolean;
-  // isEranoveGroupe?: boolean
-  // isPrincipal?: number
+  isFacturationMultiple: boolean;
+  isAvoirFirstVersion: boolean;
+  isBkWorkflow: boolean;
 
+  valeurTVA: number;
+  valeurTDT: number;
+  valeurTCN: number;
   constructor() {
     this.id = 0
     this.numcc = ''
@@ -26,5 +30,7 @@ export class Organisation {
     this.isPrixUnitaireDefined = false
     this.isFactureInitiale = false
     this.isTDTBaseTVA = false
+    this.isFacturationMultiple = false
+    this.isAvoirFirstVersion = false
   }
 }
