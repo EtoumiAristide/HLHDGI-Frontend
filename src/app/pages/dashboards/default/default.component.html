@@ -1,21 +1,361 @@
 <div class="container-fluid">
-    <!-- start page title -->
-    <div class="row">
-        <div class="col-12">
-            <div class="page-title-box d-flex align-items-center justify-content-between">
-                <h4 class="mb-0 font-size-18">Dashboard</h4>
-                <div class="page-title-right">
-                    <ol class="breadcrumb m-0">
-                        <ng-container>
-                            <li class="breadcrumb-item"><a href="javascript: void(0);">Dashboards</a>
-                            </li>
-                            <li class="breadcrumb-item active">Dashboard
-                            </li>
-                        </ng-container>
-                    </ol>
+  <app-page-title
+    title="Dashboard"
+    [breadcrumbItems]="breadCrumbItems"
+  ></app-page-title>
+
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="card">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-lg-4">
+              <div class="d-flex">
+                <div class="flex-shrink-0 me-3">
+                  <img
+                    src="assets/images/verification-img.png"
+                    alt=""
+                    class="avatar-md rounded-circle img-thumbnail"
+                  />
                 </div>
+                <div class="flex-grow-1 align-self-center">
+                  <div class="text-muted">
+                    <p class="mb-2">Bienvenue sur votre Dashboard</p>
+                    <h5 class="mb-1">Nom Entreprise</h5>
+                    <p class="mb-0">N° NCC</p>
+                  </div>
+                </div>
+              </div>
             </div>
+
+            <div class="col-lg-8 align-self-center">
+              <div class="text-lg-center mt-4 mt-lg-0">
+                <div class="row">
+                  <div class="col-4">
+                    <div>
+                      <p class="mb-2">Total Etablissements</p>
+                      <h5 class="mb-0">--</h5>
+                    </div>
+                  </div>
+                  <div class="col-4">
+                    <div>
+                      <p class="mb-2">Total Points de vente</p>
+                      <h5 class="mb-0">--</h5>
+                    </div>
+                  </div>
+                  <div class="col-4">
+                    <div>
+                      <p class="mb-2">Total Sticker</p>
+                      <h5 class="mb-0">--</h5>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- end row -->
         </div>
+      </div>
     </div>
-    <!-- end page title -->
-</div> <!-- container-fluid -->
+  </div>
+
+  <div class="row">
+    <div class="col-xl-12">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title mb-4">Critère de recherche</h4>
+          <div class="row">
+            @if (isSuperAdmin) {
+              <div class="col-lg-3 col-md-4 col-sm-6">
+                <div class="mb-3">
+                  <label for="formrow-inputState">Entreprises</label>
+                  <select
+                    id="formrow-inputState"
+                    class="form-select"
+                    [(ngModel)]="organisationSelection"
+                    (change)="loadEtablissements()"
+                  >
+                    <option [ngValue]="0" selected>...</option>
+                    @for (organisation of organisations; track organisation) {
+                      <option value="{{ organisation.id }}">
+                        {{ organisation.raisonSocial }}
+                      </option>
+                    }
+                  </select>
+                </div>
+              </div>
+            }
+            @if (isSuperAdmin || isAdmin) {
+              <div class="col-lg-3 col-md-4 col-sm-6">
+                <div class="mb-3">
+                  <label for="formrow-inputState">Etablissements</label>
+                  <select
+                    id="formrow-inputState"
+                    class="form-select"
+                    [(ngModel)]="etablissementSelection"
+                    (change)="loadPointsVente()"
+                  >
+                    <option [ngValue]="0" selected>...</option>
+                    @for (
+                      etablissement of etablissements;
+                      track etablissement
+                    ) {
+                      <option value="{{ etablissement.id }}">
+                        {{ etablissement.nom }}
+                      </option>
+                    }
+                  </select>
+                </div>
+              </div>
+            }
+            <div class="col-lg-3 col-md-4 col-sm-6">
+              <div class="mb-3">
+                <label for="formrow-inputState">Points de vente</label>
+                <select
+                  id="formrow-inputState"
+                  class="form-select"
+                  [(ngModel)]="poinventeSelection"
+                >
+                  <option [ngValue]="0" selected>...</option>
+                  @for (pointVente of pointsVentes; track $index) {
+                    <option value="{{ pointVente.id }}">
+                      {{ pointVente.nom }}
+                    </option>
+                  }
+                </select>
+              </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-6">
+              <div class="mb-3">
+                <label for="formrow-inputCity">Nom du client</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="formrow-inputCity"
+                  placeholder="Entrer le nom d'un client"
+                />
+              </div>
+            </div>
+            <div class="col-lg-1 col-md-4 col-sm-6">
+              <div class="mb-3">
+                <label for="formrow-inputState">Année</label>
+                <select
+                  id="formrow-inputState"
+                  class="form-control"
+                  [(ngModel)]="anneeSelection"
+                >
+                  <option selected>Choisir...</option>
+                  @for (year of anneesExercice; track year) {
+                    <option value="{{ year }}">{{ year }}</option>
+                  }
+                </select>
+              </div>
+            </div>
+            <div class="col-lg-1 col-md-4 col-sm-6">
+              <div class="mt-4">
+                <button type="submit" class="btn btn-primary w-md">
+                  Charger
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-xl-12">
+      <div class="row">
+        <div class="col-sm-3">
+          <div class="card">
+            <div class="card-body">
+              <div class="d-flex align-items-center mb-3">
+                <div class="avatar-xs me-3">
+                  <span
+                    class="avatar-title rounded-circle bg-primary-subtle text-primary font-size-18"
+                  >
+                    <i class="bx bx-copy-alt"></i>
+                  </span>
+                </div>
+                <h5 class="font-size-14 mb-0">Revenue</h5>
+              </div>
+              <div class="text-muted mt-4">
+                <h4>
+                  1,452 <i class="mdi mdi-chevron-up ms-1 text-success"></i>
+                </h4>
+                <div class="d-flex">
+                  <span class="badge badge-soft-success font-size-12">
+                    + 0.2%
+                  </span>
+                  <span class="ms-2 text-truncate">From previous period</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-3">
+          <div class="card">
+            <div class="card-body">
+              <div class="d-flex align-items-center mb-3">
+                <div class="avatar-xs me-3">
+                  <span
+                    class="avatar-title rounded-circle bg-primary-subtle text-primary font-size-18"
+                  >
+                    <i class="bx bx-copy-alt"></i>
+                  </span>
+                </div>
+                <h5 class="font-size-14 mb-0">Vente</h5>
+              </div>
+              <div class="text-muted mt-4">
+                <h4>
+                  1,452 <i class="mdi mdi-chevron-up ms-1 text-success"></i>
+                </h4>
+                <div class="d-flex">
+                  <span class="badge badge-soft-success font-size-12">
+                    + 0.2%
+                  </span>
+                  <span class="ms-2 text-truncate">From previous period</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-3">
+          <div class="card">
+            <div class="card-body">
+              <div class="d-flex align-items-center mb-3">
+                <div class="avatar-xs me-3">
+                  <span
+                    class="avatar-title rounded-circle bg-primary-subtle text-primary font-size-18"
+                  >
+                    <i class="bx bx-archive-in"></i>
+                  </span>
+                </div>
+                <h5 class="font-size-14 mb-0">Bordereau d'achat</h5>
+              </div>
+              <div class="text-muted mt-4">
+                <h4>
+                  $ 28,452 <i class="mdi mdi-chevron-up ms-1 text-success"></i>
+                </h4>
+                <div class="d-flex">
+                  <span class="badge badge-soft-success font-size-12">
+                    + 0.2%
+                  </span>
+                  <span class="ms-2 text-truncate">From previous period</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-sm-3">
+          <div class="card">
+            <div class="card-body">
+              <div class="d-flex align-items-center mb-3">
+                <div class="avatar-xs me-3">
+                  <span
+                    class="avatar-title rounded-circle bg-primary-subtle text-primary font-size-18"
+                  >
+                    <i class="bx bx-purchase-tag-alt"></i>
+                  </span>
+                </div>
+                <h5 class="font-size-14 mb-0">Avoirs</h5>
+              </div>
+              <div class="text-muted mt-4">
+                <h4>
+                  $ 16.2 <i class="mdi mdi-chevron-up ms-1 text-success"></i>
+                </h4>
+
+                <div class="d-flex">
+                  <span class="badge badge-soft-warning font-size-12">
+                    0%
+                  </span>
+                  <span class="ms-2 text-truncate">From previous period</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- end row -->
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-xl-4">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title mb-4">Sales Analytics</h4>
+
+          <div>
+            <apx-chart
+              class="apex-charts"
+              dir="ltr"
+              [series]="salesAnalyticsDonutChart.series"
+              [chart]="salesAnalyticsDonutChart.chart"
+              [colors]="salesAnalyticsDonutChart.colors"
+              [plotOptions]="salesAnalyticsDonutChart.plotOptions"
+              [legend]="salesAnalyticsDonutChart.legend"
+              [labels]="salesAnalyticsDonutChart.labels"
+            >
+            </apx-chart>
+          </div>
+
+          <div class="text-center text-muted">
+            <div class="row">
+              <div class="col-4">
+                <div class="mt-4">
+                  <p class="mb-2 text-truncate">
+                    <i class="mdi mdi-circle text-primary me-1"></i> Ventes
+                  </p>
+                  <h5>$ 2,132</h5>
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="mt-4">
+                  <p class="mb-2 text-truncate">
+                    <i class="mdi mdi-circle text-success me-1"></i> Avoirs
+                  </p>
+                  <h5>$ 1,763</h5>
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="mt-4">
+                  <p class="mb-2 text-truncate">
+                    <i class="mdi mdi-circle text-danger me-1"></i> Bordereau
+                    Achat
+                  </p>
+                  <h5>$ 973</h5>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-8">
+      <div class="card">
+        <div class="card-body">
+          <apx-chart
+            dir="ltr"
+            #chart
+            class="apex-charts"
+            [chart]="visitorsOptions.chart"
+            [series]="visitorsOptions.series"
+            [legend]="visitorsOptions.legend"
+            [colors]="visitorsOptions.colors"
+            [fill]="visitorsOptions.fill"
+            [dataLabels]="visitorsOptions.dataLabels"
+            [xaxis]="visitorsOptions.xaxis"
+            [stroke]="visitorsOptions.stroke"
+          >
+          </apx-chart>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- container-fluid -->

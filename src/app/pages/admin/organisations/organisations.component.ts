@@ -293,6 +293,7 @@ export class OrganisationsComponent {
         valeurTVA: 0.0,
         valeurTDT: 0.0,
         valeurTCN: 0,
+        isAvoirFirstVersion: false,
         isBkWorkflow: false,
       })
     } else {
@@ -310,6 +311,7 @@ export class OrganisationsComponent {
         valeurTVA: this.organisation.valeurTVA,
         valeurTDT: this.organisation.valeurTDT,
         valeurTCN: this.organisation.valeurTCN,
+        isAvoirFirstVersion: this.organisation.isAvoirFirstVersion,
         isBkWorkflow: this.organisation.isBkWorkflow,
       })
 

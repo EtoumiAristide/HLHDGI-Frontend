@@ -72,12 +72,12 @@ export class TopbarComponent implements OnInit {
     })
     this.openMobileMenu = false;
     this.element = document.documentElement;
-
+    this._cookiesService.set('lang', 'fr');
     this.cookieValue = this._cookiesService.get('lang');
     const val = this.listLang.filter(x => x.lang === this.cookieValue);
     this.countryName = val.map(element => element.text);
     if (val.length === 0) {
-      if (this.flagvalue === undefined) { this.valueset = 'assets/images/flags/us.jpg'; }
+      if (this.flagvalue === undefined) { this.valueset = 'assets/images/flags/french.jpg'; }
     } else {
       this.flagvalue = val.map(element => element.flag);
     }
