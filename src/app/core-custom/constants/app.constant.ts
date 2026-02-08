@@ -8,4 +8,5 @@ export const url_path = {
     UTILISATEUR_EP: '/utilisateurs',
     MENU_EP: '/meta-menus',
     PERMISSION_EP: '/permissions',
+    DASHBOARD_EP: '/dashboard',
 }

@@ -10,6 +10,9 @@ import { PointVenteService } from '../../admin/pointvente/services/pointvente.se
 import { OrganisationService } from '../../admin/organisations/services/organisation.service';
 import { Organisation } from '../../admin/organisations/models/organisation.model';
 import { KeycloakService } from 'keycloak-angular';
+import { DashboardApiServices } from '../services/dashboard-api.service';
+import Swal from 'sweetalert2';
+import { btnFormState } from 'src/app/core-custom/constants/form-btn-state.constant';
 
 @Component({
   selector: 'app-default',
@@ -34,8 +37,14 @@ export class DefaultComponent implements OnInit {
   anneeSelection: number;
   anneeActuelle: number = new Date().getFullYear();
 
+  clientSearch: string = ''
+
+  dashboadData!: any
 
   salesAnalyticsDonutChart: ChartType;
+
+  textButton: string = btnFormState.load
+  loadingBtn: boolean = false;
 
   // visitor chart
   visitorsOptions: ChartType2;
@@ -50,6 +59,7 @@ export class DefaultComponent implements OnInit {
     private etablissementService: EtablissementService,
     private pointVenteService: PointVenteService,
     private _keycloakService: KeycloakService,
+    private dashboardService: DashboardApiServices
   ) {
 
     const roles = this._keycloakService.getUserRoles();
@@ -60,7 +70,7 @@ export class DefaultComponent implements OnInit {
 
   ngOnInit() {
     this.breadCrumbItems = [{ label: 'Dashboard', active: true }];
-    
+
     this.loadAnneesExercice();
     this.loadOrganisations()
 
@@ -82,7 +92,7 @@ export class DefaultComponent implements OnInit {
     this.organisationService.getAll().subscribe({
       next: (response) => {
         this.organisations = response.data
-        
+
         this.loadEtablissementAgent()
       },
       error: (err) => {
@@ -114,8 +124,8 @@ export class DefaultComponent implements OnInit {
   loadEtablissementAgent() {
     this.etablissementService.getAllByKeycloakGroup().subscribe({
       next: (response) => {
-        console.log(response);
-        
+        // console.log(response);
+
         this.etablissementAgent = response.data;
 
         if (this.etablissementAgent != null) {
@@ -123,7 +133,7 @@ export class DefaultComponent implements OnInit {
 
           this.loadEtablissements()
         }
-        
+
       },
       error: (err) => {
         console.error(err)
@@ -140,6 +150,50 @@ export class DefaultComponent implements OnInit {
         console.error(err);
       }
     })
+  }
+
+  loadDashboard() {
+    if (this.organisationSelection == 0 && this.etablissementSelection == 0 &&
+      this.poinventeSelection == 0 && this.clientSearch == '') {
+
+      Swal.fire({
+        title: 'Aucun critère renseigné',
+        text: 'Veuillez renseigner au moins 1 critère de recherche avant de continuer',
+        confirmButtonText: 'OK'
+      })
+    } else {
+      this.changeFormElement()
+
+      let dataSend: any = {}
+      dataSend.annee = this.anneeSelection
+      dataSend.organisationId = this.organisationSelection
+      dataSend.etablissementId = this.etablissementSelection
+      dataSend.pointVenteId = this.poinventeSelection
+      dataSend.client = this.clientSearch
+
+      this.dashboardService.getDashboard(dataSend).subscribe({
+        next: (response) => {
+          this.dashboadData = response
+
+          console.log(this.dashboadData);
+          this.initFormElement()
+
+        },
+        error: (err) => {
+          this.initFormElement()
+          console.error(err)
+        }
+      })
+    }
+  }
+
+  changeFormElement() {
+    this.loadingBtn = true
+  }
+
+  initFormElement() {
+    this.textButton = btnFormState.load
+    this.loadingBtn = false
   }
 
 }

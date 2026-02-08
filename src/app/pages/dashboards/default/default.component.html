@@ -131,6 +131,7 @@
                 <input
                   type="text"
                   class="form-control"
+                  [(ngModel)]="clientSearch"
                   id="formrow-inputCity"
                   placeholder="Entrer le nom d'un client"
                 />
@@ -153,8 +154,19 @@
             </div>
             <div class="col-lg-1 col-md-4 col-sm-6">
               <div class="mt-4">
-                <button type="submit" class="btn btn-primary w-md">
-                  Charger
+                <button
+                  type="button"
+                  class="btn btn-primary w-md"
+                  (click)="loadDashboard()"
+                >
+                  <i
+                    class="fa"
+                    [ngClass]="{
+                      'fa-spin fa-spinner': loadingBtn,
+                      'fa-check': !loadingBtn,
+                    }"
+                  ></i>
+                  {{ textButton }}
                 </button>
               </div>
             </div>
@@ -182,13 +194,16 @@
               </div>
               <div class="text-muted mt-4">
                 <h4>
-                  1,452 <i class="mdi mdi-chevron-up ms-1 text-success"></i>
+                  {{
+                    (dashboadData?.totalRevenue | number: "1.2-2" : "fr-FR") ||
+                      0
+                  }}
+                  <i class="mdi mdi-chevron-up ms-1 text-success"></i>
                 </h4>
                 <div class="d-flex">
                   <span class="badge badge-soft-success font-size-12">
-                    + 0.2%
+                    FCFA
                   </span>
-                  <span class="ms-2 text-truncate">From previous period</span>
                 </div>
               </div>
             </div>
@@ -210,13 +225,15 @@
               </div>
               <div class="text-muted mt-4">
                 <h4>
-                  1,452 <i class="mdi mdi-chevron-up ms-1 text-success"></i>
+                  {{
+                    (dashboadData?.totalSale | number: "1.2-2" : "fr-FR") || 0
+                  }}
+                  <i class="mdi mdi-chevron-up ms-1 text-success"></i>
                 </h4>
                 <div class="d-flex">
                   <span class="badge badge-soft-success font-size-12">
-                    + 0.2%
+                    FCFA
                   </span>
-                  <span class="ms-2 text-truncate">From previous period</span>
                 </div>
               </div>
             </div>
@@ -238,13 +255,13 @@
               </div>
               <div class="text-muted mt-4">
                 <h4>
-                  $ 28,452 <i class="mdi mdi-chevron-up ms-1 text-success"></i>
+                  {{ (dashboadData?.totalPurchase | number: "1.2-2" : "fr-FR") || 0 }}
+                  <i class="mdi mdi-chevron-up ms-1 text-success"></i>
                 </h4>
                 <div class="d-flex">
                   <span class="badge badge-soft-success font-size-12">
-                    + 0.2%
+                    FCFA
                   </span>
-                  <span class="ms-2 text-truncate">From previous period</span>
                 </div>
               </div>
             </div>
@@ -266,14 +283,14 @@
               </div>
               <div class="text-muted mt-4">
                 <h4>
-                  $ 16.2 <i class="mdi mdi-chevron-up ms-1 text-success"></i>
+                  {{ (dashboadData?.totalAvoir | number: "1.2-2" : "fr-FR") || 0 }}
+                  <i class="mdi mdi-chevron-up ms-1 text-success"></i>
                 </h4>
 
                 <div class="d-flex">
-                  <span class="badge badge-soft-warning font-size-12">
-                    0%
+                  <span class="badge badge-soft-success font-size-12">
+                    FCFA
                   </span>
-                  <span class="ms-2 text-truncate">From previous period</span>
                 </div>
               </div>
             </div>
