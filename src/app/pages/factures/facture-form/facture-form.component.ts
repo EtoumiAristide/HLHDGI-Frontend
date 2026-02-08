@@ -263,7 +263,12 @@ export class FactureFormComponent {
       }
       console.log(dataToSend);
 
-      this.formData = objectToFormData(dataToSend)
+      if (this.isFactureAvoir) {
+        this.formData = new FormData()
+        this.formData.append('data', JSON.stringify(dataToSend))
+      } else {
+        this.formData = objectToFormData(dataToSend)
+      }
 
       let apiSend: Observable<Object> = !this.isFactureAvoir ? this._factureApi.save(this.formData) : this._factureApi.saveAvoir(this.formData);
 
@@ -802,7 +807,7 @@ export class FactureFormComponent {
     if (this.isModif) {
       return false; // mode édition → bouton toujours actif
     }
-    
+
     return (
       !this.factureForm.valid ||
       (!this.isLoadFacture && !this.isFactureAvoirLoad) ||
