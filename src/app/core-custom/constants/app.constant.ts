@@ -1,6 +1,7 @@
 export const url_path = {
     PARTENAIRE: '/partenaires',
     FACTURE: '/factures',
+    BK_TIMBRE: '/bk/timbre',
     LOGIN: '/auth',
     ORGANISATION_EP: '/organisations',
     POINT_VENTE_EP: '/point-vente',

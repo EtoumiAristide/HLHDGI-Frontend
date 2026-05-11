@@ -25,6 +25,13 @@ export const MENU: MenuItem[] = [
         link: '/factures',
     },
     {
+        id: 17,
+        label: 'BK - Droits de timbre',
+        icon: 'bx-briefcase-alt-2',
+        link: '/timbre',
+        roles: ['Compta-BK']
+    },
+    {
         id: 4,
         label: 'Archives',
         icon: 'bx-sitemap',

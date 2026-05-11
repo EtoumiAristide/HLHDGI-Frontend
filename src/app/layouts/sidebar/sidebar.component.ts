@@ -47,8 +47,11 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   ngOnInit() {
-    this.initialize();
-    this._scrollElement();
+    // Subscribe to filtered menu observable to wait for BK roles to load
+    this.metamenuService.getFilteredMenuObservable().subscribe(menuItems => {
+      console.log('📋 Menu items updated:', menuItems.map(item => ({ label: item.label, roles: item.roles })));
+      this.menuItems = menuItems;
+    });
   }
 
   ngAfterViewInit() {
