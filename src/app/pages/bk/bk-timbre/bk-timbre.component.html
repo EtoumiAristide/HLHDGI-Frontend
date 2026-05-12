@@ -69,26 +69,24 @@
             <table class="table table-striped table-bordered">
               <thead class="table-light">
                 <tr>
-                  <th>Transaction</th>
-                  <th>Type paiement</th>
-                  <th>Montant</th>
-                  <th>Timbre</th>
-                  <th>Éligible</th>
-                  <th>Raison</th>
+                  <th>BK NAME</th>
+                  <th>N°FACTURE</th>
+                  <th>JOUR CA</th>
+                  <th>MOYEN DE PAIEMENT</th>
+                  <th>NBRE TICKET &gt; 5000</th>
+                  <th>MONTANT TIMBRE</th>
+                  <th>TOTAL</th>
                 </tr>
               </thead>
               <tbody>
                 <tr *ngFor="let detail of report.details">
                   <td>{{ detail.transactionId || '-' }}</td>
+                  <td>{{ detail.checkNumber || '-' }}</td>
+                  <td>{{ detail.period || '-' }}</td>
                   <td>{{ detail.paymentType || '-' }}</td>
                   <td>{{ detail.amount ?? 0 | number:'1.0-0' }}</td>
+                  <td>{{ rules?.stampDuty ?? 100 | number:'1.0-0' }}</td>
                   <td>{{ detail.stampDuty ?? 0 | number:'1.0-0' }}</td>
-                  <td>
-                    <span class="badge" [ngClass]="detail.eligible ? 'bg-success' : 'bg-secondary'">
-                      {{ detail.eligible ? 'Oui' : 'Non' }}
-                    </span>
-                  </td>
-                  <td>{{ detail.eligibilityReason || '-' }}</td>
                 </tr>
               </tbody>
             </table>
