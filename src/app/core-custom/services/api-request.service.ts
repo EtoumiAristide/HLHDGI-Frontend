@@ -34,9 +34,17 @@ export class ApiRequestService {
     // console.log("endpoint: " + `${environment.BASE_URL_API}${parameter.endpoint}` + ", data: " + parameter.data)
     return this.http.post(`${environment.BASE_URL_API}${parameter.endpoint}`, parameter.data, { headers: this.httpHeader() });
   }
+  postPaginate(parameter: Required<{ endpoint: string, data: any, paginationData: any }>): Observable<any> {
+    // console.log("endpoint: " + `${environment.BASE_URL_API}${parameter.endpoint}` + ", data: " + parameter.data)
+    return this.http.post(`${environment.BASE_URL_API}${parameter.endpoint}`, parameter.data, { headers: this.httpHeader(), params: parameter.paginationData });
+  }
   postForFile(parameter: Required<{ endpoint: string, data: any }>): Observable<any> {
     // console.log("endpoint: " + `${environment.BASE_URL_API}${parameter.endpoint}` + ", data: " + parameter.data)
     return this.http.post(`${environment.BASE_URL_API}${parameter.endpoint}`, parameter.data, { headers: this.httpHeaderForFile() });
+  }
+
+  postForBlob(parameter: Required<{ endpoint: string, data: any }>): Observable<Blob> {
+    return this.http.post(`${environment.BASE_URL_API}${parameter.endpoint}`, parameter.data, { headers: this.httpHeader(), responseType: 'blob' });
   }
 
   put(parameter: Required<{ endpoint: string, data: any }>): Observable<any> {

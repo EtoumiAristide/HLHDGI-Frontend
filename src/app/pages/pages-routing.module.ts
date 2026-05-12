@@ -15,6 +15,7 @@ const routes: Routes = [
   { path: 'dashboards', loadChildren: () => import('./dashboards/dashboards.module').then(m => m.DashboardsModule), canActivate: [KeycloakGuard] },
   { path: 'partenaires', loadChildren: () => import('./partenaires/partenaires.module').then(m => m.PartenairesModule) , canActivate: [KeycloakGuard]},
   { path: 'factures', loadChildren: () => import('./factures/factures.module').then(m => m.FacturesModule), canActivate: [KeycloakGuard] },
+  { path: 'statistiques', loadChildren: () => import('./statistiques/statistiques.module').then(m => m.StatistiquesModule), canActivate: [KeycloakGuard] },
   { path: 'parametrage', loadChildren: () => import('./admin/admin.module').then(m => m.AdminModule), canActivate: [KeycloakGuard] },
 ];
 

@@ -1,0 +1,202 @@
+<div class="page-title-box">
+  <div class="row align-items-center">
+    <div class="col-sm-6">
+      <h4 class="page-title">Statistiques - Timbres</h4>
+      <p class="text-muted mb-0">
+        Recherchez et exportez les données des timbres de factures.
+      </p>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body">
+    <form [formGroup]="timbresForm" (ngSubmit)="onSearch()" class="row gy-3">
+      <!-- <div class="col-md-4">
+        <label class="form-label">Numéro CC</label>
+        <input
+          type="text"
+          class="form-control"
+          formControlName="numcc"
+          placeholder="1709395N"
+        />
+        <div
+          *ngIf="
+            timbresForm.get('numcc')?.touched &&
+            timbresForm.get('numcc')?.invalid
+          "
+          class="text-danger small"
+        >
+          Le numéro CC est requis.
+        </div>
+      </div> -->
+
+      <div class="col-md-3">
+        <label class="form-label">Date début</label>
+        <input type="date" class="form-control" formControlName="dateDebut" />
+        <div
+          *ngIf="
+            timbresForm.get('dateDebut')?.touched &&
+            timbresForm.get('dateDebut')?.invalid
+          "
+          class="text-danger small"
+        >
+          La date de début est requise.
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <label class="form-label">Date fin</label>
+        <input type="date" class="form-control" formControlName="dateFin" />
+        <div
+          *ngIf="
+            timbresForm.get('dateFin')?.touched &&
+            timbresForm.get('dateFin')?.invalid
+          "
+          class="text-danger small"
+        >
+          La date de fin est requise.
+        </div>
+      </div>
+
+      <div class="col-md-2 d-flex align-items-end gap-2">
+        <button
+          type="submit"
+          class="btn btn-primary w-100"
+          [disabled]="loading"
+        >
+          Rechercher
+        </button>
+      </div>
+    </form>
+
+    <div class="mt-3 d-flex flex-wrap gap-2 align-items-center">
+      <button
+        class="btn btn-outline-secondary"
+        (click)="exportExcel()"
+        [disabled]="!timbres.length || loading"
+      >
+        <i class="mdi mdi-file-excel me-1"></i> Exporter Excel
+      </button>
+      <div
+        *ngIf="loading"
+        class="spinner-border text-primary ms-2"
+        role="status"
+      >
+        <span class="visually-hidden">Chargement...</span>
+      </div>
+    </div>
+
+    <div *ngIf="errorMessage" class="alert alert-danger mt-3">
+      {{ errorMessage }}
+    </div>
+
+    <div *ngIf="!loading && !timbres.length" class="alert alert-info mt-3">
+      Aucune donnée affichée. Lancez une recherche pour voir les résultats.
+    </div>
+
+    <div *ngIf="timbres.length" class="table-responsive mt-3">
+      <table
+        class="table table-bordered align-middle table-nowrap table-hover dt-responsive nowrap w-100"
+      >
+        <thead class="table-light">
+          <tr>
+            <th>Etablissement</th>
+            <th>N° Facture</th>
+            <th>Jour CA</th>
+            <th>Moyen de paiement</th>
+            <th>Nb tickets > 5000</th>
+            <th>Montant Timbre</th>
+            <th>Total</th>
+            <!-- <th>Mois</th> -->
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of timbres">
+            <td>{{ item.bkName }}</td>
+            <td>{{ item.nfacture }}</td>
+            <td>{{ item.jourCa | date: "dd/MM/yyyy" }}</td>
+            <td>{{ item.moyenDePaiement }}</td>
+            <td>{{ item.nbreTicket5000 }}</td>
+            <td>{{ item.montantTimbre | number: "1.0-0" }}</td>
+            <td>{{ item.total | number: "1.0-0" }}</td>
+            <!-- <td>{{ item.mois }}</td> -->
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="table-footer">
+      <div class="dataTables_length">
+        <label> </label>
+      </div>
+      <div class="pagination">
+        <div class="entries ms-2">
+          @if (currentPage != undefined) {
+            Affichage de
+            <b>{{ currentPage * pageSize + 1 }}</b>
+            à
+            <b>
+              @if (currentPage + 1 == totalPages) {
+                {{ totalItems }}
+              } @else {
+                {{ (currentPage + 1) * pageSize }}
+              }
+            </b>
+            sur
+            <b>{{ totalItems }}</b>
+          } @else {
+            Affichage de 0 à {{ pageSize }} sur {{ pageNum }}
+          }
+        </div>
+        <div class="col-sm-12 col-md-7">
+          <div class="pagination_section">
+            <nav aria-label="Page navigation" class="pagination-style-1">
+              <ul class="pagination mb-0 justify-content-end">
+                <li class="page-item">
+                  <a
+                    class="page-link"
+                    href="javascript:void(0);"
+                    (click)="changePage('prev')"
+                  >
+                    <i class="fas fa-angle-left align-middle"></i>
+                    <i class="ri-arrow-left-s-line align-middle"></i>
+                  </a>
+                </li>
+                <li class="page-item active">
+                  <a class="page-link" href="javascript:void(0);">
+                    <b
+                      >Page
+                      @if (currentPage != undefined) {
+                        {{
+                          currentPage +
+                            1 +
+                            " / " +
+                            totalPages
+                        }}
+                      } @else {
+                        {{ pageNum }} / {{ pageNum }}
+                      }
+                    </b></a
+                  >
+                </li>
+                <li class="page-item">
+                  <a
+                    class="page-link"
+                    href="javascript:void(0);"
+                    (click)="changePage('next')"
+                  >
+                    <i class="fas fa-angle-right align-middle"></i>
+                    <i class="ri-arrow-right-s-line align-middle"></i>
+                  </a>
+                </li>
+              </ul>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    
+  </div>
+</div>

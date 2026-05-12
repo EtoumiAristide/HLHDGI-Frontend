@@ -9,4 +9,6 @@ export const url_path = {
     MENU_EP: '/meta-menus',
     PERMISSION_EP: '/permissions',
     DASHBOARD_EP: '/dashboard',
+    STATS_TIMBRE_EP: '/rapport-stats/facture-timbre',
+    STATS_EXPORT_TIMBRE_EP: '/rapport-stats/facture-timbre/export',
 }

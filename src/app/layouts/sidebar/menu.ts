@@ -32,87 +32,100 @@ export const MENU: MenuItem[] = [
     },
     {
         id: 5,
+        label: 'Statistiques',
+        icon: 'bx-chart',
+        // roles: ['Admin', 'Super-Admin'],   // 👈 ROLE REQUIS
+        subItems: [
+            {
+                id: 6,
+                label: 'Timbres',
+                link: '/statistiques/timbres',
+                parentId: 5
+            },
+        ]
+    },
+    {
+        id: 7,
         label: 'Paramétrage',
         icon: 'bx-customize',
         roles: ['Super-Admin'],   // 👈 ROLE REQUIS
         subItems: [
             {
-                id: 6,
+                id: 8,
                 label: 'Partenaires',
                 link: '/ecommerce/products',
-                parentId: 5,
+                parentId: 7,
                 subItems:[
                     {
-                        id: 7,
+                        id: 9,
                         label: 'Entreprises',
                         link: '/parametrage/organisations',
-                        parentId: 6
+                        parentId: 8
                     },
-                    {
-                        id: 7,
-                        label: 'Etablissement',
-                        link: '/parametrage/etablissement',
-                        parentId: 6
-                    },
-                    {
-                        id: 8,
-                        label: 'Points de vente',
-                        link: '/parametrage/point-vente',
-                        parentId: 6
-                    },
-                ]
-            },
-            {
-                id: 9,
-                label: 'Gestion Menu',
-                link: '/ecommerce/products',
-                parentId: 5,
-                subItems: [
-
                     {
                         id: 10,
-                        label: 'Section',
-                        link: '/ecommerce/products',
-                        parentId: 9
+                        label: 'Etablissement',
+                        link: '/parametrage/etablissement',
+                        parentId: 8
                     },
                     {
                         id: 11,
-                        label: 'Menu',
-                        link: '/ecommerce/products',
-                        parentId: 9
-                    },
-                    {
-                        id: 12,
-                        label: 'Sous-Menu',
-                        link: '/ecommerce/products',
-                        parentId: 9
+                        label: 'Points de vente',
+                        link: '/parametrage/point-vente',
+                        parentId: 8
                     },
                 ]
             },
             {
-                id: 13,
-                label: 'Gestion Utilisateurs',
+                id: 12,
+                label: 'Gestion Menu',
                 link: '/ecommerce/products',
-                parentId: 5,
+                parentId: 7,
                 subItems: [
-
+                    {
+                        id: 13,
+                        label: 'Section',
+                        link: '/ecommerce/products',
+                        parentId: 12
+                    },
                     {
                         id: 14,
-                        label: 'Rôles',
+                        label: 'Menu',
                         link: '/ecommerce/products',
-                        parentId: 13
+                        parentId: 12    
                     },
                     {
                         id: 15,
-                        label: 'Utilisateur',
+                        label: 'Sous-Menu',
                         link: '/ecommerce/products',
-                        parentId: 13
+                        parentId: 12
+                    },
+                ]
+            },
+            {
+                id: 16,
+                label: 'Gestion Utilisateurs',
+                link: '/ecommerce/products',
+                parentId: 7,
+                subItems: [
+
+                    {
+                        id: 17,
+                        label: 'Rôles',
+                        link: '/ecommerce/products',
+                        parentId: 16
                     },
                     {
-                        id: 16,
+                        id: 18,
+                        label: 'Utilisateur',
+                        link: '/ecommerce/products',
+                        parentId: 16
+                    },
+                    {
+                        id: 19,
                         label: 'Privilèges',
                         link: '/ecommerce/products',
-                        parentId: 13
+                        parentId: 16
                     },
                 ]
             },
