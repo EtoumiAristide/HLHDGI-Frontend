@@ -4,6 +4,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { UIModule } from 'src/app/shared/ui/ui.module';
 import { StatistiquesRoutingModule } from './statistiques-routing.module';
 import { TimbresComponent } from './timbres/timbres.component';
+import { NgSelectModule } from '@ng-select/ng-select';
 
 @NgModule({
   declarations: [
@@ -14,7 +15,8 @@ import { TimbresComponent } from './timbres/timbres.component';
     FormsModule,
     ReactiveFormsModule,
     UIModule,
-    StatistiquesRoutingModule
+    StatistiquesRoutingModule,
+    NgSelectModule
   ]
 })
 export class StatistiquesModule { }

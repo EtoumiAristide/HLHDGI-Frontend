@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ApiPaginatedResponse } from 'src/app/shared/model/api-response.model';
-import { StatistiquesService, TimbreFacture, TimbresResponse } from '../services/statistiques.service';
+import { StatistiquesService, TimbreFacture, TimbresResponse, TimbresTotauxResponse } from '../services/statistiques.service';
 import { environment } from 'src/environments/environment';
+import { PointVenteService } from '../../admin/pointvente/services/pointvente.service';
+import { PointVente } from '../../admin/pointvente/models/pointvente.model';
 
 @Component({
   selector: 'app-timbres',
@@ -23,20 +25,128 @@ export class TimbresComponent implements OnInit {
   pageNum = 0;
   apiResponse: ApiPaginatedResponse<TimbreFacture> = new ApiPaginatedResponse();
 
+  listePointVente: any[] = [];
+  showTimbresTotaux = false;
+  timbresTotaux: Array<{
+    moyenDePaiement: string;
+    mois: string;
+    moisFormate: string;
+    pointDeVente: string;
+    totalTickets: number;
+    totalMontant: number;
+    nombreFactures: number;
+    rowSpanMois?: number;
+    rowSpanPointDeVente?: number;
+    showMoisCell?: boolean;
+    showPointDeVenteCell?: boolean;
+  }> = [];
+
   constructor(
     private fb: FormBuilder,
-    private statistiquesService: StatistiquesService
+    private statistiquesService: StatistiquesService,
+    private _pointVenteApi: PointVenteService,
   ) {
     const now = new Date();
     const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
     this.timbresForm = this.fb.group({
       //numcc: ['', [Validators.required]],
       dateDebut: [this.toDateInputValue(firstDay), Validators.required],
-      dateFin: [this.toDateInputValue(now), Validators.required]
+      dateFin: [this.toDateInputValue(now), Validators.required],
+      pointDeVente: [null]
     });
   }
 
   ngOnInit(): void {
+    this.chargerPointVente()
+  }
+
+  private formateMoisFrancais(moisString: string): { date: Date; formate: string } {
+    // Format: "01 2026" -> "Janvier 2026"
+    const [mois, annee] = moisString.trim().split(' ');
+    const moisNum = parseInt(mois, 10);
+    const anneeNum = parseInt(annee, 10);
+    
+    const moisNoms = [
+      'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+      'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
+    ];
+    
+    const moisFormate = `${moisNoms[moisNum - 1]} ${annee}`;
+    const date = new Date(anneeNum, moisNum - 1, 1);
+    
+    return { date, formate: moisFormate };
+  }
+
+  private transformeTotaux(data: any): any[] {
+    const totals: any[] = [];
+    Object.keys(data).forEach(mois => {
+      const points = data[mois] || {};
+      Object.keys(points).forEach((pointDeVente) => {
+        const methods = points[pointDeVente] || {};
+        Object.keys(methods).forEach((methode) => {
+          const { date, formate } = this.formateMoisFrancais(mois);
+          totals.push({
+            ...methods[methode],
+            mois,
+            moisFormate: formate,
+            pointDeVente,
+            dateForSort: date
+          });
+        });
+      });
+    });
+
+    // Trier par date
+    const sortedTotals = totals.sort((a, b) => a.dateForSort.getTime() - b.dateForSort.getTime());
+
+    const monthCounts: { [mois: string]: number } = {};
+    const pointCounts: { [key: string]: number } = {};
+
+    sortedTotals.forEach(item => {
+      monthCounts[item.mois] = (monthCounts[item.mois] || 0) + 1;
+      const pointKey = `${item.mois}|||${item.pointDeVente}`;
+      pointCounts[pointKey] = (pointCounts[pointKey] || 0) + 1;
+    });
+
+    const seenMonths = new Set<string>();
+    const seenPoints = new Set<string>();
+
+    return sortedTotals.map(item => {
+      const monthKey = item.mois;
+      const pointKey = `${item.mois}|||${item.pointDeVente}`;
+      const showMoisCell = !seenMonths.has(monthKey);
+      const showPointCell = !seenPoints.has(pointKey);
+
+      if (showMoisCell) {
+        seenMonths.add(monthKey);
+      }
+      if (showPointCell) {
+        seenPoints.add(pointKey);
+      }
+
+      return {
+        ...item,
+        rowSpanMois: showMoisCell ? monthCounts[monthKey] : 0,
+        rowSpanPointDeVente: showPointCell ? pointCounts[pointKey] : 0,
+        showMoisCell,
+        showPointDeVenteCell: showPointCell
+      };
+    });
+  }
+
+  toggleRecap(): void {
+    this.showTimbresTotaux = !this.showTimbresTotaux;
+  }
+
+  calculerTotaux(): { totalTickets: number; totalMontant: number; nombreFactures: number } {
+    return this.timbresTotaux.reduce(
+      (acc, item) => ({
+        totalTickets: acc.totalTickets + (item.totalTickets || 0),
+        totalMontant: acc.totalMontant + (item.totalMontant || 0),
+        nombreFactures: acc.nombreFactures + (item.nombreFactures || 0)
+      }),
+      { totalTickets: 0, totalMontant: 0, nombreFactures: 0 }
+    );
   }
 
   private toDateInputValue(date: Date): string {
@@ -56,12 +166,26 @@ export class TimbresComponent implements OnInit {
     this.errorMessage = '';
     this.currentPage = page;
 
+    const selectedPointVenteId = this.timbresForm.value.pointDeVente;
+    let pointVenteName: string | null = null;
+    if (selectedPointVenteId !== null && selectedPointVenteId !== undefined) {
+      const found = this.listePointVente.find(p => p.id === selectedPointVenteId);
+      pointVenteName = found ? found.nom : null;
+    }
+
     const payload = {
       //numcc: this.timbresForm.value.numcc,
       dateDebut: this.timbresForm.value.dateDebut,
-      dateFin: this.timbresForm.value.dateFin
+      dateFin: this.timbresForm.value.dateFin,
+      // optional: send the point de vente name (null when "Tous" selected)
+      pointDeVente: pointVenteName,
     };
 
+    this.chargerTimbres(payload, page);
+    this.chargerTotauxTimbres(payload);
+  }
+
+  private chargerTimbres(payload: any, page: number): void {
     this.statistiquesService.getTimbres(payload, { page: page, size: this.pageSize }).subscribe({
       next: (response: TimbresResponse) => {
         this.apiResponse = response as ApiPaginatedResponse<TimbreFacture>;
@@ -86,6 +210,33 @@ export class TimbresComponent implements OnInit {
     });
   }
 
+  private chargerTotauxTimbres(payload: any): void {
+    this.statistiquesService.getTotauxTimbres(payload).subscribe({
+      next: (response: TimbresTotauxResponse) => {
+        this.timbresTotaux = this.transformeTotaux(response.data || {});
+      },
+      error: (error) => {
+        console.error('Erreur API totaux timbres:', error);
+      }
+    });
+  }
+
+  chargerPointVente() {
+    // this._pointVenteApi.getAll().subscribe({
+    this._pointVenteApi.getAllByEntreprise().subscribe({
+      next: (response: any) => {
+        const data = response && response.data ? response.data : [];
+        // Prepend the "Tous" option which should map to null when selected
+        this.listePointVente = [{ id: null, nom: 'Tous' }, ...data];
+
+        //this.chargerEtablissement()
+      },
+      error: (err: any) => {
+        console.log(err);
+      },
+    });
+  }
+
   onSearch(): void {
     this.resetPagination();
     this.rechercher(0);
@@ -97,6 +248,8 @@ export class TimbresComponent implements OnInit {
     this.totalItems = 0;
     this.pageNum = 0;
     this.timbres = [];
+    this.timbresTotaux = [];
+    this.showTimbresTotaux = false;
     this.apiResponse = new ApiPaginatedResponse();
   }
 
@@ -111,7 +264,22 @@ export class TimbresComponent implements OnInit {
       }
     }
 
-    this.rechercher(this.pageNum);
+    // Récupérer le payload sans appeler l'API totaux
+    const selectedPointVenteId = this.timbresForm.value.pointDeVente;
+    let pointVenteName: string | null = null;
+    if (selectedPointVenteId !== null && selectedPointVenteId !== undefined) {
+      const found = this.listePointVente.find(p => p.id === selectedPointVenteId);
+      pointVenteName = found ? found.nom : null;
+    }
+
+    const payload = {
+      dateDebut: this.timbresForm.value.dateDebut,
+      dateFin: this.timbresForm.value.dateFin,
+      pointDeVente: pointVenteName,
+    };
+
+    this.loading = true;
+    this.chargerTimbres(payload, this.pageNum);
   }
 
   exportCsv(): void {
@@ -134,9 +302,17 @@ export class TimbresComponent implements OnInit {
     this.loading = true;
     this.errorMessage = '';
 
+    const selectedPointVenteId = this.timbresForm.value.pointDeVente;
+    let pointVenteName: string | null = null;
+    if (selectedPointVenteId !== null && selectedPointVenteId !== undefined) {
+      const found = this.listePointVente.find(p => p.id === selectedPointVenteId);
+      pointVenteName = found ? found.nom : null;
+    }
+
     const payload = {
       dateDebut: this.timbresForm.value.dateDebut,
-      dateFin: this.timbresForm.value.dateFin
+      dateFin: this.timbresForm.value.dateFin,
+      pointDeVente: pointVenteName
     };
 
     this.statistiquesService.exportTimbres(payload).subscribe({

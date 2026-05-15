@@ -24,6 +24,25 @@ export interface TimbresResponse {
   status: boolean;
 }
 
+export interface TimbresTotauxResponse {
+  data: {
+    [mois: string]: {
+      [pointDeVente: string]: {
+        [moyenDePaiement: string]: {
+          moyenDePaiement: string;
+          mois: string;
+          pointDeVente: string;
+          totalTickets: number;
+          totalMontant: number;
+          nombreFactures: number;
+        };
+      };
+    };
+  };
+  message: string;
+  status: boolean;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -33,6 +52,10 @@ export class StatistiquesService {
 
   getTimbres(data: any, paginationData: any): Observable<TimbresResponse> {
     return this.apiRequestService.postPaginate({ endpoint: url_path.STATS_TIMBRE_EP, data: JSON.stringify(data), paginationData: paginationData });
+  }
+
+  getTotauxTimbres(data: any): Observable<TimbresTotauxResponse> {
+    return this.apiRequestService.post({ endpoint: url_path.STATS_TIMBRE_TOTAL_EP, data: JSON.stringify(data) });
   }
 
   exportTimbres(data: any): Observable<Blob> {

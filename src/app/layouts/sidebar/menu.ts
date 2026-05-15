@@ -34,7 +34,7 @@ export const MENU: MenuItem[] = [
         id: 5,
         label: 'Statistiques',
         icon: 'bx-chart',
-        // roles: ['Admin', 'Super-Admin'],   // 👈 ROLE REQUIS
+        roles: ['Stats'],   // 👈 ROLE REQUIS
         subItems: [
             {
                 id: 6,
