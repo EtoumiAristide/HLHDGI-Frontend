@@ -65,15 +65,15 @@ export class TimbresComponent implements OnInit {
     const [mois, annee] = moisString.trim().split(' ');
     const moisNum = parseInt(mois, 10);
     const anneeNum = parseInt(annee, 10);
-    
+
     const moisNoms = [
       'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
       'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
     ];
-    
+
     const moisFormate = `${moisNoms[moisNum - 1]} ${annee}`;
     const date = new Date(anneeNum, moisNum - 1, 1);
-    
+
     return { date, formate: moisFormate };
   }
 
@@ -181,11 +181,11 @@ export class TimbresComponent implements OnInit {
       pointDeVente: pointVenteName,
     };
 
-    this.chargerTimbres(payload, page);
-    this.chargerTotauxTimbres(payload);
+    this.chargerTimbres(payload, page, true);
+    // this.chargerTotauxTimbres(payload);
   }
 
-  private chargerTimbres(payload: any, page: number): void {
+  private chargerTimbres(payload: any, page: number, loadTimbre: boolean = false): void {
     this.statistiquesService.getTimbres(payload, { page: page, size: this.pageSize }).subscribe({
       next: (response: TimbresResponse) => {
         this.apiResponse = response as ApiPaginatedResponse<TimbreFacture>;
@@ -194,7 +194,12 @@ export class TimbresComponent implements OnInit {
         this.totalItems = response.total_items || 0;
         this.currentPage = response.current_page || 0;
         this.pageSize = response.page_size || 10;
-        this.loading = false;
+
+        if (loadTimbre) {
+          this.chargerTotauxTimbres(payload);
+        } else {
+          this.loading = false;
+        }
       },
       error: (error) => {
         this.loading = false;
@@ -214,8 +219,11 @@ export class TimbresComponent implements OnInit {
     this.statistiquesService.getTotauxTimbres(payload).subscribe({
       next: (response: TimbresTotauxResponse) => {
         this.timbresTotaux = this.transformeTotaux(response.data || {});
+
+        this.loading = false;
       },
       error: (error) => {
+        this.loading = false;
         console.error('Erreur API totaux timbres:', error);
       }
     });
