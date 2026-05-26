@@ -1,380 +1,458 @@
 <div class="container-fluid">
-  <app-page-title
-    title="Dashboard"
-    [breadcrumbItems]="breadCrumbItems"
-  ></app-page-title>
+  <app-page-title title="Dashboard" [breadcrumbItems]="breadCrumbItems"></app-page-title>
 
-  @if(1>2){
-  <div class="row">
-    <div class="col-lg-12">
-      <div class="card">
-        <div class="card-body">
-          <div class="row">
-            <div class="col-lg-4">
-              <div class="d-flex">
-                <div class="flex-shrink-0 me-3">
-                  <img
-                    src="assets/images/verification-img.png"
-                    alt=""
-                    class="avatar-md rounded-circle img-thumbnail"
-                  />
-                </div>
-                <div class="flex-grow-1 align-self-center">
-                  <div class="text-muted">
-                    <p class="mb-2">Bienvenue sur votre Dashboard</p>
-                    <h5 class="mb-1">Nom Entreprise</h5>
-                    <p class="mb-0">N° NCC</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-lg-8 align-self-center">
-              <div class="text-lg-center mt-4 mt-lg-0">
-                <div class="row">
-                  <div class="col-4">
-                    <div>
-                      <p class="mb-2">Total Etablissements</p>
-                      <h5 class="mb-0">--</h5>
-                    </div>
-                  </div>
-                  <div class="col-4">
-                    <div>
-                      <p class="mb-2">Total Points de vente</p>
-                      <h5 class="mb-0">--</h5>
-                    </div>
-                  </div>
-                  <div class="col-4">
-                    <div>
-                      <p class="mb-2">Total Sticker</p>
-                      <h5 class="mb-0">--</h5>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <!-- end row -->
-        </div>
-      </div>
-    </div>
-  </div>
-
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       FILTRES
+  ════════════════════════════════════════════════════════════════════════ -->
   <div class="row">
     <div class="col-xl-12">
       <div class="card">
         <div class="card-body">
-          <h4 class="card-title mb-4">Critère de recherche</h4>
-          <div class="row">
+          <h4 class="card-title mb-4">
+            <i class="bx bx-filter-alt me-1 text-primary"></i>
+            Critères de recherche
+          </h4>
+          <div class="row align-items-end">
+
             @if (isSuperAdmin) {
               <div class="col-lg-3 col-md-4 col-sm-6">
                 <div class="mb-3">
-                  <label for="formrow-inputState">Entreprises</label>
-                  <select
-                    id="formrow-inputState"
-                    class="form-select"
-                    [(ngModel)]="organisationSelection"
-                    (change)="loadEtablissements()"
-                  >
-                    <option [ngValue]="0" selected>...</option>
-                    @for (organisation of organisations; track organisation) {
-                      <option value="{{ organisation.id }}">
-                        {{ organisation.raisonSocial }}
-                      </option>
+                  <label class="form-label">Entreprise</label>
+                  <select class="form-select" [(ngModel)]="organisationSelection" (change)="loadEtablissements()">
+                    <option [ngValue]="0">— Toutes —</option>
+                    @for (o of organisations; track o.id) {
+                      <option [value]="o.id">{{ o.raisonSocial }}</option>
                     }
                   </select>
                 </div>
               </div>
             }
+
             @if (isSuperAdmin || isAdmin) {
               <div class="col-lg-3 col-md-4 col-sm-6">
                 <div class="mb-3">
-                  <label for="formrow-inputState">Etablissements</label>
-                  <select
-                    id="formrow-inputState"
-                    class="form-select"
-                    [(ngModel)]="etablissementSelection"
-                    (change)="loadPointsVente()"
-                  >
-                    <option [ngValue]="0" selected>...</option>
-                    @for (
-                      etablissement of etablissements;
-                      track etablissement
-                    ) {
-                      <option value="{{ etablissement.id }}">
-                        {{ etablissement.nom }}
-                      </option>
+                  <label class="form-label">Établissement</label>
+                  <select class="form-select" [(ngModel)]="etablissementSelection" (change)="loadPointsVente()">
+                    <option [ngValue]="0">— Tous —</option>
+                    @for (e of etablissements; track e.id) {
+                      <option [value]="e.id">{{ e.nom }}</option>
                     }
                   </select>
                 </div>
               </div>
             }
-            <div class="col-lg-3 col-md-4 col-sm-6">
+
+            <div class="col-lg-2 col-md-4 col-sm-6">
               <div class="mb-3">
-                <label for="formrow-inputState">Points de vente</label>
-                <select
-                  id="formrow-inputState"
-                  class="form-select"
-                  [(ngModel)]="poinventeSelection"
-                >
-                  <option [ngValue]="0" selected>...</option>
-                  @for (pointVente of pointsVentes; track $index) {
-                    <option value="{{ pointVente.id }}">
-                      {{ pointVente.nom }}
-                    </option>
+                <label class="form-label">Point de vente</label>
+                <select class="form-select" [(ngModel)]="poinventeSelection">
+                  <option [ngValue]="0">— Tous —</option>
+                  @for (p of pointsVentes; track p.id) {
+                    <option [value]="p.id">{{ p.nom }}</option>
                   }
                 </select>
               </div>
             </div>
-            <div class="col-lg-3 col-md-4 col-sm-6">
+
+            <div class="col-lg-2 col-md-4 col-sm-6">
               <div class="mb-3">
-                <label for="formrow-inputCity">Nom du client</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  [(ngModel)]="clientSearch"
-                  id="formrow-inputCity"
-                  placeholder="Entrer le nom d'un client"
-                />
-              </div>
-            </div>
-            <div class="col-lg-1 col-md-4 col-sm-6">
-              <div class="mb-3">
-                <label for="formrow-inputState">Année</label>
-                <select
-                  id="formrow-inputState"
-                  class="form-control"
-                  [(ngModel)]="anneeSelection"
-                >
-                  <option selected>Choisir...</option>
-                  @for (year of anneesExercice; track year) {
-                    <option value="{{ year }}">{{ year }}</option>
+                <label class="form-label">Année</label>
+                <select class="form-select" [(ngModel)]="anneeSelection">
+                  @for (y of anneesExercice; track y) {
+                    <option [value]="y">{{ y }}</option>
                   }
                 </select>
               </div>
             </div>
-            <div class="col-lg-1 col-md-4 col-sm-6">
-              <div class="mt-4">
-                <button
-                  type="button"
-                  class="btn btn-primary w-md"
-                  (click)="loadDashboard()"
-                >
-                  <i
-                    class="fa"
-                    [ngClass]="{
-                      'fa-spin fa-spinner': loadingBtn,
-                      'fa-check': !loadingBtn,
-                    }"
-                  ></i>
-                  {{ textButton }}
+
+            <div class="col-lg-2 col-md-4 col-sm-6">
+              <div class="mb-3">
+                <label class="form-label">Client</label>
+                <input type="text" class="form-control" [(ngModel)]="clientSearch" placeholder="Nom du client..." />
+              </div>
+            </div>
+
+            <div class="col-lg-2 col-md-4 col-sm-6">
+              <div class="mb-3">
+                <button type="button" class="btn btn-primary w-100" (click)="loadDashboard()">
+                  <i class="fa" [ngClass]="{ 'fa-spin fa-spinner': loadingBtn, 'fa-search': !loadingBtn }"></i>
+                  <span class="ms-1 d-none d-xl-inline">{{ textButton }}</span>
                 </button>
               </div>
             </div>
+
           </div>
         </div>
       </div>
     </div>
   </div>
 
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       ÉTAT VIDE
+  ════════════════════════════════════════════════════════════════════════ -->
+  @if (!hasData) {
+    <div class="row">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-body text-center py-5">
+            <i class="bx bx-bar-chart-alt-2 text-muted" style="font-size: 4rem;"></i>
+            <h5 class="text-muted mt-3">Aucune donnée à afficher</h5>
+            <p class="text-muted">Sélectionnez vos critères et cliquez sur <strong>Rechercher</strong> pour charger les statistiques.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       KPI CARDS
+  ════════════════════════════════════════════════════════════════════════ -->
+  @if (hasData) {
+
+  <div class="row">
+
+    <!-- Revenue Net -->
+    <div class="col-xl-3 col-sm-6">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="d-flex align-items-center mb-3">
+            <div class="avatar-sm me-3">
+              <span class="avatar-title rounded-circle bg-primary text-white font-size-20">
+                <i class="bx bx-trending-up"></i>
+              </span>
+            </div>
+            <div>
+              <p class="text-muted mb-0 font-size-12">CHIFFRE D'AFFAIRES NET</p>
+              <h6 class="mb-0 text-primary">Année {{ anneeSelection }}</h6>
+            </div>
+          </div>
+          <h4 class="mb-1 font-size-22 fw-bold">{{ formatFCFA(totalRevenu) }}</h4>
+          <p class="mb-0 text-muted font-size-12">
+            <span class="text-muted">FCFA</span>
+          </p>
+        </div>
+        <div class="card-footer bg-transparent border-0 pt-0">
+          <div class="d-flex justify-content-between font-size-11 text-muted">
+            <span>Ventes + Achats − Avoirs</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ventes -->
+    <div class="col-xl-3 col-sm-6">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="d-flex align-items-center mb-3">
+            <div class="avatar-sm me-3">
+              <span class="avatar-title rounded-circle bg-primary-subtle text-primary font-size-20">
+                <i class="bx bx-store"></i>
+              </span>
+            </div>
+            <div>
+              <p class="text-muted mb-0 font-size-12">VENTES</p>
+              <h6 class="mb-0">Factures de vente</h6>
+            </div>
+          </div>
+          <h4 class="mb-1 font-size-22 fw-bold">{{ formatFCFA(totalVente) }}</h4>
+          <p class="mb-0 font-size-12">
+            <span class="badge bg-primary-subtle text-primary">{{ percentSale | number:'1.1-1' }} % du total</span>
+          </p>
+        </div>
+        <div class="card-footer bg-transparent border-0 pt-0">
+          <div class="progress" style="height:4px;">
+            <div class="progress-bar bg-primary" [style.width]="percentSale + '%'"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bordereau Achat -->
+    <div class="col-xl-3 col-sm-6">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="d-flex align-items-center mb-3">
+            <div class="avatar-sm me-3">
+              <span class="avatar-title rounded-circle bg-success-subtle text-success font-size-20">
+                <i class="bx bx-package"></i>
+              </span>
+            </div>
+            <div>
+              <p class="text-muted mb-0 font-size-12">BORDEREAU D'ACHAT</p>
+              <h6 class="mb-0">Factures d'achat</h6>
+            </div>
+          </div>
+          <h4 class="mb-1 font-size-22 fw-bold">{{ formatFCFA(totalAchat) }}</h4>
+          <p class="mb-0 font-size-12">
+            <span class="badge bg-success-subtle text-success">{{ percentPurchase | number:'1.1-1' }} % du total</span>
+          </p>
+        </div>
+        <div class="card-footer bg-transparent border-0 pt-0">
+          <div class="progress" style="height:4px;">
+            <div class="progress-bar bg-success" [style.width]="percentPurchase + '%'"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Avoirs -->
+    <div class="col-xl-3 col-sm-6">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="d-flex align-items-center mb-3">
+            <div class="avatar-sm me-3">
+              <span class="avatar-title rounded-circle bg-danger-subtle text-danger font-size-20">
+                <i class="bx bx-undo"></i>
+              </span>
+            </div>
+            <div>
+              <p class="text-muted mb-0 font-size-12">AVOIRS</p>
+              <h6 class="mb-0">Notes de crédit</h6>
+            </div>
+          </div>
+          <h4 class="mb-1 font-size-22 fw-bold">{{ formatFCFA(totalAvoir) }}</h4>
+          <p class="mb-0 font-size-12">
+            <span class="badge bg-danger-subtle text-danger">{{ percentAvoir | number:'1.1-1' }} % du total</span>
+          </p>
+        </div>
+        <div class="card-footer bg-transparent border-0 pt-0">
+          <div class="progress" style="height:4px;">
+            <div class="progress-bar bg-danger" [style.width]="percentAvoir + '%'"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end row KPI -->
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       LIGNE 2 : Donut + Area CA
+  ════════════════════════════════════════════════════════════════════════ -->
+  <div class="row">
+
+    <!-- Donut répartition -->
+    <div class="col-xl-4">
+      <div class="card shadow-sm" style="min-height:380px;">
+        <div class="card-body">
+          <h4 class="card-title mb-1">Répartition des flux</h4>
+          <p class="text-muted font-size-12 mb-3">Ventes · Achats · Avoirs — {{ anneeSelection }}</p>
+
+          <apx-chart
+            class="apex-charts"
+            dir="ltr"
+            [series]="donutChart.series"
+            [chart]="donutChart.chart"
+            [colors]="donutChart.colors"
+            [plotOptions]="donutChart.plotOptions"
+            [legend]="donutChart.legend"
+            [labels]="donutChart.labels"
+            [dataLabels]="donutChart.dataLabels"
+            [tooltip]="donutChart.tooltip">
+          </apx-chart>
+
+          <!-- Légende enrichie -->
+          <div class="row text-center mt-2">
+            <div class="col-4">
+              <p class="mb-1 font-size-11 text-muted"><i class="mdi mdi-circle text-primary me-1"></i>Ventes</p>
+              <h6 class="mb-0 font-size-13">{{ percentSale | number:'1.1-1' }}%</h6>
+            </div>
+            <div class="col-4">
+              <p class="mb-1 font-size-11 text-muted"><i class="mdi mdi-circle text-success me-1"></i>Achats</p>
+              <h6 class="mb-0 font-size-13">{{ percentPurchase | number:'1.1-1' }}%</h6>
+            </div>
+            <div class="col-4">
+              <p class="mb-1 font-size-11 text-muted"><i class="mdi mdi-circle text-danger me-1"></i>Avoirs</p>
+              <h6 class="mb-0 font-size-13">{{ percentAvoir | number:'1.1-1' }}%</h6>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Area CA net + carte meilleur mois -->
+    <div class="col-xl-8">
+      <div class="row h-100">
+
+        <!-- Meilleur mois -->
+        <div class="col-md-4">
+          <div class="card shadow-sm bg-primary text-white mb-3" style="min-height:160px;">
+            <div class="card-body d-flex flex-column justify-content-between">
+              <div>
+                <p class="mb-1 font-size-12 opacity-75">MEILLEUR MOIS</p>
+                <h4 class="fw-bold mb-0">{{ meilleurMois }}</h4>
+                <p class="font-size-11 opacity-75 mb-0">{{ anneeSelection }}</p>
+              </div>
+              <div>
+                <p class="mb-0 font-size-12 opacity-75">CA net</p>
+                <h5 class="fw-bold mb-0">{{ formatFCFA(meilleurMoisMontant) }}</h5>
+                <small class="opacity-75">FCFA</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="card shadow-sm mb-3">
+            <div class="card-body text-center py-3">
+              <i class="bx bx-file text-warning font-size-28"></i>
+              <p class="text-muted font-size-11 mt-1 mb-1">TOTAL FLUX BRUT</p>
+              <h6 class="fw-bold mb-0">{{ formatFCFA(totalVente + totalAchat + totalAvoir) }}</h6>
+              <small class="text-muted">FCFA</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Area chart -->
+        <div class="col-md-8">
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title mb-1">Évolution du CA net</h5>
+              <p class="text-muted font-size-12 mb-2">Mensuel — {{ anneeSelection }}</p>
+              <apx-chart
+                class="apex-charts"
+                dir="ltr"
+                [series]="areaChart.series"
+                [chart]="areaChart.chart"
+                [colors]="areaChart.colors"
+                [dataLabels]="areaChart.dataLabels"
+                [stroke]="areaChart.stroke"
+                [fill]="areaChart.fill"
+                [xaxis]="areaChart.xaxis"
+                [yaxis]="areaChart.yaxis"
+                [tooltip]="areaChart.tooltip"
+                [grid]="areaChart.grid">
+              </apx-chart>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- end row Donut + Area -->
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       LIGNE 3 : Bar chart mensuel
+  ════════════════════════════════════════════════════════════════════════ -->
   <div class="row">
     <div class="col-xl-12">
-      <div class="row">
-        <div class="col-sm-3">
-          <div class="card">
-            <div class="card-body">
-              <div class="d-flex align-items-center mb-3">
-                <div class="avatar-xs me-3">
-                  <span
-                    class="avatar-title rounded-circle bg-primary-subtle text-primary font-size-18"
-                  >
-                    <i class="bx bx-copy-alt"></i>
-                  </span>
-                </div>
-                <h5 class="font-size-14 mb-0">Revenue</h5>
-              </div>
-              <div class="text-muted mt-4">
-                <h4>
-                  {{
-                    (dashboadData?.totalRevenue | number: "1.2-2" : "fr-FR") ||
-                      0
-                  }}
-                  <i class="mdi mdi-chevron-up ms-1 text-success"></i>
-                </h4>
-                <div class="d-flex">
-                  <span class="badge badge-soft-success font-size-12">
-                    FCFA
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-sm-3">
-          <div class="card">
-            <div class="card-body">
-              <div class="d-flex align-items-center mb-3">
-                <div class="avatar-xs me-3">
-                  <span
-                    class="avatar-title rounded-circle bg-primary-subtle text-primary font-size-18"
-                  >
-                    <i class="bx bx-copy-alt"></i>
-                  </span>
-                </div>
-                <h5 class="font-size-14 mb-0">Vente</h5>
-              </div>
-              <div class="text-muted mt-4">
-                <h4>
-                  {{
-                    (dashboadData?.totalSale | number: "1.2-2" : "fr-FR") || 0
-                  }}
-                  <i class="mdi mdi-chevron-up ms-1 text-success"></i>
-                </h4>
-                <div class="d-flex">
-                  <span class="badge badge-soft-success font-size-12">
-                    FCFA
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-sm-3">
-          <div class="card">
-            <div class="card-body">
-              <div class="d-flex align-items-center mb-3">
-                <div class="avatar-xs me-3">
-                  <span
-                    class="avatar-title rounded-circle bg-primary-subtle text-primary font-size-18"
-                  >
-                    <i class="bx bx-archive-in"></i>
-                  </span>
-                </div>
-                <h5 class="font-size-14 mb-0">Bordereau d'achat</h5>
-              </div>
-              <div class="text-muted mt-4">
-                <h4>
-                  {{ (dashboadData?.totalPurchase | number: "1.2-2" : "fr-FR") || 0 }}
-                  <i class="mdi mdi-chevron-up ms-1 text-success"></i>
-                </h4>
-                <div class="d-flex">
-                  <span class="badge badge-soft-success font-size-12">
-                    FCFA
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-sm-3">
-          <div class="card">
-            <div class="card-body">
-              <div class="d-flex align-items-center mb-3">
-                <div class="avatar-xs me-3">
-                  <span
-                    class="avatar-title rounded-circle bg-primary-subtle text-primary font-size-18"
-                  >
-                    <i class="bx bx-purchase-tag-alt"></i>
-                  </span>
-                </div>
-                <h5 class="font-size-14 mb-0">Avoirs</h5>
-              </div>
-              <div class="text-muted mt-4">
-                <h4>
-                  {{ (dashboadData?.totalAvoir | number: "1.2-2" : "fr-FR") || 0 }}
-                  <i class="mdi mdi-chevron-up ms-1 text-success"></i>
-                </h4>
-
-                <div class="d-flex">
-                  <span class="badge badge-soft-success font-size-12">
-                    FCFA
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- end row -->
-    </div>
-  </div>
-
-  <div class="row">
-    <div class="col-xl-4">
-      <div class="card">
+      <div class="card shadow-sm">
         <div class="card-body">
-          <h4 class="card-title mb-4">Sales Analytics</h4>
-
-          <div>
-            <apx-chart
-              class="apex-charts"
-              dir="ltr"
-              [series]="salesAnalyticsDonutChart.series"
-              [chart]="salesAnalyticsDonutChart.chart"
-              [colors]="salesAnalyticsDonutChart.colors"
-              [plotOptions]="salesAnalyticsDonutChart.plotOptions"
-              [legend]="salesAnalyticsDonutChart.legend"
-              [labels]="salesAnalyticsDonutChart.labels"
-            >
-            </apx-chart>
-          </div>
-
-          <div class="text-center text-muted">
-            <div class="row">
-              <div class="col-4">
-                <div class="mt-4">
-                  <p class="mb-2 text-truncate">
-                    <i class="mdi mdi-circle text-primary me-1"></i> Ventes
-                  </p>
-                  <h5>$ 2,132</h5>
-                </div>
-              </div>
-              <div class="col-4">
-                <div class="mt-4">
-                  <p class="mb-2 text-truncate">
-                    <i class="mdi mdi-circle text-success me-1"></i> Avoirs
-                  </p>
-                  <h5>$ 1,763</h5>
-                </div>
-              </div>
-              <div class="col-4">
-                <div class="mt-4">
-                  <p class="mb-2 text-truncate">
-                    <i class="mdi mdi-circle text-danger me-1"></i> Bordereau
-                    Achat
-                  </p>
-                  <h5>$ 973</h5>
-                </div>
-              </div>
+          <div class="d-flex align-items-center justify-content-between mb-1">
+            <div>
+              <h4 class="card-title mb-0">Comparatif mensuel</h4>
+              <p class="text-muted font-size-12">Ventes · Bordereau Achat · Avoirs — {{ anneeSelection }}</p>
             </div>
+            <span class="badge bg-primary-subtle text-primary font-size-12">FCFA</span>
           </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-xl-8">
-      <div class="card">
-        <div class="card-body">
           <apx-chart
-            dir="ltr"
-            #chart
             class="apex-charts"
-            [chart]="visitorsOptions.chart"
-            [series]="visitorsOptions.series"
-            [legend]="visitorsOptions.legend"
-            [colors]="visitorsOptions.colors"
-            [fill]="visitorsOptions.fill"
-            [dataLabels]="visitorsOptions.dataLabels"
-            [xaxis]="visitorsOptions.xaxis"
-            [stroke]="visitorsOptions.stroke"
-          >
+            dir="ltr"
+            [series]="barChart.series"
+            [chart]="barChart.chart"
+            [colors]="barChart.colors"
+            [plotOptions]="barChart.plotOptions"
+            [dataLabels]="barChart.dataLabels"
+            [stroke]="barChart.stroke"
+            [xaxis]="barChart.xaxis"
+            [yaxis]="barChart.yaxis"
+            [fill]="barChart.fill"
+            [tooltip]="barChart.tooltip"
+            [legend]="barChart.legend"
+            [grid]="barChart.grid">
           </apx-chart>
         </div>
       </div>
     </div>
   </div>
-}
-</div>
-<!-- container-fluid -->
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       LIGNE 4 : Tableau mensuel détaillé
+  ════════════════════════════════════════════════════════════════════════ -->
+  <div class="row">
+    <div class="col-xl-12">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h4 class="card-title mb-1">Détail mensuel</h4>
+          <p class="text-muted font-size-12 mb-3">Tous les flux par mois pour l'année {{ anneeSelection }}</p>
+          <div class="table-responsive">
+            <table class="table table-hover table-bordered align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Mois</th>
+                  <th class="text-end">Ventes (FCFA)</th>
+                  <th class="text-end">Bordereau Achat (FCFA)</th>
+                  <th class="text-end">Avoirs (FCFA)</th>
+                  <th class="text-end">CA Net (FCFA)</th>
+                  <th style="width:160px;">Progression</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of monthlyRows; track row.label; let i = $index) {
+                  <tr [class.table-active]="row.net === meilleurMoisMontant && row.net > 0">
+                    <td class="fw-medium">{{ row.label }}</td>
+                    <td class="text-end">
+                      @if (row.vente > 0) {
+                        <span class="text-primary">{{ row.vente | number:'1.0-0':'fr' }}</span>
+                      } @else {
+                        <span class="text-muted">—</span>
+                      }
+                    </td>
+                    <td class="text-end">
+                      @if (row.achat > 0) {
+                        <span class="text-success">{{ row.achat | number:'1.0-0':'fr' }}</span>
+                      } @else {
+                        <span class="text-muted">—</span>
+                      }
+                    </td>
+                    <td class="text-end">
+                      @if (row.avoir > 0) {
+                        <span class="text-danger">{{ row.avoir | number:'1.0-0':'fr' }}</span>
+                      } @else {
+                        <span class="text-muted">—</span>
+                      }
+                    </td>
+                    <td class="text-end fw-bold">
+                      @if (row.net > 0) {
+                        {{ row.net | number:'1.0-0':'fr' }}
+                      } @else {
+                        <span class="text-muted">—</span>
+                      }
+                    </td>
+                    <td>
+                      @if (meilleurMoisMontant > 0 && row.net > 0) {
+                        <div class="d-flex align-items-center gap-2">
+                          <div class="progress flex-grow-1" style="height:6px;">
+                            <div class="progress-bar bg-primary"
+                              [style.width]="((row.net / meilleurMoisMontant) * 100) + '%'">
+                            </div>
+                          </div>
+                          <small class="text-muted" style="min-width:32px;">
+                            {{ (row.net / meilleurMoisMontant * 100) | number:'1.0-0' }}%
+                          </small>
+                        </div>
+                      } @else {
+                        <span class="text-muted font-size-12">—</span>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+              <tfoot class="table-secondary fw-bold">
+                <tr>
+                  <td>TOTAUX</td>
+                  <td class="text-end text-primary">{{ formatFCFA(totalVente) }}</td>
+                  <td class="text-end text-success">{{ formatFCFA(totalAchat) }}</td>
+                  <td class="text-end text-danger">{{ formatFCFA(totalAvoir) }}</td>
+                  <td class="text-end">{{ formatFCFA(totalRevenu) }}</td>
+                  <td></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  }<!-- end @if(hasData) -->
+
+</div><!-- container-fluid -->

@@ -1,8 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { salesAnalyticsDonutChart } from './models/data';
+import { salesAnalyticsDonutChart, monthlyBarChart, revenueAreaChart } from './models/data';
 import { ChartType } from './models/saas.model';
-import { ChartType2 } from './models/blog.model';
-import { popularPostData, visitorsOptions } from './models/data.blog';
 import { Etablissement } from '../../admin/etablissement/models/etablissement.model';
 import { PointVente } from '../../admin/pointvente/models/pointvente.model';
 import { EtablissementService } from '../../admin/etablissement/services/etablissement.service';
@@ -21,38 +19,66 @@ import { btnFormState } from 'src/app/core-custom/constants/form-btn-state.const
 })
 export class DefaultComponent implements OnInit {
 
-  breadCrumbItems: Array<{}>;
+  breadCrumbItems?: Array<{}>;
 
+  // ── Filtres ────────────────────────────────────────────────────────────────
   organisations: Organisation[] = [];
   organisationSelection: number = 0;
 
   etablissements: Etablissement[] = [];
-  etablissementAgent: Etablissement | null = null
+  etablissementAgent: Etablissement | null = null;
   etablissementSelection: number = 0;
 
   pointsVentes: PointVente[] = [];
   poinventeSelection: number = 0;
 
   anneesExercice: any[] = [];
-  anneeSelection: number;
+  anneeSelection?: number;
   anneeActuelle: number = new Date().getFullYear();
+  clientSearch: string = '';
 
-  clientSearch: string = ''
+  // ── Données dashboard ──────────────────────────────────────────────────────
+  dashboadData: any = null;
+  hasData: boolean = false;
 
-  dashboadData!: any
+  // ── Indicateurs KPI calculés ───────────────────────────────────────────────
+  totalRevenu: number = 0;
+  totalVente: number = 0;
+  totalAchat: number = 0;
+  totalAvoir: number = 0;
+  percentSale: number = 0;
+  percentPurchase: number = 0;
+  percentAvoir: number = 0;
 
-  salesAnalyticsDonutChart: ChartType;
+  // Meilleur mois
+  meilleurMois: string = '--';
+  meilleurMoisMontant: number = 0;
 
-  textButton: string = btnFormState.load
+  // Mois courant (index 0–11)
+  private moisCourantIdx: number = new Date().getMonth();
+
+  // ── Charts ─────────────────────────────────────────────────────────────────
+  donutChart?: ChartType;
+  barChart?: ChartType;
+  areaChart?: ChartType;
+
+  // Données tabulaires mensuelles
+  monthlyRows: Array<{
+    label: string;
+    vente: number;
+    achat: number;
+    avoir: number;
+    net: number;
+  }> = [];
+
+  // ── UI ─────────────────────────────────────────────────────────────────────
+  textButton: string = btnFormState.load;
   loadingBtn: boolean = false;
-
-  // visitor chart
-  visitorsOptions: ChartType2;
-  popularPostData: any;
-
-
   isAdmin: boolean = false;
-  isSuperAdmin: boolean = false
+  isSuperAdmin: boolean = false;
+
+  private MOIS_LABELS = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+    'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
 
   constructor(
     private organisationService: OrganisationService,
@@ -61,139 +87,192 @@ export class DefaultComponent implements OnInit {
     private _keycloakService: KeycloakService,
     private dashboardService: DashboardApiServices
   ) {
-
     const roles = this._keycloakService.getUserRoles();
-
-    this.isAdmin = roles.includes('Admin')
-    this.isSuperAdmin = roles.includes('Super-Admin')
+    this.isAdmin = roles.includes('Admin');
+    this.isSuperAdmin = roles.includes('Super-Admin');
   }
 
   ngOnInit() {
     this.breadCrumbItems = [{ label: 'Dashboard', active: true }];
-
     this.loadAnneesExercice();
-    this.loadOrganisations()
-
-    this.salesAnalyticsDonutChart = salesAnalyticsDonutChart;
-
-    this.visitorsOptions = visitorsOptions;
-    this.popularPostData = popularPostData;
+    this.loadOrganisations();
+    this.initCharts();
   }
 
+  // ── Initialisation charts vides ────────────────────────────────────────────
+  private initCharts() {
+    this.donutChart = { ...salesAnalyticsDonutChart };
+    this.barChart = { ...monthlyBarChart };
+    this.areaChart = { ...revenueAreaChart };
+  }
+
+  // ── Chargement des listes de filtres ───────────────────────────────────────
   loadAnneesExercice() {
     this.anneeSelection = this.anneeActuelle;
-    for (let index = this.anneeActuelle; index >= 2025; index--) {
-      this.anneesExercice.push(index);
+    for (let y = this.anneeActuelle; y >= 2025; y--) {
+      this.anneesExercice.push(y);
     }
-
   }
 
   loadOrganisations() {
     this.organisationService.getAll().subscribe({
       next: (response) => {
-        this.organisations = response.data
-
-        this.loadEtablissementAgent()
+        this.organisations = response.data;
+        this.loadEtablissementAgent();
       },
-      error: (err) => {
-        console.error(err)
-      }
-    })
+      error: (err) => console.error(err)
+    });
   }
 
   loadEtablissements() {
-    this.etablissementSelection = 0
-    this.poinventeSelection = 0
-
+    this.etablissementSelection = 0;
+    this.poinventeSelection = 0;
     this.etablissementService.getAllByEntrepriseId(this.organisationSelection).subscribe({
       next: (response) => {
         this.etablissements = response.data;
-
         if (this.etablissementAgent != null) {
-          this.etablissementSelection = this.etablissementAgent.id
-
-          this.loadPointsVente()
+          this.etablissementSelection = this.etablissementAgent.id;
+          this.loadPointsVente();
         }
       },
-      error: (err) => {
-        console.error(err);
-      }
-    })
+      error: (err) => console.error(err)
+    });
   }
 
   loadEtablissementAgent() {
     this.etablissementService.getAllByKeycloakGroup().subscribe({
       next: (response) => {
-        // console.log(response);
-
         this.etablissementAgent = response.data;
-
         if (this.etablissementAgent != null) {
-          this.organisationSelection = this.etablissementAgent.organisation.id
-
-          this.loadEtablissements()
+          this.organisationSelection = this.etablissementAgent.organisation.id;
+          this.loadEtablissements();
         }
-
       },
-      error: (err) => {
-        console.error(err)
-      }
-    })
+      error: (err) => console.error(err)
+    });
   }
 
   loadPointsVente() {
     this.pointVenteService.getByEntreprise(this.etablissementSelection).subscribe({
-      next: (response) => {
-        this.pointsVentes = response.data;
-      },
-      error: (err) => {
-        console.error(err);
-      }
-    })
+      next: (response) => { this.pointsVentes = response.data; },
+      error: (err) => console.error(err)
+    });
   }
 
+  // ── Chargement du dashboard ────────────────────────────────────────────────
   loadDashboard() {
-    if (this.organisationSelection == 0 && this.etablissementSelection == 0 &&
-      this.poinventeSelection == 0 && this.clientSearch == '') {
-
+    if (this.organisationSelection === 0 && this.etablissementSelection === 0 &&
+      this.poinventeSelection === 0 && this.clientSearch === '') {
       Swal.fire({
         title: 'Aucun critère renseigné',
         text: 'Veuillez renseigner au moins 1 critère de recherche avant de continuer',
         confirmButtonText: 'OK'
-      })
-    } else {
-      this.changeFormElement()
-
-      let dataSend: any = {}
-      dataSend.annee = this.anneeSelection
-      dataSend.organisationId = this.organisationSelection
-      dataSend.etablissementId = this.etablissementSelection
-      dataSend.pointVenteId = this.poinventeSelection
-      dataSend.client = this.clientSearch
-
-      this.dashboardService.getDashboard(dataSend).subscribe({
-        next: (response) => {
-          this.dashboadData = response
-
-          console.log(this.dashboadData);
-          this.initFormElement()
-
-        },
-        error: (err) => {
-          this.initFormElement()
-          console.error(err)
-        }
-      })
+      });
+      return;
     }
+
+    this.loadingBtn = true;
+
+    const payload = {
+      annee: this.anneeSelection,
+      organisationId: this.organisationSelection,
+      etablissementId: this.etablissementSelection,
+      pointVenteId: this.poinventeSelection,
+      client: this.clientSearch
+    };
+
+    this.dashboardService.getDashboard(payload).subscribe({
+      next: (response: any) => {
+        this.dashboadData = response;
+        this.hasData = true;
+        this.processData(response);
+        this.initFormElement();
+      },
+      error: (err) => {
+        this.initFormElement();
+        console.error(err);
+      }
+    });
   }
 
-  changeFormElement() {
-    this.loadingBtn = true
+  // ── Traitement des données reçues ──────────────────────────────────────────
+  private processData(data: any) {
+    this.totalVente    = +data.totalSale     || 0;
+    this.totalAchat    = +data.totalPurchase || 0;
+    this.totalAvoir    = +data.totalAvoir    || 0;
+    this.totalRevenu   = +data.totalRevenue  || 0;
+    this.percentSale   = +data.percentSale   || 0;
+    this.percentPurchase = +data.percentPurchase || 0;
+    this.percentAvoir  = +data.percentAvoir  || 0;
+
+    const monthly: any[] = data.monthly || [];
+
+    // ── Donut chart ──────────────────────────────────────────────────────────
+    this.donutChart = {
+      ...salesAnalyticsDonutChart,
+      series: [this.totalVente, this.totalAchat, this.totalAvoir]
+    };
+
+    // ── Données mensuelles ───────────────────────────────────────────────────
+    const venteData    = Array(12).fill(0);
+    const achatData    = Array(12).fill(0);
+    const avoirData    = Array(12).fill(0);
+    const revenueData  = Array(12).fill(0);
+
+    monthly.forEach((m: any) => {
+      const idx = (m.month || 1) - 1;
+      venteData[idx]   = +m.sale     || 0;
+      achatData[idx]   = +m.purchase || 0;
+      avoirData[idx]   = +m.avoir    || 0;
+      revenueData[idx] = (venteData[idx] + achatData[idx]) - avoirData[idx];
+    });
+
+    // ── Bar chart mensuel ────────────────────────────────────────────────────
+    this.barChart = {
+      ...monthlyBarChart,
+      series: [
+        { name: 'Ventes',          data: venteData  },
+        { name: 'Bordereau Achat', data: achatData  },
+        { name: 'Avoirs',          data: avoirData  },
+      ]
+    };
+
+    // ── Area chart CA net ────────────────────────────────────────────────────
+    this.areaChart = {
+      ...revenueAreaChart,
+      series: [{ name: 'CA net', data: revenueData }]
+    };
+
+    // ── Tableau mensuel ──────────────────────────────────────────────────────
+    this.monthlyRows = this.MOIS_LABELS.map((label, i) => ({
+      label,
+      vente:  venteData[i],
+      achat:  achatData[i],
+      avoir:  avoirData[i],
+      net:    revenueData[i]
+    }));
+
+    // ── Meilleur mois ────────────────────────────────────────────────────────
+    let best = 0;
+    let bestIdx = -1;
+    revenueData.forEach((v, i) => { if (v > best) { best = v; bestIdx = i; } });
+    this.meilleurMois = bestIdx >= 0 ? this.MOIS_LABELS[bestIdx] : '--';
+    this.meilleurMoisMontant = best;
   }
 
-  initFormElement() {
-    this.textButton = btnFormState.load
-    this.loadingBtn = false
+  // ── UI helpers ─────────────────────────────────────────────────────────────
+  changeFormElement() { this.loadingBtn = true; }
+  initFormElement()   { this.textButton = btnFormState.load; this.loadingBtn = false; }
+
+  // ── Formatage FCFA ─────────────────────────────────────────────────────────
+  formatFCFA(val: number): string {
+    return new Intl.NumberFormat('fr-FR').format(val);
   }
 
+  // ── Couleur barre progression ──────────────────────────────────────────────
+  progressColorSale(pct: number): string {
+    if (pct >= 60) return 'bg-success';
+    if (pct >= 30) return 'bg-warning';
+    return 'bg-danger';
+  }
 }
