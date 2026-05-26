@@ -156,7 +156,7 @@ export class DefaultComponent implements OnInit {
     this.pointVenteService.getByEntreprise(this.etablissementSelection).subscribe({
       next: (response) => { this.pointsVentes = response.data; },
       error: (err) => console.error(err)
-    });
+    }); 
   }
 
   // ── Chargement du dashboard ────────────────────────────────────────────────
