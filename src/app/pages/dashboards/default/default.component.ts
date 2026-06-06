@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { salesAnalyticsDonutChart, monthlyBarChart, revenueAreaChart } from './models/data';
 import { ChartType } from './models/saas.model';
 import { Etablissement } from '../../admin/etablissement/models/etablissement.model';
@@ -11,6 +11,9 @@ import { KeycloakService } from 'keycloak-angular';
 import { DashboardApiServices } from '../services/dashboard-api.service';
 import Swal from 'sweetalert2';
 import { btnFormState } from 'src/app/core-custom/constants/form-btn-state.constant';
+import * as XLSX from 'xlsx';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 @Component({
   selector: 'app-default',
@@ -264,9 +267,227 @@ export class DefaultComponent implements OnInit {
   changeFormElement() { this.loadingBtn = true; }
   initFormElement()   { this.textButton = btnFormState.load; this.loadingBtn = false; }
 
+  // ── Export Excel / PDF ──────────────────────────────────────────────────────
+  exportExcel(): void {
+    if (!this.hasData) {
+      return;
+    }
+
+    const worksheetData: Array<Array<string | number>> = [];
+    worksheetData.push(['Tableau de bord']);
+    worksheetData.push(['Année', this.anneeSelection ?? '']);
+    worksheetData.push(['Entreprise', this.getOrganisationLabel()]);
+    worksheetData.push(['Établissement', this.getEtablissementLabel()]);
+    worksheetData.push(['Point de vente', this.getPointVenteLabel()]);
+    worksheetData.push(['Client', this.clientSearch || 'Tous']);
+    worksheetData.push([]);
+    worksheetData.push(['Indicateurs', 'Valeurs']);
+    worksheetData.push(['Chiffre d\'affaires net', this.totalRevenu]);
+    worksheetData.push(['Ventes', this.totalVente]);
+    worksheetData.push(['Bordereau Achat', this.totalAchat]);
+    worksheetData.push(['Avoirs', this.totalAvoir]);
+    worksheetData.push([]);
+    worksheetData.push(['Mois', 'Ventes', 'Bordereau Achat', 'Avoirs', 'CA Net']);
+
+    this.monthlyRows.forEach(row => {
+      worksheetData.push([
+        row.label,
+        this.excelValueOrDash(row.vente),
+        this.excelValueOrDash(row.achat),
+        this.excelValueOrDash(row.avoir),
+        this.excelValueOrDash(row.net)
+      ]);
+    });
+
+    worksheetData.push([]);
+    worksheetData.push(['TOTAUX', this.totalVente, this.totalAchat, this.totalAvoir, this.totalRevenu]);
+
+    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Dashboard');
+
+    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `dashboard_${this.anneeSelection || 'export'}.xlsx`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(link.href);
+  }
+
+  async exportPdf(): Promise<void> {
+    if (!this.hasData) {
+      return;
+    }
+
+    const doc = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'a4' });
+
+    // Try to load a UTF-8 TTF from assets to ensure accents and thin spaces render correctly.
+    await this.loadFontIfAvailable(doc, '/assets/fonts/Roboto-Regular.ttf', 'Roboto');
+
+    const title = 'Tableau de bord';
+    doc.setFontSize(14);
+    doc.text(this.sanitizeForPdf(title), 40, 40);
+    doc.setFontSize(10);
+    doc.text(this.sanitizeForPdf(`Année : ${this.anneeSelection ?? ''}`), 40, 60);
+    doc.text(this.sanitizeForPdf(`Entreprise : ${this.getOrganisationLabel()}`), 40, 75);
+    doc.text(this.sanitizeForPdf(`Établissement : ${this.getEtablissementLabel()}`), 40, 90);
+    doc.text(this.sanitizeForPdf(`Point de vente : ${this.getPointVenteLabel()}`), 40, 105);
+    doc.text(this.sanitizeForPdf(`Client : ${this.clientSearch || 'Tous'}`), 40, 120);
+
+    const summaryBody = [
+      ['Chiffre d\'affaires net', this.formatFCFAForPdf(this.totalRevenu)],
+      ['Ventes', this.formatFCFAForPdf(this.totalVente)],
+      ['Bordereau Achat', this.formatFCFAForPdf(this.totalAchat)],
+      ['Avoirs', this.formatFCFAForPdf(this.totalAvoir)],
+      ['Meilleur mois', this.sanitizeForPdf(`${this.meilleurMois} (${this.formatFCFAForPdf(this.meilleurMoisMontant)})`)]
+    ];
+
+    autoTable(doc, {
+      startY: 140,
+      body: summaryBody,
+      theme: 'grid',
+      styles: { fontSize: 10, cellPadding: 4 },
+      columnStyles: { 0: { fontStyle: 'bold' }, 1: { halign: 'right' } },
+      headStyles: { fillColor: [240, 240, 240], textColor: 0 }
+    });
+
+    const nextY = ((doc as any).previousAutoTable?.finalY || 180) + 20;
+    const headers = [['Mois', 'Ventes', 'Bordereau Achat', 'Avoirs', 'CA Net']];
+    const body = this.monthlyRows.map(row => [
+      this.sanitizeForPdf(row.label),
+      this.pdfValueOrDash(row.vente),
+      this.pdfValueOrDash(row.achat),
+      this.pdfValueOrDash(row.avoir),
+      this.pdfValueOrDash(row.net)
+    ]);
+    const foot = [[
+      'TOTAUX',
+      this.formatFCFAForPdf(this.totalVente),
+      this.formatFCFAForPdf(this.totalAchat),
+      this.formatFCFAForPdf(this.totalAvoir),
+      this.formatFCFAForPdf(this.totalRevenu)
+    ]];
+
+    autoTable(doc, {
+      startY: nextY,
+      head: headers,
+      body,
+      foot,
+      styles: { fontSize: 9, cellPadding: 4 },
+      headStyles: { fillColor: [41, 85, 204], textColor: 255 },
+      footStyles: { fillColor: [235, 235, 235], textColor: 0, fontStyle: 'bold' }
+    });
+
+    doc.save(`dashboard_${this.anneeSelection || 'export'}.pdf`);
+  }
+
+  private formatFCFAForPdf(val: number): string {
+    if (val === null || val === undefined) return '';
+    const num = Number(val);
+    if (isNaN(num)) return '';
+
+    const sign = num < 0 ? '-' : '';
+    const abs = Math.abs(num);
+
+    if (abs === 0) return '0';
+
+    const fixed = abs.toFixed(2);
+    const [intPart, decPart] = fixed.split('.');
+
+    let s: string;
+    if (decPart === '00') {
+      s = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 }).format(Number(intPart));
+    } else {
+      s = new Intl.NumberFormat('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(abs);
+    }
+
+    return (sign + s).replace(/\u202F|\u00A0/g, ' ');
+  }
+
+  private sanitizeForPdf(s: string): string {
+    if (!s) return s;
+    return s.normalize('NFC').replace(/\u202F|\u00A0/g, ' ');
+  }
+
+  private async loadFontIfAvailable(doc: any, url: string, fontName: string): Promise<void> {
+    try {
+      const resp = await fetch(url);
+      if (!resp.ok) return;
+      const buf = await resp.arrayBuffer();
+      const base64 = this.arrayBufferToBase64(buf);
+      doc.addFileToVFS(`${fontName}.ttf`, base64);
+      doc.addFont(`${fontName}.ttf`, fontName, 'normal');
+      doc.setFont(fontName);
+    } catch (e) {
+      console.warn('Font load failed for PDF (optional):', e);
+    }
+  }
+
+  private arrayBufferToBase64(buffer: ArrayBuffer): string {
+    let binary = '';
+    const bytes = new Uint8Array(buffer);
+    const len = bytes.byteLength;
+    for (let i = 0; i < len; i++) {
+      binary += String.fromCharCode(bytes[i]);
+    }
+    return btoa(binary);
+  }
+
+  private excelValueOrDash(val: number): string | number {
+    if (val === null || val === undefined) return '';
+    const num = Number(val);
+    if (isNaN(num)) return '';
+    return num === 0 ? '-' : num;
+  }
+
+  private pdfValueOrDash(val: number): string {
+    if (val === null || val === undefined) return '';
+    const num = Number(val);
+    if (isNaN(num)) return '';
+    return num === 0 ? '-' : this.formatFCFAForPdf(num);
+  }
+
+  private getOrganisationLabel(): string {
+    const organisation = this.organisations.find(item => item.id === this.organisationSelection);
+    return organisation?.raisonSocial || 'Toutes';
+  }
+
+  private getEtablissementLabel(): string {
+    
+    const etablissement = this.etablissements.find(item => item.id == this.etablissementSelection);
+    return etablissement?.nom || 'Tous';
+  }
+
+  private getPointVenteLabel(): string {
+    const point = this.pointsVentes.find(item => item.id == this.poinventeSelection);
+    return point?.nom || 'Tous';
+  }
+
   // ── Formatage FCFA ─────────────────────────────────────────────────────────
   formatFCFA(val: number): string {
-    return new Intl.NumberFormat('fr-FR').format(val);
+    if (val === null || val === undefined) return '';
+    const num = Number(val);
+    if (isNaN(num)) return '';
+
+    const sign = num < 0 ? '-' : '';
+    const abs = Math.abs(num);
+
+    // If value is zero, return '0'
+    if (abs === 0) return '0';
+
+    const fixed = abs.toFixed(2); // always 2 decimals
+    const [intPart, decPart] = fixed.split('.');
+
+    if (decPart === '00') {
+      // No decimals when fractional part is .00
+      return sign + new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 }).format(Number(intPart));
+    }
+
+    // Keep two decimals otherwise
+    return sign + new Intl.NumberFormat('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(abs);
   }
 
   // ── Couleur barre progression ──────────────────────────────────────────────

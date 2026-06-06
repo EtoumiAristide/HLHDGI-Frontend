@@ -72,12 +72,22 @@
               </div>
             </div>
 
-            <div class="col-lg-2 col-md-4 col-sm-6">
-              <div class="mb-3">
+            <div class="col-lg-3 col-md-6 col-sm-12">
+              <div class="mb-3 d-grid gap-2">
                 <button type="button" class="btn btn-primary w-100" (click)="loadDashboard()">
                   <i class="fa" [ngClass]="{ 'fa-spin fa-spinner': loadingBtn, 'fa-search': !loadingBtn }"></i>
                   <span class="ms-1 d-none d-xl-inline">{{ textButton }}</span>
                 </button>
+                <div class="d-flex gap-2 justify-content-between">
+                  <button type="button" class="btn btn-outline-success btn-sm flex-fill" (click)="exportExcel()" [disabled]="!hasData">
+                    <i class="mdi mdi-file-excel"></i>
+                    <span class="d-none d-sm-inline">Excel</span>
+                  </button>
+                  <button type="button" class="btn btn-outline-danger btn-sm flex-fill" (click)="exportPdf()" [disabled]="!hasData">
+                    <i class="mdi mdi-file-pdf"></i>
+                    <span class="d-none d-sm-inline">PDF</span>
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -341,7 +351,15 @@
               <h4 class="card-title mb-0">Comparatif mensuel</h4>
               <p class="text-muted font-size-12">Ventes · Bordereau Achat · Avoirs — {{ anneeSelection }}</p>
             </div>
-            <span class="badge bg-primary-subtle text-primary font-size-12">FCFA</span>
+            <div class="d-flex gap-2 align-items-center">
+              <button type="button" class="btn btn-soft-success btn-sm" (click)="exportExcel()">
+                <i class="mdi mdi-file-excel"></i> Exporter Excel
+              </button>
+              <button type="button" class="btn btn-soft-danger btn-sm" (click)="exportPdf()">
+                <i class="mdi mdi-file-pdf"></i> Exporter PDF
+              </button>
+              <span class="badge bg-primary-subtle text-primary font-size-12">FCFA</span>
+            </div>
           </div>
           <apx-chart
             class="apex-charts"
