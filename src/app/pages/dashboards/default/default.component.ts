@@ -97,9 +97,9 @@ export class DefaultComponent implements OnInit {
 
   ngOnInit() {
     this.breadCrumbItems = [{ label: 'Dashboard', active: true }];
-    this.loadAnneesExercice();
-    this.loadOrganisations();
     this.initCharts();
+    this.loadAnneesExercice();
+    
   }
 
   // ── Initialisation charts vides ────────────────────────────────────────────
@@ -115,6 +115,8 @@ export class DefaultComponent implements OnInit {
     for (let y = this.anneeActuelle; y >= 2025; y--) {
       this.anneesExercice.push(y);
     }
+
+    this.loadOrganisations();
   }
 
   loadOrganisations() {
@@ -135,7 +137,7 @@ export class DefaultComponent implements OnInit {
         this.etablissements = response.data;
         if (this.etablissementAgent != null) {
           this.etablissementSelection = this.etablissementAgent.id;
-          this.loadPointsVente();
+          this.loadPointsVente(true);
         }
       },
       error: (err) => console.error(err)
@@ -155,9 +157,15 @@ export class DefaultComponent implements OnInit {
     });
   }
 
-  loadPointsVente() {
+  loadPointsVente(isFirstLoad: boolean = false) {
     this.pointVenteService.getByEntreprise(this.etablissementSelection).subscribe({
-      next: (response) => { this.pointsVentes = response.data; },
+      next: (response) => { 
+        this.pointsVentes = response.data; 
+
+        if(isFirstLoad) {
+          this.loadDashboard();
+        }
+      },
       error: (err) => console.error(err)
     }); 
   }
