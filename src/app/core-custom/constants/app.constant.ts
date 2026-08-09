@@ -12,4 +12,9 @@ export const url_path = {
     STATS_TIMBRE_EP: '/rapport-stats/facture-timbre',
     STATS_TIMBRE_TOTAL_EP: '/rapport-stats/totaux-facture-timbre',
     STATS_EXPORT_TIMBRE_EP: '/rapport-stats/facture-timbre/export',
+    RAPPORT_EXTRACTION_ZINO_EP: '/automatisationzino/rapport',
+    RAPPORT_EXTRACTION_ZINO_EXPORT_EXCEL_EP: '/automatisationzino/rapport/export/excel',
+    RAPPORT_EXTRACTION_ZINO_EXPORT_PDF_EP: '/automatisationzino/rapport/export/pdf',
+    RAPPORT_EXTRACTION_ZINO_EXPORT_WORD_EP: '/automatisationzino/rapport/export/word',
+    RAPPORT_EXTRACTION_ZINO_ENVOYER_MAIL_EP: '/automatisationzino/rapport/envoyer-mail',
 }

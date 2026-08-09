@@ -45,6 +45,20 @@ export const MENU: MenuItem[] = [
         ]
     },
     {
+        id: 20,
+        label: 'Automatisation Zino',
+        icon: 'bx-cloud-download',
+        roles: ['Automatisation-Zino'],   // 👈 ROLE REQUIS
+        subItems: [
+            {
+                id: 21,
+                label: "Rapport d'extractions",
+                link: '/automatisation-zino/rapport-extraction',
+                parentId: 20
+            },
+        ]
+    },
+    {
         id: 7,
         label: 'Paramétrage',
         icon: 'bx-customize',

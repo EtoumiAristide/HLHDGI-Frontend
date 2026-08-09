@@ -1,0 +1,271 @@
+<div class="page-title-box">
+  <div class="row align-items-center">
+    <div class="col-sm-6">
+      <h4 class="page-title">Rapport d'état des extractions - Zino</h4>
+      <p class="text-muted mb-0">
+        Suivi des fichiers traités par l'automatisation Zino et des factures envoyées à la FNE.
+      </p>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body position-relative">
+
+    <div *ngIf="loading" class="loading-overlay">
+      <div class="spinner-container">
+        <div class="spinner-border text-white" role="status">
+          <span class="visually-hidden">Chargement...</span>
+        </div>
+      </div>
+    </div>
+
+    <form [formGroup]="filtresForm" (ngSubmit)="rechercher()" class="row gy-3">
+      <div class="col-md-3">
+        <label class="form-label">Date début <span class="text-danger">*</span></label>
+        <input type="date" class="form-control" formControlName="dateDebut" />
+        <div
+          *ngIf="filtresForm.get('dateDebut')?.touched && filtresForm.get('dateDebut')?.invalid"
+          class="text-danger small"
+        >
+          La date de début est requise.
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <label class="form-label">Date fin <span class="text-danger">*</span></label>
+        <input type="date" class="form-control" formControlName="dateFin" />
+        <div
+          *ngIf="filtresForm.get('dateFin')?.touched && filtresForm.get('dateFin')?.invalid"
+          class="text-danger small"
+        >
+          La date de fin est requise.
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <label class="form-label">Statut</label>
+        <select class="form-select" formControlName="statut">
+          <option *ngFor="let s of listeStatuts" [ngValue]="s.id">{{ s.label }}</option>
+        </select>
+      </div>
+
+      <div class="col-md-3 d-flex align-items-end gap-2">
+        <button type="submit" class="btn btn-primary flex-grow-1" [disabled]="loading" title="Rechercher">
+          <i class="fa fa-search" aria-hidden="true"></i> Rechercher
+        </button>
+      </div>
+    </form>
+
+    <div *ngIf="errorMessage" class="alert alert-danger mt-3">{{ errorMessage }}</div>
+
+    <ng-container *ngIf="rapport">
+
+      <!-- Totaux -->
+      <div class="row mt-4 g-3">
+        <div class="col-6 col-md-2">
+          <div class="border rounded p-2 text-center bg-success text-white">
+            <div class="fs-4 fw-bold">{{ rapport.totaux.nombreFichiers }}</div>
+            <div class=" small">Fichiers traités</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-2">
+          <div class="border rounded p-2 text-center border-success">
+            <div class="fs-4 fw-bold text-success">{{ rapport.totaux.nombreFichiersSucces }}</div>
+            <div class="text-muted small">Succès</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-2">
+          <div class="border rounded p-2 text-center border-danger">
+            <div class="fs-4 fw-bold text-danger">{{ rapport.totaux.nombreFichiersErreur }}</div>
+            <div class="text-muted small">Erreurs</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-2">
+          <div class="border rounded p-2 text-center border-warning">
+            <div class="fs-4 fw-bold text-warning">{{ rapport.totaux.nombreFichiersEnAttente }}</div>
+            <div class="text-muted small">En attente</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-2">
+          <div class="border rounded p-2 text-center bg-warning text-white">
+            <div class="fs-4 fw-bold">{{ rapport.totaux.nombreTicketsExtraits }}</div>
+            <div class="small">Tickets extraits</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-2">
+          <div class="border rounded p-2 text-center bg-success text-white">
+            <div class="fs-4 fw-bold">{{ rapport.totaux.nombreFacturesEnvoyees }}</div>
+            <div class="small">Factures envoyées</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions export / mail -->
+      <div class="d-flex flex-wrap gap-2 mt-4">
+        <button type="button" class="btn btn-outline-secondary" (click)="exportExcel()" [disabled]="loadingExport">
+          <i class="mdi mdi-file-excel"></i> Exporter Excel
+        </button>
+        <button type="button" class="btn btn-outline-secondary" (click)="exportPdf()" [disabled]="loadingExport">
+          <i class="mdi mdi-file-pdf-box"></i> Exporter PDF
+        </button>
+        <button type="button" class="btn btn-outline-secondary" (click)="exportWord()" [disabled]="loadingExport">
+          <i class="mdi mdi-file-word"></i> Exporter Word
+        </button>
+        <button type="button" class="btn btn-outline-primary ms-auto" (click)="toggleFormulaireMail()">
+          <i class="mdi mdi-email-send-outline"></i> Envoyer par mail
+        </button>
+      </div>
+
+      <!-- Formulaire d'envoi par mail -->
+      <div *ngIf="afficherFormulaireMail" class="border rounded p-3 mt-3 bg-light">
+        <form [formGroup]="mailForm" (ngSubmit)="envoyerParMail()" class="row gy-3 align-items-end">
+          <div class="col-md-5">
+            <label class="form-label">Email du responsable Zino <span class="text-danger">*</span></label>
+            <input type="email" class="form-control" formControlName="destinataire" placeholder="responsable@zino.ci" />
+            <div
+              *ngIf="mailForm.get('destinataire')?.touched && mailForm.get('destinataire')?.invalid"
+              class="text-danger small"
+            >
+              Une adresse email valide est requise.
+            </div>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Format</label>
+            <select class="form-select" formControlName="format">
+              <option value="excel">Excel</option>
+              <option value="pdf">PDF</option>
+              <option value="word">Word</option>
+            </select>
+          </div>
+          <div class="col-md-4 d-flex gap-2">
+            <button type="submit" class="btn btn-primary" [disabled]="loadingMail">
+              <span *ngIf="loadingMail" class="spinner-border spinner-border-sm me-1"></span>
+              Envoyer
+            </button>
+            <button type="button" class="btn btn-light" (click)="toggleFormulaireMail()">Annuler</button>
+          </div>
+        </form>
+        <div *ngIf="mailSuccessMessage" class="alert alert-success mt-3 mb-0">{{ mailSuccessMessage }}</div>
+        <div *ngIf="mailErrorMessage" class="alert alert-danger mt-3 mb-0">{{ mailErrorMessage }}</div>
+      </div>
+
+      <!-- Synthèse par fichier -->
+      <h5 class="mt-4 p-3 bg-info bg-opacity-10 border border-info border-start-0 border-end-0 rounded-end">Synthèse par fichier</h5>
+      <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle">
+          <thead>
+            <tr>
+              <th>Fichier</th>
+              <th>Statut</th>
+              <th>Date création</th>
+              <th>Dernière modification</th>
+              <th class="text-center">Tentatives</th>
+              <th class="text-center">Tickets</th>
+              <th class="text-center">Factures envoyées</th>
+              <th>Dernier message d'erreur</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let f of fichiers">
+              <td>{{ f.nomFichier }}</td>
+              <td><span [ngClass]="statutClass(f.statut)">{{ f.statut }}</span></td>
+              <td>{{ f.dateCreation | date: 'dd/MM/yyyy HH:mm' }}</td>
+              <td>{{ f.dateDerniereModification | date: 'dd/MM/yyyy HH:mm' }}</td>
+              <td class="text-center">{{ f.tentativeEnvoi }}</td>
+              <td class="text-center">{{ f.nombreTickets }}</td>
+              <td class="text-center">{{ f.nombreFacturesEnvoyees }}</td>
+              <td class="text-truncate" style="max-width: 260px;" [title]="f.dernierMessageErreur">
+                {{ f.dernierMessageErreur }}
+              </td>
+            </tr>
+            <tr *ngIf="!fichiers.length">
+              <td colspan="8" class="text-center text-muted py-4">Aucun fichier pour cette période.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Détail des factures -->
+      <h5 class="mt-4 d-flex align-items-center gap-2 p-3 bg-info bg-opacity-10 border border-info border-start-0 border-end-0 rounded-end">
+        Détail des factures envoyées
+        <span *ngIf="loadingFactures" class="spinner-border spinner-border-sm text-secondary"></span>
+      </h5>
+      <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle">
+          <thead>
+            <tr>
+              <th>N° Facture</th>
+              <th>Référence FNE</th>
+              <th>Lien Facture FNE</th>
+              <th>Date</th>
+              <th>Informations Client</th>
+              <th>Mode de paiement</th>
+              <th class="text-end">Montant</th>
+              <th>Statut FNE</th>
+              <th>Fichier source</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let fa of factures">
+              <td>{{ fa.numFacture }}</td>
+              <td>{{ fa.referenceFNE }}</td>
+              <td><a [href]="fa.lienFacture" target="_blank" tooltip="Consulter la facture FNE"> <i class="fas fa-eye"></i> Voir</a></td>
+              <td>{{ fa.dateFacture | date: 'dd/MM/yyyy' }}</td>
+              <td>{{ fa.nomClient }}</td>
+              <td>{{ fa.modePaiement }}</td>
+              <td class="text-end">{{ fa.montant | number: '1.0-2' }}</td>
+              <td>{{ fa.statutFNE }}</td>
+              <td>{{ fa.nomFichierSource }}</td>
+            </tr>
+            <tr *ngIf="!factures.length && !loadingFactures">
+              <td colspan="8" class="text-center text-muted py-4">Aucune facture pour cette période.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="table-footer" *ngIf="totalItems > 0">
+        <div class="dataTables_length">
+          <label> </label>
+        </div>
+        <div class="pagination">
+          <div class="entries ms-2">
+            Affichage de
+            <b>{{ currentPage * pageSize + 1 }}</b>
+            à
+            <b>{{ (currentPage + 1) == totalPages ? totalItems : (currentPage + 1) * pageSize }}</b>
+            sur
+            <b>{{ totalItems }}</b>
+          </div>
+          <div class="col-sm-12 col-md-7">
+            <div class="pagination_section">
+              <nav aria-label="Page navigation" class="pagination-style-1">
+                <ul class="pagination mb-0 justify-content-end">
+                  <li class="page-item">
+                    <a class="page-link" href="javascript:void(0);" (click)="changePage('prev')">
+                      <i class="fas fa-angle-left align-middle"></i>
+                      <i class="ri-arrow-left-s-line align-middle"></i>
+                    </a>
+                  </li>
+                  <li class="page-item active">
+                    <a class="page-link" href="javascript:void(0);">
+                      <b>Page {{ currentPage + 1 }} / {{ totalPages }}</b>
+                    </a>
+                  </li>
+                  <li class="page-item">
+                    <a class="page-link" href="javascript:void(0);" (click)="changePage('next')">
+                      <i class="fas fa-angle-right align-middle"></i>
+                      <i class="ri-arrow-right-s-line align-middle"></i>
+                    </a>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </ng-container>
+  </div>
+</div>

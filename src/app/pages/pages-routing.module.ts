@@ -16,6 +16,7 @@ const routes: Routes = [
   { path: 'partenaires', loadChildren: () => import('./partenaires/partenaires.module').then(m => m.PartenairesModule) , canActivate: [KeycloakGuard]},
   { path: 'factures', loadChildren: () => import('./factures/factures.module').then(m => m.FacturesModule), canActivate: [KeycloakGuard] },
   { path: 'statistiques', loadChildren: () => import('./statistiques/statistiques.module').then(m => m.StatistiquesModule), canActivate: [KeycloakGuard] },
+  { path: 'automatisation-zino', loadChildren: () => import('./automatisation-zino/automatisation-zino.module').then(m => m.AutomatisationZinoModule), canActivate: [KeycloakGuard] },
   { path: 'parametrage', loadChildren: () => import('./admin/admin.module').then(m => m.AdminModule), canActivate: [KeycloakGuard] },
 ];
 
