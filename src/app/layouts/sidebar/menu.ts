@@ -24,12 +24,12 @@ export const MENU: MenuItem[] = [
         icon: 'bx-file',
         link: '/factures',
     },
-    {
-        id: 4,
-        label: 'Archives',
-        icon: 'bx-sitemap',
-        link: '/',
-    },
+    // {
+    //     id: 4,
+    //     label: 'Archives',
+    //     icon: 'bx-sitemap',
+    //     link: '/',
+    // },
     {
         id: 5,
         label: 'Statistiques',

@@ -99,6 +99,12 @@
             <div class="small">Factures envoyées</div>
           </div>
         </div>
+        <div class="col-6 col-md-2">
+          <div class="border rounded p-2 text-center bg-danger text-white">
+            <div class="fs-4 fw-bold">{{ rapport.totaux.nombreAvoirsEnvoyes }}</div>
+            <div class="small">Avoirs éffectués</div>
+          </div>
+        </div>
       </div>
 
       <!-- Actions export / mail -->
@@ -163,6 +169,7 @@
               <th class="text-center">Tentatives</th>
               <th class="text-center">Tickets</th>
               <th class="text-center">Factures envoyées</th>
+              <th class="text-center">Avoirs éffectués</th>
               <th>Dernier message d'erreur</th>
             </tr>
           </thead>
@@ -175,6 +182,7 @@
               <td class="text-center">{{ f.tentativeEnvoi }}</td>
               <td class="text-center">{{ f.nombreTickets }}</td>
               <td class="text-center">{{ f.nombreFacturesEnvoyees }}</td>
+              <td class="text-center">{{ f.nombreAvoirsEnvoyes }}</td>
               <td class="text-truncate" style="max-width: 260px;" [title]="f.dernierMessageErreur">
                 {{ f.dernierMessageErreur }}
               </td>

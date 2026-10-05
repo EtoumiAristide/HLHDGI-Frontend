@@ -425,13 +425,19 @@
                         ></i>
                       </span>
                       <div class="row">
-                        <div class="col-md-4 col-sm-12">
+                        <div class="col-md-2 col-sm-12">
                           N° Facture: <b>{{ data?.numeroFacture }}</b>
                         </div>
-                        <div class="col-md-4 col-sm-12">
+                        <div class="col-md-3 col-sm-12">
                           Client: <b>{{ data?.clientPayload?.nom }}</b>
                         </div>
-                        <div class="col-md-4 col-sm-12">
+                        <div class="col-md-2 col-sm-12" *ngIf="data?.clientPayload?.numTel">
+                          N° Tel: <b>{{ data?.clientPayload?.numTel }}</b>
+                        </div>
+                        <div class="col-md-3 col-sm-12" *ngIf="data?.clientPayload?.email">
+                          Email: <b>{{ data?.clientPayload?.email }}</b>
+                        </div>
+                        <div class="col-md-2 col-sm-12">
                           Date: <b>{{ data?.dateFacture }}</b>
                         </div>
                       </div>

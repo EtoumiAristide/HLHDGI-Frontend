@@ -1,2 +1,7 @@
+@if (loaderService.isLoading | async) {
+	<div class="api-loading-bar" role="progressbar" aria-label="Chargement des données" aria-valuetext="Chargement en cours">
+		<div class="api-loading-bar__indicator"></div>
+	</div>
+}
 <app-session-warning></app-session-warning>
 <router-outlet></router-outlet>

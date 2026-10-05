@@ -39,6 +39,7 @@ import { AngularFireModule } from '@angular/fire/compat';
 import { AngularFireAuthModule } from '@angular/fire/compat/auth';
 // import { JWT_OPTIONS, JwtHelperService, JwtModule } from '@auth0/angular-jwt';
 import { AuthInterceptor } from './core-custom/auth/auth.interceptor';
+import { LoadingInterceptor } from './core/helpers/loading.interceptor';
 import { SessionWarningComponent } from './session-warning/session-warning.component';
 import { KeycloakAngularModule, KeycloakService } from 'keycloak-angular';
 import { initializeKeycloak } from './core-custom/init/keycloak.init';
@@ -117,6 +118,7 @@ registerLocaleData(localeFr); // Register the locale data
     // { provide: JWT_OPTIONS, useValue: JWT_OPTIONS },
     // JwtHelperService,
     // { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: LoadingInterceptor, multi: true },
     //Initialize keyclaok service provider
     KeycloakService,
     {

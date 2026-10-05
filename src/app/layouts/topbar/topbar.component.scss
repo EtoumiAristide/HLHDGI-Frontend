@@ -1,0 +1,35 @@
+.brand-wordmark {
+	display: inline-flex;
+	align-items: center;
+	font-family: inherit;
+	font-size: 1.35rem;
+	font-weight: 800;
+	line-height: 1;
+	white-space: nowrap;
+}
+
+.brand-wordmark {
+	color: #25364a;
+}
+
+.brand-wordmark__accent {
+	color: #16877f;
+}
+
+:host-context(body[data-topbar="dark"]) .brand-wordmark,
+:host-context(body[data-sidebar="dark"]) .brand-wordmark {
+	color: #ffffff;
+}
+
+:host-context(body[data-topbar="dark"]) .brand-wordmark__accent,
+:host-context(body[data-sidebar="dark"]) .brand-wordmark__accent {
+	color: #80e2d1;
+}
+
+:host-context(.vertical-collpsed) .navbar-brand-box {
+	padding: 0 4px;
+}
+
+:host-context(.vertical-collpsed) .brand-wordmark {
+	font-size: 0.6rem;
+}

@@ -1,0 +1,21 @@
+.api-loading-bar {
+	position: fixed;
+	inset: 0 0 auto;
+	z-index: 2000;
+	height: 3px;
+	overflow: hidden;
+	background: rgba(43, 116, 179, 0.2);
+	pointer-events: none;
+}
+
+.api-loading-bar__indicator {
+	width: 35%;
+	height: 100%;
+	background: #2b74b3;
+	animation: api-loading-progress 1.2s ease-in-out infinite;
+}
+
+@keyframes api-loading-progress {
+	from { transform: translateX(-100%); }
+	to { transform: translateX(290%); }
+}
