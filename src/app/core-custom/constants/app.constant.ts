@@ -17,4 +17,6 @@ export const url_path = {
     RAPPORT_EXTRACTION_ZINO_EXPORT_PDF_EP: '/automatisationzino/rapport/export/pdf',
     RAPPORT_EXTRACTION_ZINO_EXPORT_WORD_EP: '/automatisationzino/rapport/export/word',
     RAPPORT_EXTRACTION_ZINO_ENVOYER_MAIL_EP: '/automatisationzino/rapport/envoyer-mail',
+    IMPRESSION_JOBS_EP: '/impression/jobs',
+    IMPRESSION_AGENTS_EP: '/impression/agents',
 }

@@ -1,0 +1,105 @@
+<div class="page-title-box">
+  <div class="row align-items-center">
+    <div class="col-sm-6">
+      <h4 class="page-title">Configuration Impression Admin API</h4>
+      <p class="text-muted mb-0">Gestion des agents Impression Admin via les endpoints /api/v1/impression/**.</p>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="message" class="alert alert-success">{{ message }}</div>
+<div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+
+<div class="card border-0 shadow-sm mb-4">
+  <div class="card-body">
+    <form [formGroup]="form" (ngSubmit)="createAgent()" class="row gy-3 align-items-end">
+      <div class="col-md-5">
+        <label class="form-label">Agent ID <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" formControlName="agentId" placeholder="agent-impression-01" />
+      </div>
+
+      <div class="col-md-5">
+        <label class="form-label">Code établissement <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" formControlName="codeEtablissement" placeholder="ETAB-001" />
+      </div>
+
+      <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100" [disabled]="loading || form.invalid">
+          Créer
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+  <div class="card-header bg-transparent border-0 pb-0">
+    <h5 class="mb-0">Agents enregistrés</h5>
+  </div>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Agent</th>
+            <th>Code établissement</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngIf="!agents.length">
+            <td colspan="3" class="text-center text-muted py-3">Aucun agent impression configuré.</td>
+          </tr>
+          <tr *ngFor="let agent of agents">
+            <td>{{ agent.agentId || agent.id || '—' }}</td>
+            <td>{{ agent.codeEtablissement || '—' }}</td>
+            <td class="text-end">
+              <div class="d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-sm btn-outline-warning" (click)="rotateKey(agent.agentId || agent.id)">
+                  Rotation clé
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-danger" (click)="revokeAgent(agent.agentId || agent.id)">
+                  Révoquer
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="showApiKeyModal" class="api-key-modal-backdrop" (click)="closeApiKeyModal()">
+  <div class="api-key-modal" role="dialog" aria-modal="true" aria-labelledby="apiKeyModalTitle" (click)="$event.stopPropagation()">
+    <div class="modal-header border-0 pb-0">
+      <h5 id="apiKeyModalTitle" class="modal-title">Clé API générée</h5>
+      <button type="button" class="btn-close" aria-label="Close" (click)="closeApiKeyModal()"></button>
+    </div>
+
+    <div class="modal-body">
+      <div class="mb-2">
+        <strong>Agent :</strong> {{ generatedApiKeyInfo?.agentId || '—' }}
+      </div>
+      <div class="mb-2">
+        <strong>Code établissement :</strong> {{ generatedApiKeyInfo?.codeEtablissement || '—' }}
+      </div>
+
+      <label class="form-label fw-semibold">Clé API</label>
+      <div class="input-group input-group-lg">
+        <input type="text" class="form-control" [value]="generatedApiKeyInfo?.apiKey || ''" readonly />
+        <button type="button" class="btn btn-primary" (click)="copyApiKey()">
+          {{ copySuccess ? 'Copié' : 'Copier' }}
+        </button>
+      </div>
+
+      <div *ngIf="generatedApiKeyInfo?.avertissement" class="alert alert-warning mt-3 mb-0">
+        {{ generatedApiKeyInfo.avertissement }}
+      </div>
+    </div>
+
+    <div class="modal-footer border-0">
+      <button type="button" class="btn btn-primary" (click)="closeApiKeyModal()">Fermer</button>
+    </div>
+  </div>
+</div>

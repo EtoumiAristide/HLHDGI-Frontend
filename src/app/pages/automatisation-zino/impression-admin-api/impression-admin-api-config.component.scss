@@ -1,0 +1,45 @@
+.page-title-box {
+  margin-bottom: 1.5rem;
+}
+
+.card {
+  border-radius: 12px;
+}
+
+.table th {
+  background: rgba(13, 110, 253, 0.04);
+}
+
+.btn {
+  white-space: nowrap;
+}
+
+.api-key-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+  padding: 1rem;
+}
+
+.api-key-modal {
+  width: min(680px, 100%);
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.25);
+  padding: 1.25rem;
+}
+
+.modal-header,
+.modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modal-body {
+  margin-top: 0.5rem;
+}

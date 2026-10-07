@@ -143,6 +143,18 @@ export const MENU: MenuItem[] = [
                     },
                 ]
             },
+            {
+                id: 22,
+                label: 'Impression Admin API',
+                link: '/automatisation-zino/impression-admin-api',
+                parentId: 7,
+            },
+            {
+                id: 23,
+                label: 'Configuration Impression Admin',
+                link: '/automatisation-zino/impression-admin-api/configuration',
+                parentId: 7,
+            },
         ]
     },
 
