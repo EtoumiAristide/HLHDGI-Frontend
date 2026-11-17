@@ -5,6 +5,13 @@ export class Organisation {
   raisonSocial: string;
   sigle: string;
   logo: string;
+  regimeImposition: string;
+  centreImpots: string;
+  rccm: string;
+  referencesBancaires: string;
+  adresse: string;
+  telephone: string;
+  email: string;
   image: any
   indexLectureFichier: number;
   isOrderedByPaiementMethod: boolean;
@@ -24,6 +31,13 @@ export class Organisation {
     this.raisonSocial = ''
     this.sigle = ''
     this.logo = ''
+    this.regimeImposition = ''
+    this.centreImpots = ''
+    this.rccm = ''
+    this.referencesBancaires = ''
+    this.adresse = ''
+    this.telephone = ''
+    this.email = ''
     this.image = {}
     this.indexLectureFichier = 0
     this.isOrderedByPaiementMethod = false

@@ -16,6 +16,8 @@ export class ImpressionAdminApiConfigComponent implements OnInit {
   showApiKeyModal = false;
   generatedApiKeyInfo: any = null;
   copySuccess = false;
+  /** Identifiant de l'agent en cours de modification (null = mode création). */
+  editingAgentId: string | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -84,6 +86,70 @@ export class ImpressionAdminApiConfigComponent implements OnInit {
       error: (error) => {
         console.error('Erreur création agent impression:', error);
         this.errorMessage = 'Erreur lors de la création de l’agent impression.';
+      }
+    });
+  }
+
+  editAgent(agent: any): void {
+    this.message = '';
+    this.errorMessage = '';
+    this.editingAgentId = agent.agentId;
+    this.form.setValue({
+      agentId: agent.agentId,
+      codeEtablissement: agent.codeEtablissement
+    });
+  }
+
+  cancelEdit(): void {
+    this.editingAgentId = null;
+    this.form.reset();
+  }
+
+  saveAgent(): void {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+    if (!this.editingAgentId) {
+      this.createAgent();
+      return;
+    }
+
+    this.message = '';
+    this.errorMessage = '';
+    this.impressionService.updateAgent(this.editingAgentId, this.form.value).subscribe({
+      next: () => {
+        this.message = 'L’agent a été modifié avec succès.';
+        this.cancelEdit();
+        this.loadAgents();
+      },
+      error: (error) => {
+        console.error('Erreur modification agent impression:', error);
+        this.errorMessage = error?.error?.message || error?.error?.error
+          || 'Erreur lors de la modification de l’agent.';
+      }
+    });
+  }
+
+  deleteAgent(agentId: string): void {
+    if (!agentId) { return; }
+    if (!window.confirm(`Supprimer l’agent « ${agentId} » ? Sa clé ne fonctionnera plus et le poste ne pourra plus imprimer.`)) {
+      return;
+    }
+
+    this.message = '';
+    this.errorMessage = '';
+    this.impressionService.deleteAgent(agentId).subscribe({
+      next: () => {
+        this.message = 'L’agent a été supprimé.';
+        if (this.editingAgentId === agentId) {
+          this.cancelEdit();
+        }
+        this.loadAgents();
+      },
+      error: (error) => {
+        console.error('Erreur suppression agent impression:', error);
+        this.errorMessage = 'Erreur lors de la suppression de l’agent.';
       }
     });
   }

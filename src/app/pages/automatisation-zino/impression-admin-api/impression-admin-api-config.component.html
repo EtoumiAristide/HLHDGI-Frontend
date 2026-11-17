@@ -1,8 +1,8 @@
 <div class="page-title-box">
   <div class="row align-items-center">
     <div class="col-sm-6">
-      <h4 class="page-title">Configuration Impression Admin API</h4>
-      <p class="text-muted mb-0">Gestion des agents Impression Admin via les endpoints /api/v1/impression/**.</p>
+      <h4 class="page-title">Configuration Impression</h4>
+      <p class="text-muted mb-0">Gestion des agents Impression.</p>
     </div>
   </div>
 </div>
@@ -12,7 +12,7 @@
 
 <div class="card border-0 shadow-sm mb-4">
   <div class="card-body">
-    <form [formGroup]="form" (ngSubmit)="createAgent()" class="row gy-3 align-items-end">
+    <form [formGroup]="form" (ngSubmit)="saveAgent()" class="row gy-3 align-items-end">
       <div class="col-md-5">
         <label class="form-label">Agent ID <span class="text-danger">*</span></label>
         <input type="text" class="form-control" formControlName="agentId" placeholder="agent-impression-01" />
@@ -23,9 +23,12 @@
         <input type="text" class="form-control" formControlName="codeEtablissement" placeholder="ETAB-001" />
       </div>
 
-      <div class="col-md-2">
+      <div class="col-md-2 d-flex gap-2">
         <button type="submit" class="btn btn-primary w-100" [disabled]="loading || form.invalid">
-          Créer
+          {{ editingAgentId ? 'Enregistrer' : 'Créer' }}
+        </button>
+        <button *ngIf="editingAgentId" type="button" class="btn btn-outline-secondary" (click)="cancelEdit()">
+          Annuler
         </button>
       </div>
     </form>
@@ -43,23 +46,35 @@
           <tr>
             <th>Agent</th>
             <th>Code établissement</th>
+            <th>Statut</th>
             <th class="text-end">Actions</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngIf="!agents.length">
-            <td colspan="3" class="text-center text-muted py-3">Aucun agent impression configuré.</td>
+            <td colspan="4" class="text-center text-muted py-3">Aucun agent impression configuré.</td>
           </tr>
           <tr *ngFor="let agent of agents">
             <td>{{ agent.agentId || agent.id || '—' }}</td>
             <td>{{ agent.codeEtablissement || '—' }}</td>
+            <td>
+              <span class="badge" [ngClass]="agent.actif ? 'bg-success' : 'bg-secondary'">
+                {{ agent.actif ? 'Actif' : 'Révoqué' }}
+              </span>
+            </td>
             <td class="text-end">
               <div class="d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-sm btn-outline-primary" (click)="editAgent(agent)">
+                  Modifier
+                </button>
                 <button type="button" class="btn btn-sm btn-outline-warning" (click)="rotateKey(agent.agentId || agent.id)">
                   Rotation clé
                 </button>
                 <button type="button" class="btn btn-sm btn-outline-danger" (click)="revokeAgent(agent.agentId || agent.id)">
                   Révoquer
+                </button>
+                <button type="button" class="btn btn-sm btn-danger" (click)="deleteAgent(agent.agentId || agent.id)">
+                  Supprimer
                 </button>
               </div>
             </td>

@@ -63,6 +63,13 @@ export class OrganisationsComponent {
       ncc: ['', Validators.required],
       raisonSociale: ['', Validators.required],
       sigle: [''],
+      regimeImposition: [''],
+      centreImpots: [''],
+      rccm: [''],
+      referencesBancaires: [''],
+      adresse: [''],
+      telephone: [''],
+      email: [''],
       logo: [null],
       indexLectureFichier: [0],
       isOrderedByPaiementMethod: [false],
@@ -130,6 +137,13 @@ export class OrganisationsComponent {
       organisation.numcc = this.organisationForm.controls['ncc'].value
       organisation.raisonSocial = this.organisationForm.controls['raisonSociale'].value
       organisation.sigle = this.organisationForm.controls['sigle'].value
+      organisation.regimeImposition = this.organisationForm.controls['regimeImposition'].value || null
+      organisation.centreImpots = this.organisationForm.controls['centreImpots'].value || null
+      organisation.rccm = this.organisationForm.controls['rccm'].value || null
+      organisation.referencesBancaires = this.organisationForm.controls['referencesBancaires'].value || null
+      organisation.adresse = this.organisationForm.controls['adresse'].value || null
+      organisation.telephone = this.organisationForm.controls['telephone'].value || null
+      organisation.email = this.organisationForm.controls['email'].value || null
       organisation.indexLectureFichier = this.organisationForm.controls['indexLectureFichier'].value || 0
       organisation.isOrderedByPaiementMethod = this.organisationForm.controls['isOrderedByPaiementMethod'].value || false
       organisation.isPrixUnitaireDefined = this.organisationForm.controls['isPrixUnitaireDefined'].value || false
@@ -283,6 +297,13 @@ export class OrganisationsComponent {
         ncc: '',
         raisonSociale: '',
         sigle: '',
+        regimeImposition: '',
+        centreImpots: '',
+        rccm: '',
+        referencesBancaires: '',
+        adresse: '',
+        telephone: '',
+        email: '',
         logo: null,
         indexLectureFichier: 0,
         isOrderedByPaiementMethod: false,
@@ -302,6 +323,13 @@ export class OrganisationsComponent {
         ncc: this.organisation.numcc,
         raisonSociale: this.organisation.raisonSocial,
         sigle: this.organisation.sigle,
+        regimeImposition: this.organisation.regimeImposition,
+        centreImpots: this.organisation.centreImpots,
+        rccm: this.organisation.rccm,
+        referencesBancaires: this.organisation.referencesBancaires,
+        adresse: this.organisation.adresse,
+        telephone: this.organisation.telephone,
+        email: this.organisation.email,
         indexLectureFichier: this.organisation.indexLectureFichier,
         isOrderedByPaiementMethod: this.organisation.isOrderedByPaiementMethod,
         isPrixUnitaireDefined: this.organisation.isPrixUnitaireDefined,

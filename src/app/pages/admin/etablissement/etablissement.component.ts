@@ -96,6 +96,10 @@ export class EtablissementComponent {
         id: [0],
         nom: ['', Validators.required],
         organisation: ['', Validators.required],
+        adresse: [''],
+        telephone: [''],
+        email: [''],
+        referencesBancaires: [''],
       })
   
       this.etablissement = new Etablissement()
@@ -152,6 +156,10 @@ export class EtablissementComponent {
         this.etablissement.id = this.etablissementForm.controls['id'].value || 0
         this.etablissement.nom = this.etablissementForm.controls['nom'].value
         this.etablissement.organisation.id = this.etablissementForm.controls['organisation'].value
+        this.etablissement.adresse = this.etablissementForm.controls['adresse'].value || null
+        this.etablissement.telephone = this.etablissementForm.controls['telephone'].value || null
+        this.etablissement.email = this.etablissementForm.controls['email'].value || null
+        this.etablissement.referencesBancaires = this.etablissementForm.controls['referencesBancaires'].value || null
   
         //console.log("Data send: " + JSON.stringify(this.formData));
   
@@ -285,12 +293,20 @@ export class EtablissementComponent {
           id: 0,
           nom: '',
           organisation: '',
+          adresse: '',
+          telephone: '',
+          email: '',
+          referencesBancaires: '',
         })
       } else {
         this.etablissementForm.patchValue({
           id: this.etablissement.id,
           nom: this.etablissement.nom,
           organisation: this.etablissement.organisation.id,
+          adresse: this.etablissement.adresse,
+          telephone: this.etablissement.telephone,
+          email: this.etablissement.email,
+          referencesBancaires: this.etablissement.referencesBancaires,
         })
       }
     }

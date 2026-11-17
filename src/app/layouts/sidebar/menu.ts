@@ -145,13 +145,13 @@ export const MENU: MenuItem[] = [
             },
             {
                 id: 22,
-                label: 'Impression Admin API',
+                label: 'Agents Impression',
                 link: '/automatisation-zino/impression-admin-api',
                 parentId: 7,
             },
             {
                 id: 23,
-                label: 'Configuration Impression Admin',
+                label: 'Configuration Impression',
                 link: '/automatisation-zino/impression-admin-api/configuration',
                 parentId: 7,
             },

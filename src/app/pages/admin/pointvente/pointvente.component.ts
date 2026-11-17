@@ -101,6 +101,9 @@ export class PointventeComponent {
       nom: ['', Validators.required],
       organisation: ['', Validators.required],
       etablissement: ['', Validators.required],
+      adresse: [''],
+      telephone: [''],
+      nomVendeur: [''],
     })
 
     this.pointVente = new PointVente()
@@ -176,6 +179,9 @@ export class PointventeComponent {
       this.pointVente = new PointVente()
       this.pointVente.id = this.pointVenteForm.controls['id'].value || 0
       this.pointVente.nom = this.pointVenteForm.controls['nom'].value
+      this.pointVente.adresse = this.pointVenteForm.controls['adresse'].value || null
+      this.pointVente.telephone = this.pointVenteForm.controls['telephone'].value || null
+      this.pointVente.nomVendeur = this.pointVenteForm.controls['nomVendeur'].value || null
       // this.pointVente.organisation.id = this.pointVenteForm.controls['organisation'].value
       this.pointVente.etablissement.id = this.pointVenteForm.controls['etablissement'].value
 
@@ -312,6 +318,9 @@ export class PointventeComponent {
         nom: '',
         organisation: '',
         etablissement: '',
+        adresse: '',
+        telephone: '',
+        nomVendeur: '',
       })
     } else {
       this.pointVenteForm.patchValue({
@@ -320,6 +329,9 @@ export class PointventeComponent {
         // organisation: this.pointVente.organisation.id,
         organisation: this.pointVente.etablissement.organisation.id,
         etablissement: this.pointVente.etablissement.id,
+        adresse: this.pointVente.adresse,
+        telephone: this.pointVente.telephone,
+        nomVendeur: this.pointVente.nomVendeur,
       })
 
       this.getAllEtablissement(this.pointVente.etablissement.organisation.id, true)
